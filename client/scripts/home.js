@@ -58,28 +58,16 @@ doCharactersSetup();
 const chatList = document.querySelector("#chat-list");
 const chatHelperOverlay = document.querySelector("#chat-helper-overlay");
 const chatHelperCloseButton = document.querySelector("#chat-helper-close");
-const newChatButton = document.querySelector("#new-chat-btn");
 
 let selectedCharId = undefined;
 
 chatHelperCloseButton.addEventListener("click", () => {
     chatHelperOverlay.style.display = "none";
+    selectedCharId = undefined;
 });
 
-newChatButton.addEventListener("click", async () => {
-    if (!selectedCharId)
-        return;
-    showLoadingOverlay();
+let newChatButton;
 
-    console.log("Make new chat for: " + selectedCharId);
-    const { success, chat, error } = await newChat(selectedCharId);
-    if (success && (typeof chat == "object"))
-        window.location = `/chats/${chat.id}`;
-    else
-        alert(error);
-
-    hideLoadingOverlay();
-});
 async function handleSelectChat(data) {
     if (!selectedCharId)
         return;
@@ -173,12 +161,28 @@ async function handleChatOpen(charData) {
 
     const { quotas } = await waitForCachedState();
 
-    const canCreateNewChat = quotas && (chats.length < quotas.maxAllowedChats);
-    newChatButton.display = canCreateNewChat ? "" : "none";
-
     console.log("Chat list:", chats);
     
     chatList.innerHTML = chatNewItemHTML;
+
+    newChatButton = document.querySelector("#new-chat-btn");
+    newChatButton.addEventListener("click", async () => {
+        console.log("Make new chat for: " + selectedCharId);
+        if (!selectedCharId)
+            return;
+            
+        showLoadingOverlay();
+        const { success, chat, error } = await newChat(selectedCharId);
+        if (success && (typeof chat == "object"))
+            window.location = `/chats/${chat.id}`;
+        else
+            alert(error);
+
+        hideLoadingOverlay();
+    });
+
+    const canCreateNewChat = quotas && (chats.length < quotas.maxAllowedChats);
+    newChatButton.display = canCreateNewChat ? "" : "none";
     
     for (const chat of chats)
             displayChat(chat, charId);
