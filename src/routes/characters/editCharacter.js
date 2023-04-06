@@ -59,9 +59,11 @@ module.exports = {
                 isPublic
             } = config;
 
+            if ((typeof avatarURL == "string") && (avatarURL.length >= 1))
+                await character.set("avatarURL", avatarURL);
+
             await character.set({
                 updatedAt: Date.now(),
-                avatarURL,
                 displayName,
                 exampleConvo,
                 startMessage,
@@ -73,8 +75,14 @@ module.exports = {
                 id: character.id
             });
             await character.save();
+
+            let characterData = { ...character.getObject() };
+            
+            const currentBackend = characterData.backend;
+            if (typeof currentBackend == "string")
+                characterData.backend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
         
-            res.status(200).send({ success: true, character: character.getObject() });
+            res.status(200).send({ success: true, character: characterData });
         });
     }
 }

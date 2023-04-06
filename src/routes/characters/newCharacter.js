@@ -81,8 +81,14 @@ module.exports = {
             chars.push(newChar.id);
             await user.set("characters", chars);
             await user.save();
+
+            let characterData = { ...newChar.getObject() };
+            
+            const currentBackend = characterData.backend;
+            if (typeof currentBackend == "string")
+                characterData.backend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
         
-            res.status(200).send({ success: true, character: newChar.getObject() });
+            res.status(200).send({ success: true, character: characterData });
         });
     }
 }

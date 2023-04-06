@@ -39,6 +39,6 @@ const listener = server.listen(process.env.PORT || 8080, () =>
 );
 // Prod. error handling
 if (!process.env.IS_DEV) {
-    process.on("uncaughtException", log.error);
-    process.on("unhandledRejection", log.error);
+    process.on("uncaughtException", console.error);
+    process.on("unhandledRejection", console.error);
 }

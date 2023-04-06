@@ -12,8 +12,8 @@ class Cache {
         this._updatePopularCharacters();
     }
 
-    async getPoeInstance(userId) {
-        const instance = this.poeInstances[userId];
+    async getPoeInstance(chatId) {
+        const instance = this.poeInstances[chatId];
 
         if (instance && !instance.isConnected)
             await instance.connectSocket();
@@ -21,11 +21,11 @@ class Cache {
         return instance;
     }
 
-    async newPoeInstance(userId, authCookie, botType) {
+    async newPoeInstance(chatId, authCookie, botType) {
         let poeInstance = new Poe(authCookie, botType);
         await poeInstance.init();
 
-        this.poeInstances[userId] = poeInstance;
+        this.poeInstances[chatId] = poeInstance;
         
         return poeInstance;
     }

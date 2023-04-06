@@ -140,6 +140,7 @@ module.exports = {
         const chat = req.chat;
         if (!chat)
             return res.status(500).send({ success: false, error: "preflight_condition2_failure" });
+        const chatId = await chat.get("id");
 
         const { text: rawUserMessageText } = req.body;
         if (typeof rawUserMessageText != "string")
@@ -165,7 +166,7 @@ module.exports = {
 
         res.writeHead(200, { "Content-Type": "application/json" });
         
-        let poeInstance = await cache.getPoeInstance(userId);
+        let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
             const authCookie = await chat.get("poeCookie");
             if (!authCookie || !characterId)
@@ -175,7 +176,7 @@ module.exports = {
             if (!backend)
                 backend = "claude";
 
-            poeInstance = await cache.newPoeInstance(userId, authCookie, backend);
+            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
         }
 
         const dataStream = poeInstance.sendMessage(userMessageText);

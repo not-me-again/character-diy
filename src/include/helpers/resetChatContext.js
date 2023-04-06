@@ -9,6 +9,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 module.exports = async chat => {
     if (!chat)
         throw new Error("Expected argument #1 to be type Chat");
+    const chatId = await chat.get("id");
 
     const userId = await chat.get("ownerId");
     if (!userId)
@@ -29,7 +30,7 @@ module.exports = async chat => {
         name: await character.get("displayName")
     }
 
-    let poeInstance = await cache.getPoeInstance(userId);
+    let poeInstance = await cache.getPoeInstance(chatId);
     if (!poeInstance) {
         const authCookie = await chat.get("poeCookie");
         
@@ -37,7 +38,7 @@ module.exports = async chat => {
         if (!backend)
             backend = "claude";
 
-        poeInstance = await cache.newPoeInstance(userId, authCookie, backend);
+        poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
     }
 
     await poeInstance.resetChat();

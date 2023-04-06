@@ -117,6 +117,9 @@ const DEFAULT_CHARACTER_INFO = {
 }
 
 async function doSetup(isNew) {
+    showLoadingOverlay();
+    await waitForCachedState();
+
     let { characterData } = isNew ? DEFAULT_CHARACTER_INFO : await getCharacterInfo();
     if (typeof characterData != "object")
         window.location = "/";
@@ -172,7 +175,7 @@ async function doSetup(isNew) {
             const form = new FormData();
             form.append("settings", JSON.stringify(data));
             const { files } = submitPfpButton;
-            if (pfpUpdated && files.length >= 1) {
+            if (pfpUpdated && (files.length >= 1)) {
                 const [ file ] = files;
                 if (file.size < MAX_FILE_SIZE)
                     form.append("avatar", file);
@@ -196,6 +199,8 @@ async function doSetup(isNew) {
         });
     else
         saveButton.remove();
+
+    hideLoadingOverlay();
 }
 
 doSetup(location.pathname.includes("/new"));

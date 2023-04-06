@@ -1,6 +1,3 @@
-function formatImageCss(source) {
-    return "width:300px;height:225px;background-image:url(" + source + ");background-size:300px 225px;";
-}
 // helper funcs
 function readChunks(reader) {
     return {
@@ -260,6 +257,9 @@ async function sendMessage() {
                     }
 
                     if (didError) {
+                        if (!isSuccess && (typeof messageObject != "object"))
+                            botMessage.messageTextNode.innerHTML = "<p>Error during inferencing</p>";
+                        
                         isSuccess = false;
 
                         if (typeof botMessage.messageButtonsContainer == "object")
@@ -483,6 +483,7 @@ resetChatButton.addEventListener("click", async () => {
         showLoadingOverlay();
         await clearChatHistory();
         closeSettingsModal();
+        chatMessageCount = 0;
         await doChatSetup();
         hideLoadingOverlay();
     }

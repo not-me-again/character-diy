@@ -7,15 +7,14 @@ module.exports = {
     async callback(req, res) {
         const chat = req.chat;
 
-        const { user } = req.auth;
-        const userId = await user.get("id");
+        const chatId = await chat.get("id");
         
         const activeCharacterId = await chat.get("activeCharacterId");
         const character = db.getCharacter(activeCharacterId);
         if (!await character.exists())
             return res.status(500).send({ success: false, error: "no_character" });
 
-        let poeInstance = await cache.getPoeInstance(userId);
+        let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
             const authCookie = await chat.get("poeCookie");
             
@@ -23,7 +22,7 @@ module.exports = {
             if (!backend)
                 backend = "claude";
     
-            poeInstance = await cache.newPoeInstance(userId, authCookie, backend);
+            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
         }
 
         const { messageId } = req.body;
