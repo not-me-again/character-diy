@@ -1,0 +1,323 @@
+.content-area {
+    overflow-x: hidden;
+}
+
+.center-menu {
+    display: flex;
+    width: 20vw;
+    margin: auto;
+    justify-content: center;
+}
+.chat-info {
+    display: flex;
+    align-items: center;
+}
+.chat-info > .chat-name {
+    font-weight: 800;
+    font-size: 3vh;
+}
+.chat-info > .separator {
+    font-size: 2vh;
+    font-weight: 1000;
+    padding-right: 0.5vw;
+}
+.chat-info > :is(.chat-msg-count, i) {
+    font-weight: 500;
+    font-size: 2vh;
+}
+.chat-info > span {
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.25vw;
+}
+
+.chat-list-container {
+    height: auto;
+    min-height: 10vh;
+    margin: auto;
+    width: 100%;
+}
+
+.chat-list {
+    width: 100vw;
+}
+
+tr.chat-new-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: 10px;
+}
+
+td.chat-btn-container {
+    display: flex;
+}
+
+tbody#chat-list {
+    width: 100%;
+}
+
+tr.chat-list-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    flex-wrap: nowrap;
+    row-gap: 10px;
+    padding: 1vh;
+    width: 100%;
+}
+tr.chat-list-item:hover {
+    background: var(--border-color);
+}
+tr.chat-list-item > td {
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+}
+
+img.chat-message-image {
+    border-radius: 50%;
+}
+.chat-message-image {
+    width: 5vh;
+    min-width: 5vh;
+    height: 5vh;
+    min-height: 5vh;
+}
+
+span.chat-message-name {
+    font-weight: 600;
+    font-size: 2vh;
+    margin-bottom: 0.15vh;
+    margin-left: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 56vw;
+}
+
+td.chat-message-extra {
+    margin-left: 2vh;
+    align-self: stretch;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+td > span {
+    display: flex;
+    flex-flow: wrap;
+    align-self: stretch;
+}
+td > span > p {
+    padding: 0;
+    margin: 0;
+}
+
+div.chat-message-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    overflow: hidden;
+}
+div.chat-message-header > span {
+    padding-right: 1vw;
+    overflow: hidden;
+}
+
+.regenerate-message-button {
+    display: none;
+}
+.chat-list-item:not(:first-child):is(:nth-last-child(1), :nth-last-child(2)) > td > div > .regenerate-message-button {
+    display: block;
+}
+.chat-list-item:hover > td > div {
+    display: flex;
+}
+div.chat-message-menu {
+    display: none;
+    justify-content: space-between;
+    position: absolute;
+    right: 3vmin;
+}
+
+.chat-message-button {
+    padding-left: 1vh;
+    padding-right: 1vh;
+}
+.delete-message-button:hover > i {
+    color: rgb(200, 100, 100);
+}
+
+span:is(.chat-message-timestamp, .chat-message-error) {
+    display: flex;
+    font-size: 1.5vh;
+    flex-wrap: nowrap;
+}
+.chat-message-timestamp {
+    color: var(--msg-date);
+    font-weight: 400;
+}
+.chat-message-error {
+    color: rgb(255, 100, 100);
+    font-weight: 600;
+}
+
+p.error-message {
+    font-family: monospace;
+    font-weight: 800;
+    color: rgb(255, 80, 80);
+    padding: 1vh;
+    position: absolute;
+    filter: none;
+    display: inline-block;
+    z-index: 1;
+    font-size: 2vh;
+    /*top: 0;*/
+}
+
+span.chat-message-text {
+    font-size: 1.5vh;
+    align-items: center;
+    position: relative;
+    min-width: 75vw;
+}
+.chat-message-text > p > em {
+    padding-right: 0.5vw;
+}
+span.chat-message-text > i {
+    padding-left: 1vh;
+    align-self: center;
+    position: relative;
+}
+.chat-message-filtered {
+    filter: blur(0.25vmax);
+    user-select: none;
+}
+
+span.chat-link-button > a > i {
+    font-size: 4vh;
+}
+
+span > a.link-clear {
+    font-size: 3vh;
+    font-weight: 600;
+    color: var(--theme-color);
+}
+span > a.link-clear:hover {
+    text-decoration: wavy;
+}
+
+span > a > i.fa-btn {
+    color: var(--theme-color);
+}
+
+a.chat-new-button > .fa-btn {
+    color: var(--button-color);
+    align-self: center;
+    padding-left: 0.5vw;
+    font-weight: 900;
+}
+
+a.chat-new-button {
+    display: flex;
+    background-color: var(--button-bg-color);
+    border: 2vh solid;
+    border-color: var(--button-bg-color);
+    border-radius: 2vh;
+    cursor: pointer;
+    color: var(--button-color);
+    font-weight: 600;
+    font-size: 2vh;
+}
+a.chat-new-button:not([disabled]):hover {
+    background-color: var(--theme-color);
+    border-color: var(--theme-color);
+}
+a.chat-new-button[disabled] {
+    cursor: unset;
+    background-color: var(--theme-bg-color);
+    border-color: var(--theme-bg-color);
+    background-color: var(--theme-bg-color);
+    color: rgb(150, 150, 150);
+    filter: blur(0.25vh);
+}
+
+.thinking-dots {
+    width: 4vh;
+    height: 4vh;
+    opacity: 0.4;
+    color: var(--body-color);
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    backdrop-filter: blur(25px);
+    z-index: 99;
+}
+.overlay > .modal {
+    margin: auto;
+    max-width: 1000px;
+    margin-top: 6vh;
+}
+.chat-options-container {
+    height: auto;
+    min-height: 10vh;
+    margin: auto;
+    background: var(--body-bg-color);
+    padding: 1vh;
+    border: 1.5vh solid var(--body-bg-color);
+    border-radius: 4vh;
+    width: 95%;
+}
+.chat-options-container > table > tbody {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: space-around;
+    row-gap: 1vh;
+}
+.modal-close-btn {
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+    margin-right: 1vh;
+}
+.modal-close-btn > i {
+    color: rgb(200, 100, 100);
+    font-weight: 900;
+    font-size: 4vh;
+}
+.modal-close-btn > i:hover {
+    color: rgb(255, 100, 100);
+    font-weight: 1000;
+    font-size: 4vh;
+}
+.modal > * > span {
+    font-weight: 500;
+}
+.modal > * > h1 {
+    font-size: 4vh;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+}
+span.modal-tooltip-text {
+    font-size: 2vh;
+}
+.chat-save-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: 10px;
+}
+
+input:disabled {
+    filter: blur(0.15vmax);
+}

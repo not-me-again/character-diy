@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>character.diy</title>
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/edit-character.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body style="margin:0;padding:0;">
+    <div class="app">
+        <div class="header">
+            <div class="logo">
+                <a class="link-clear" href="/">
+                    <span class="header-logo-text">c.diy</span>
+                </a>
+            </div>
+            <div class="rightside-menu">
+                <div class="characters-button">
+                    <a class="link-clear" href="/characters">
+                        <i class="fa-regular fa-address-book fa-btn"></i>
+                    </a>
+                </div>
+                <div class="chatroom-button">
+                    <a class="link-clear" href="/chats">
+                        <i class="fa-regular fa-comments fa-btn"></i>
+                    </a>
+                </div>
+                <div class="user-settings">
+                    <div class="dark-light">
+                        <svg viewbox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                        </svg>
+                    </div>
+                    <img class="user-profile account-profile" id="pfp" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="wrapper">
+            <div class="content-area">
+                <div id="loading-overlay" class="overlay">
+                    <div id="loading-modal" class="loading-modal">
+                        <h1>Loading</h1>
+                        <span class="chat-message-count"><i class="fa-solid fa-quote-left"></i><span id="cliche-loading-message"></span><i class="fa-solid fa-quote-right"></i></span>
+                        <div class="loading-img"></div>
+                    </div>
+                </div>
+                <div class="content-area-main">
+                    <div class="chat-list-container">
+                        <h1 id="char-name">Toku</h1>
+                        <table class="chat-list">
+                            <tbody id="chat-list">
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-image">
+                                        <img id="char-pfp" class="chat-bot-image">
+                                        <td class="chat-bot-extra">
+                                            <span class="chat-bot-name">Avatar <span class="required-text">required</span></span>
+                                            <span class="chat-message-count"><i class="fa-regular fa-image"></i>Square image less than 6mb</span>
+                                            <input name="Profile picture" id="submit-pfp" class="submit-pfp" type="file" accept=".png,.jpeg,.jpg,.jfif">
+                                        </td>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Character Name <span class="required-text">required</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pencil"></i>The name the character will be referred to</span>
+                                        <span class="chat-link-button">
+                                            <input name="Character Name" required id="display-name" type="text" maxlength="24" placeholder="Toku">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Pronouns <span class="required-text">required</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-square-caret-down"></i>The pronouns used to refer to the character</span>
+                                        <span class="chat-link-button">
+                                            <select name="Pronouns" required id="pronouns">
+                                                <option name="he" selected>he/him/his</option>
+                                                <option name="she">she/her/her</option>
+                                                <option name="they">they/them/their</option>
+                                                <option name="it">it/it/its</option>
+                                            </select>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Greeting Message <span class="required-text">required</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pen-fancy"></i>The first message sent by the character</span>
+                                        <span class="chat-link-button">
+                                            <textarea required name="Long Description" id="start-msg" maxlength="1000" wrap="hard" cols="16" rows="10" placeholder="Hi user! Nice to see you! *waves at you*"></textarea>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Short Description <span class="required-text">required</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pencil"></i>Be brief and list key personality traits</span>
+                                        <span class="chat-link-button">
+                                            <input name="Short Description" required id="short-desc" type="text" maxlength="30" placeholder="friendly kind witty outgoing">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Long Description</span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pen-fancy"></i>Describe the character's personality in detail</span>
+                                        <span class="chat-link-button">
+                                            <textarea name="Long Description" id="long-desc" maxlength="4000" wrap="hard" cols="16" rows="10" placeholder="He is 20 years old. His favorite color is blue. He likes to ..."></textarea>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item coming-soon">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Example Conversation<span class="experimental-text">experimental</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pen-fancy"></i>Insert an example conversation to provide additional context for your character</span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-lightbulb"></i>You should use {{char}} and {{user}} to represent the character and user respectively</span>
+                                        <span class="chat-link-button">
+                                            <textarea name="Example Conversation" id="example-convo" maxlength="0" wrap="hard" cols="16" rows="10" placeholder="{{char}}: Hello human!"></textarea>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Character Privacy <span class="required-text">required</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-square-caret-down"></i>Allow other people to interact with this character?</span>
+                                        <span class="chat-link-button">
+                                            <select name="Character Privacy" required id="is-public">
+                                                <option name="false" selected>No, keep this character private</option>
+                                                <option name="true">Yes, make this character public</option>
+                                            </select>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Backend <span class="required-text">required</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-square-caret-down"></i>Which model to use on the backend of inferencing</span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-lightbulb"></i>If you're unsure about this, leave it at default</span>
+                                        <span class="chat-link-button">
+                                            <select name="Backend" required id="backend">
+                                                <option name="claude" selected>claude</option>
+                                                <option name="text-curie-001" disabled>text-curie-001</option>
+                                                <option name="text-babbage-001" disabled>text-babbage-001</option>
+                                                <option name="text-ada-001" disabled>text-ada-001</option>
+                                                <option name="text-davinci-002" disabled>text-davinci-002</option>
+                                                <option name="text-davinci-003">text-davinci-003</option>
+                                                <option name="gpt-3.5">gpt-3.5</option>
+                                                <option name="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
+                                                <option name="gpt-4" disabled>gpt-4</option>
+                                                <option name="llama" disabled>llama</option>
+                                            </select>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-new-item">
+                                    <td class="chat-btn-container">
+                                        <a id="save-btn" class="chat-new-button">
+                                            Save <i class="fa-solid fa-cloud-arrow-up fa-btn"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/scripts/_global.js"></script>
+    <script src="/scripts/edit-character.js"></script>
+</body>
+
+</html>

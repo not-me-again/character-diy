@@ -1,0 +1,39 @@
+{
+    "DISCORD_SERVER_ID": "1092990713278513182",
+    "MAX_ALLOWED_CHARS_PER_USER": 5,
+    "MAX_ALLOWED_CHATS_PER_USER": 3,
+    "MAX_CHAT_HISTORY_LENGTH": 500,
+    "MAX_CACHE_LENGTH": 5000,
+    "AGE_OF_MAJORITY_MS": 567648000000,
+    "FILTERED_TEXT_PLACEHOLDER": "No available candidates",
+    "PLACEHOLDER_IMAGE_PATH": "/image/7a03007407204d05a04f.png",
+    "MAX_FILE_SIZE": 6000000,
+    "PRONOUN_CONVERSION": {
+        "he/him/his": {
+            "personal": "he",
+            "intensive": "him",
+            "possessive": "his"
+        },
+        "she/her/her": {
+            "personal": "she",
+            "intensive": "her",
+            "possessive": "her"
+        },
+        "they/them/their": {
+            "personal": "they",
+            "intensive": "them",
+            "possessive": "their"
+        },
+        "it/it/its": {
+            "personal": "it",
+            "intensive": "it",
+            "possessive": "its"
+        }
+    },
+    "BACKEND_CONVERSION": {
+        "text-davinci-003": "gpt-3",
+        "gpt-3.5": "gpt-3.5-t",
+        "gpt-3.5-turbo-0301": "gpt-3.5-t-ml",
+        "claude": "claude"
+    }
+}
