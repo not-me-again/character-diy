@@ -150,7 +150,6 @@ async function makeAuthenticatedRequest(url, opts, parseJson) {
             return req;
     } catch(err) {
         console.error(err);
-        alert(err.toString());
         return {};
     }
 }

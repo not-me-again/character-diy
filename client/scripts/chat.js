@@ -62,6 +62,33 @@ const chatMsgCountLabel = document.querySelector("#chat-msg-count");
 
 const filterStatusText = document.querySelector("#filter-status-text");
 
+const displayNameInput = document.querySelector("#display-name-input");
+const saveDisplayNameButton = document.querySelector("#display-name-save");
+saveDisplayNameButton.addEventListener("click", async () => {
+    let displayName = displayNameInput.value;
+    if (typeof displayName != "string")
+        return;
+
+    displayName = displayName.trim();
+    if (displayName.length <= 0)
+        return;
+
+    showLoadingOverlay();
+
+    const { success } = await makeAuthenticatedRequest(`/api/chats/${chatId}/edit`, {
+        method: "POST",
+        body: JSON.stringify({ displayName })
+    }, true);
+
+    if (!success)
+        alert("Failed to set name");
+    
+    closeSettingsModal();
+    await doChatSetup();
+
+    hideLoadingOverlay();
+});
+
 let myName = "";
 let myProfilePicture = "";
 let myId = "";
@@ -99,6 +126,7 @@ async function doChatSetup() {
     }
 
     chatNameLabel.innerText = chatData.name;
+    displayNameInput.value = chatData.name;
 
     isFilterEnabled = chatData.isFilterEnabled;
     filterStatusText.innerText = isFilterEnabled ? "Disable" : "Enable";
@@ -164,7 +192,12 @@ async function doChatSetup() {
 waitForCachedState().then(doChatSetup);
 
 async function sendMessage() {
-    const text = textBar.value;
+    if (typeof textBar.value != "string")
+        return;
+    
+    const text = textBar.value.trim();
+    if (text.length <= 0)
+        return;
 
     lastUserMessagePrompt = text;
 

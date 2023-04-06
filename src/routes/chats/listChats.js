@@ -6,11 +6,11 @@ module.exports = {
     async callback(req, res) {
         const { apiKey, user } = req.auth;
         if (!apiKey || !user)
-            return res.status(401).end({ success: false, error: "unauthenticated" });
+            return res.status(401).send({ success: false, error: "unauthenticated" });
         
         let chatIds = await user.get("chats");
         if (typeof chatIds != "object")
-            return res.status(500).end({ success: false, error: "preflight_condition_failure" });
+            return res.status(500).send({ success: false, error: "preflight_condition_failure" });
 
         let chats = [];
         for (const chatId of chatIds) {

@@ -1,4 +1,4 @@
-const { MAX_ALLOWED_CHATS_PER_USER } = require("../../../config.json");
+const { MAX_ALLOWED_CHATS_PER_USER, AGE_OF_MAJORITY_MS } = require("../../../config.json");
 
 const signupHandler = require("../../include/helpers/signupHandler");
 const resetChatContext = require("../../include/helpers/resetChatContext");
@@ -38,11 +38,14 @@ module.exports = {
         
         let chats = await user.get("chats");
         if (chats.length >= MAX_ALLOWED_CHATS_PER_USER)
-            return res.status(403).end({ success: false, error: "chat_limit_reached" });
+            return res.status(403).send({ success: false, error: "chat_limit_reached" });
 
         const poeCookie = await signupHandler().catch(console.error);
         if (typeof poeCookie != "string")
             res.status(500).send({ success: false, error: "preflight_failure0" });
+
+        const birthdate = await user.get("birthdate");
+        const needsFilterEnabled = typeof birthdate != "number" || ((Date.now() - birthdate) < AGE_OF_MAJORITY_MS);
 
         const newChat = db.getChat(db.getUniqueId());
         await newChat.set({
@@ -52,7 +55,8 @@ module.exports = {
             ownerId: userId,
             activeCharacterId,
             name,
-            thumbnailURL
+            thumbnailURL,
+            isFilterEnabled: needsFilterEnabled
         });
         await newChat.save();
 

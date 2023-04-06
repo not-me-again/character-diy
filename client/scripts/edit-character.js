@@ -144,18 +144,14 @@ async function doSetup(isNew) {
 
     if (isOwner)
         saveButton.addEventListener("click", async e => {
-            showLoadingOverlay();
-
             const missingInputs = doRequiredCheck();
             if (missingInputs && (missingInputs.length >= 1)) {
                 for (let input of missingInputs)
                     input.style.border = "1px solid red";
                 missingInputs[0].scrollIntoView();
-                hideLoadingOverlay();
                 return alert("Missing required field: " + missingInputs[0].name);
             }
             if (isNew && (submitPfpButton.files.length <= 0)) {
-                hideLoadingOverlay();
                 return alert("Missing profile picture");
             }
 
@@ -181,19 +177,22 @@ async function doSetup(isNew) {
                     form.append("avatar", file);
                 else {
                     submitPfpButton.value = "";
-                    hideLoadingOverlay();
                     return alert("File must be smaller than 6mb");
                 }
             }
 
+            showLoadingOverlay();
+            
             const { success, error, character } = await updateCharacterInfo(form, isNew);
+
+            hideLoadingOverlay();
+
             if (!character || !success) {
                 console.error(error, character);
                 alert(error);
             }
 
             setAllDisabled(false);
-            hideLoadingOverlay();
 
             window.location = "/characters?showUpdateSuccessModal=true";
         });

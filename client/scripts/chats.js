@@ -1,10 +1,4 @@
 // real shtuff
-const chatId = "1680553488890_1deee31e_cdba_4b05_bf77_dbcb98c7c143";//location.query.chatId;
-
-async function getChatInfo() {
-    const req = await window.makeAuthenticatedRequest(`/api/chats/${chatId}/info`);
-    return await req.json();
-}
 async function getAllChats() {
     const req = await window.makeAuthenticatedRequest(`/api/chats`);
     return await req.json();

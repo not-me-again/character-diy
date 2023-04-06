@@ -6,7 +6,7 @@ module.exports = {
     async callback(req, res) {
         const { apiKey, user } = req.auth;
         if (!apiKey || !user)
-            return res.status(401).end({ success: false, error: "unauthenticated" });
+            return res.status(401).send({ success: false, error: "unauthenticated" });
         
         let userObj = { ...user.getObject() }
 

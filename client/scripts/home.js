@@ -140,6 +140,29 @@ function displayChat(data) {
     chatList.prepend(container);
 }
 
+async function handleCharDelete(charData) {
+    if (!charData)
+        return;
+
+    const { id: charId } = charData;
+    if (typeof charId != "string")
+        return;
+
+    if (!confirm("Are you sure? Deleting a character is permanent! Any chats that use this character will stop working!"))
+        return;
+
+    showLoadingOverlay();
+
+    const { success } = await makeAuthenticatedRequest(`/api/characters/${charId}/delete`, { method: "POST" }, true);
+
+    hideLoadingOverlay();
+
+    if (!success)
+        alert("Failed to delete character");
+    else
+        location.reload();
+}
+
 const chatNewItemHTML = document.querySelector("tr.chat-new-item").innerHTML;
 
 let chats = undefined;
@@ -166,26 +189,28 @@ async function handleChatOpen(charData) {
     chatList.innerHTML = chatNewItemHTML;
 
     newChatButton = document.querySelector("#new-chat-btn");
-    newChatButton.addEventListener("click", async () => {
-        console.log("Make new chat for: " + selectedCharId);
-        if (!selectedCharId)
-            return;
-            
-        showLoadingOverlay();
-        const { success, chat, error } = await newChat(selectedCharId);
-        if (success && (typeof chat == "object"))
-            window.location = `/chats/${chat.id}`;
-        else
-            alert(error);
 
-        hideLoadingOverlay();
-    });
+    if (chats.length >= quotas.maxAllowedChats)
+        newChatButton.remove();
+    else
+        newChatButton.addEventListener("click", async () => {
+            console.log("Make new chat for: " + selectedCharId);
 
-    const canCreateNewChat = quotas && (chats.length < quotas.maxAllowedChats);
-    newChatButton.display = canCreateNewChat ? "" : "none";
+            if (!selectedCharId)
+                return;
+                
+            showLoadingOverlay();
+            const { success, chat, error } = await newChat(selectedCharId);
+            if (success && (typeof chat == "object"))
+                window.location = `/chats/${chat.id}`;
+            else
+                alert(error);
+
+            hideLoadingOverlay();
+        });
     
     for (const chat of chats)
-            displayChat(chat, charId);
+        displayChat(chat, charId);
 
     chatHelperOverlay.style.display = "";
 }
@@ -222,18 +247,25 @@ function displayCharacter(charData) {
     contentContainer.appendChild(messageCountNode);
     let linkButtonContainer = createNode("span", {}, [ "chat-link-button" ]);
 
-    let editButtonNode = createNode("a", { href: `/characters/${id}/edit` }, [ "link-clear" ]);
-    let faEditIconNode = createNode("i", {}, [ "fa-regular", "fa-pen-to-square", "fa-btn" ]);
-    editButtonNode.appendChild(faEditIconNode);
-
-    linkButtonContainer.appendChild(editButtonNode);
-
     let openButtonNode = createNode("a", { }, [ "link-clear" ]);
     let faOpenIconNode = createNode("i", {}, [ "fa-regular", "fa-comments", "fa-btn" ]);
     openButtonNode.appendChild(faOpenIconNode);
     openButtonNode.addEventListener("click", () => handleChatOpen(charData));
 
     linkButtonContainer.appendChild(openButtonNode);
+
+    let editButtonNode = createNode("a", { href: `/characters/${id}/edit` }, [ "link-clear" ]);
+    let faEditIconNode = createNode("i", {}, [ "fa-regular", "fa-pen-to-square", "fa-btn" ]);
+    editButtonNode.appendChild(faEditIconNode);
+
+    linkButtonContainer.appendChild(editButtonNode);
+
+    let deleteButtonNode = createNode("a", { }, [ "link-clear" ]);
+    let faDeleteIconNode = createNode("i", {}, [ "fa-regular", "fa-trash-can", "fa-btn" ]);
+    deleteButtonNode.appendChild(faDeleteIconNode);
+    deleteButtonNode.addEventListener("click", () => handleCharDelete(charData));
+
+    linkButtonContainer.appendChild(deleteButtonNode);
 
     contentContainer.appendChild(linkButtonContainer);
     container.appendChild(contentContainer);

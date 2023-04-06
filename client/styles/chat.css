@@ -321,3 +321,37 @@ span.modal-tooltip-text {
 input:disabled {
     filter: blur(0.15vmax);
 }
+
+.chat-btn-row {
+    flex-wrap: wrap;
+
+}
+.modal-options-tooltip {
+    display: flex;
+    flex-flow: wrap;
+    align-self: stretch;
+    font-size: 2vh;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: stretch;
+    justify-content: center;
+    align-items: center;
+    padding-left: 1vw;
+}
+
+.chat-link-button input, textarea, select {
+    border: none;
+    color: var(--body-color);
+    background-color: var(--input-bg);
+    padding: 0.8vh;
+    border-radius: 0.7vh;
+    font-size: 1.5vh;
+    width: 100%;
+    font-size: 2vh;
+}
+.chat-btn-container h1 {
+    font-size: 6vmin;
+}
+.chat-link-button {
+    padding-right: 2vw;
+}

@@ -45,8 +45,10 @@ img.chat-bot-image {
     border-radius: 50%;
 }
 .chat-bot-image {
-    width: 16vh;
-    height: 16vh;
+    width: 20vmin;
+    min-width: 20vmin;
+    height: 20vmin;
+    min-height: 20vmin;
 }
 
 span.chat-bot-name {
@@ -72,7 +74,6 @@ td > span {
     display: flex;
     flex-flow: row;
     align-self: stretch;
-    white-space: nowrap;
     padding-bottom: 1vh;
 }
 

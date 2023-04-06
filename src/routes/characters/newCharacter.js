@@ -85,8 +85,10 @@ module.exports = {
             let characterData = { ...newChar.getObject() };
             
             const currentBackend = characterData.backend;
-            if (typeof currentBackend == "string")
-                characterData.backend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
+            if (typeof currentBackend == "string") {
+                const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
+                characterData.backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
+            }
         
             res.status(200).send({ success: true, character: characterData });
         });

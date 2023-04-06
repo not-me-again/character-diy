@@ -1,6 +1,7 @@
 const { IS_DEV } = process.env;
 const OAUTH_URL = IS_DEV
-    ? "https://discord.com/api/oauth2/authorize?client_id=1089265249582071899&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fpawthorize&response_type=code&scope=identify%20email%20guilds.join"
+    ? //"https://discord.com/api/oauth2/authorize?client_id=1089265249582071899&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fpawthorize&response_type=code&scope=identify%20email%20guilds.join"
+    "https://discord.com/api/oauth2/authorize?client_id=1089265249582071899&redirect_uri=http%3A%2F%2F192.168.20.21%3A8080%2Fpawthorize&response_type=code&scope=identify%20email%20guilds.join"
     : "https://discord.com/api/oauth2/authorize?client_id=1089265249582071899&redirect_uri=https%3A%2F%2Fk1.chat%2Fpawthorize&response_type=code&scope=identify%20email%20guilds.join";
 
 const { DISCORD_BOT_TOKEN } = process.env;
@@ -19,7 +20,7 @@ async function getIDFromOAuth(temp_code) {
             client_secret: process.env.DISCORD_OAUTH_APP_SECRET,
             grant_type: "authorization_code",
             code: temp_code,
-            redirect_uri: IS_DEV ? "http://localhost:8080/pawthorize" : "https://k1.chat/pawthorize",
+            redirect_uri: IS_DEV ? "http://192.168.20.21:8080/pawthorize" : "https://k1.chat/pawthorize",
             validateStatus: () => { return true; }
         }));
 
