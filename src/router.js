@@ -18,7 +18,7 @@ function applyRoute(app, moduleName) {
     if (typeof routeCallback == "function")
         customCallback = (req, res, ...args) => {
             try {
-                routeCallback(req, res, ...args).catch(err => { throw err; });
+                routeCallback(req, res, ...args);
             } catch(err) {
                 res.status(500).end();
                 log.error("Error invoking callback for route " + colors.cyan(`\'${moduleName}\'`));

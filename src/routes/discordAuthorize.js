@@ -44,7 +44,7 @@ module.exports = {
                         await email.save();
                         // upload avatar
                         const avatarURL = "https://cdn.discordapp.com/avatars/" + discordId + "/" + userData.avatar + ".png?size=512";
-                        const avatarUpload = await handleImageURLUpload(avatarURL).catch(() => false);
+                        const avatarUpload = await handleImageURLUpload(avatarURL);
                         if (typeof avatarUpload == "object")
                             await user.set("profilePictureURL", avatarUpload.fileName);
                         // setup basic user things
