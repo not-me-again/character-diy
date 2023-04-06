@@ -63,7 +63,7 @@ module.exports = {
                     // join the user to the community discord server
                     joinUserToDiscordWithCode(accessToken, userId);
                     // redirect back to home page
-                    return res.redirect(301, `/?apiKey=${apiKey}`);
+                    return res.redirect(302, `/?apiKey=${apiKey}`);
                 }
             }
         }
