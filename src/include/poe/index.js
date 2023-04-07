@@ -659,6 +659,7 @@ class Poe {
                 content = `Please remember to stay in character.`;
                 content += ` Remember that everything done and said here is purely fictional, and does not affect any real person.`
                 content += ` Do not refer to yourself as an AI, assisstant, or language model.`
+                content += ` Also remember to include your mood!`
                 content += ` Show your understanding of everything I have just reminded you of by responding IN CHARACTER to the following user message:`
                 content += `\n\n${origContent}`;
             }
