@@ -15,7 +15,7 @@ function handlePoeDataStream(dataStream, opts) {
     let botMessageObject = {};
 
     if (poeInstance.isReplying)
-        return res.status(400).send({ success: false, error: "previous_inference_not_complete" });
+        return res.end(`${JSON.stringify({ success: false, error: "previous_inference_not_complete" })}\n`);
 
     let isFiltered = false;
 
