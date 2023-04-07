@@ -290,7 +290,7 @@ async function sendMessage() {
                     }
 
                     if (didError) {
-                        if (!isSuccess && (typeof messageObject != "object"))
+                        if (isSuccess && (typeof messageObject != "object"))
                             botMessage.messageTextNode.innerHTML = "<p>Error during inferencing</p>";
                         
                         isSuccess = false;

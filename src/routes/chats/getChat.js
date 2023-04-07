@@ -8,7 +8,12 @@ module.exports = {
 
         const messages = await chat.get("messages");
         if (!messages || (messages.length <= 0))
-            await resetChatContext(chat);
+            try {
+                await resetChatContext(chat);
+            } catch(err) {
+                console.error(err);
+                return res.status(500).send({ success: false, error: err.toString() });
+            }
         
         let chatData = { ...chat.getObject() };
 
@@ -20,7 +25,9 @@ module.exports = {
         for (let message of messages)
             if (typeof message == "object") {
                 const copyMessage = { ...message };
+
                 delete copyMessage.poeId;
+                
                 chatData.messages.push(copyMessage);
             }
 

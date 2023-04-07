@@ -64,11 +64,18 @@ module.exports = {
         await user.set("chats", chats);
         await user.save();
 
-        await resetChatContext(newChat);
+        try {
+            await resetChatContext(newChat);
+        } catch(err) {
+            console.error(err);
+            return res.status(500).send({ success: false, error: err.toString() });
+        }
 
         const newChatData = { ...newChat.getObject() };
+
         delete newChatData.poeCookie;
         delete newChatData.poeChatId;
+        
         res.status(200).send({ success: true, chat: newChatData });
     }
 }

@@ -14,6 +14,9 @@ function handlePoeDataStream(dataStream, opts) {
     let selfMessageObject = {};
     let botMessageObject = {};
 
+    if (poeInstance.isReplying)
+        return res.status(400).send({ success: false, error: "previous_inference_not_complete" });
+
     let isFiltered = false;
 
     dataStream.on("selfMessage", messageData => {
@@ -160,7 +163,9 @@ module.exports = {
         const filterEnabled = await chat.get("isFilterEnabled");
         const userBirthdate = await user.get("birthdate");
         const needsFiltering = filterEnabled || typeof userBirthdate != "number" || ((Date.now() - userBirthdate) < AGE_OF_MAJORITY_MS);
-        log.info("User needs filter");
+
+        if (needsFiltering)
+            log.info("User needs filter");
 
         let characterTotalMessages = await character.get("totalMessageCount");
 
