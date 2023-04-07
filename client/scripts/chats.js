@@ -5,10 +5,14 @@ async function getAllChats() {
 }
 
 async function doChatsSetup() {
+    showLoadingOverlay();
+    
     const { chats } = await getAllChats();
     console.log("Chat list:", chats);
     for (const chat of chats)
         displayChat(chat);
+
+    hideLoadingOverlay();
 }
 doChatsSetup();
 

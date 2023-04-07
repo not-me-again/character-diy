@@ -1,5 +1,8 @@
 const db = require("../include/db");
 const { Poe } = require("../include/poe");
+const { Logger } = require("../include/logging");
+
+const log = new Logger("Caching");
 
 class Cache {
     constructor() {
@@ -33,15 +36,18 @@ class Cache {
     _prunePoeInstances() {
         for (let idx in this.poeInstances) {
             const poeInstance = this.poeInstances[idx];
-            if (!poeInstance.isConnected)
+            if (!poeInstance.isConnected) {
+                log.debug("Clearing idle poeInstance: " + idx.toString());
                 delete this.poeInstances[idx];
+            }
         }
-
     }
 
     //////////////
 
     async _updatePopularCharacters() {
+        log.debug("Updating popular character list");
+
         const popularCharacterManager = db.getPopularCharacterManager();
         await popularCharacterManager.load();
         this.popularCharacters = popularCharacterManager.get("characters");

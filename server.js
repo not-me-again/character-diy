@@ -13,6 +13,8 @@ const log = new Logger("Server");
 const app = express();
 const server = http.Server(app);
 const clientFolder = __dirname + "/client";
+// env vars
+const { IS_DEV } = process.env;
 // Middleware
 app.use(express.static(clientFolder));
 app.use(bodyParser.json());
@@ -35,10 +37,10 @@ app.use((req, res, next) => {
 router.setup(app);
 // Start server
 const listener = server.listen(process.env.PORT || 8080, () =>
-    log.info("Server is listening at " + colors.green(`0.0.0.0:${listener.address().port}`))
+    log.info("Server is listening at " + colors.green("http://" + (IS_DEV ? "localhost" : "0.0.0.0") + ":" + listener.address().port))
 );
 // Prod. error handling
-if (!process.env.IS_DEV) {
+if (!IS_DEV) {
     process.on("uncaughtException", console.error);
     process.on("unhandledRejection", console.error);
 }
