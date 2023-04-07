@@ -14,9 +14,6 @@ function handlePoeDataStream(dataStream, opts) {
     let selfMessageObject = {};
     let botMessageObject = {};
 
-    if (poeInstance.isReplying)
-        return res.end(`${JSON.stringify({ success: false, error: "previous_inference_not_complete" })}\n`);
-
     let isFiltered = false;
 
     dataStream.on("selfMessage", messageData => {
@@ -168,8 +165,6 @@ module.exports = {
             log.info("User needs filter");
 
         let characterTotalMessages = await character.get("totalMessageCount");
-
-        res.writeHead(200, { "Content-Type": "application/json" });
         
         let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
@@ -182,7 +177,10 @@ module.exports = {
                 backend = "claude";
 
             poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
-        }
+        } else if (poeInstance.isReplying)
+            return res.status(400).send({ success: false, error: "previous_inference_incomplete" });
+
+        res.writeHead(200, { "Content-Type": "application/json" });
 
         const dataStream = poeInstance.sendMessage(userMessageText);
         handlePoeDataStream(dataStream, { chat, poeInstance, res, characterId, userMessageText, userId, characterTotalMessages, needsFiltering });
