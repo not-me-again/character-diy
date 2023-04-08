@@ -18,9 +18,13 @@ module.exports = {
             await chatObj.load();
 
             let chatData = { ...chatObj.getObject() };
+
+            delete chatData.backend;
+            delete chatData.cachedCharacterData;
             delete chatData.messages;
             delete chatData.poeCookie;
             delete chatData.poeChatId;
+
             chats.push(chatData);
         }
     
