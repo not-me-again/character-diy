@@ -143,6 +143,8 @@ async function doChatSetup() {
 
     chatList.innerHTML = "";
 
+    let isFirst = true;
+
     const { messages, activeCharacterId } = chatData;
     if (typeof messages == "object") {
         if (messages.length <= 0)
@@ -166,8 +168,11 @@ async function doChatSetup() {
                 isFiltered: message.isFiltered,
                 failed: false,
                 timestamp: message.timestamp,
-                customLabel
+                customLabel,
+                isFirst
             });
+
+            isFirst = false;
 
             if (isSelfAuthor) {
                 lastUserMessageId = message.id;
@@ -445,7 +450,8 @@ function createMessage(data) {
         timestamp,
         id,
         isFiltered,
-        customLabel
+        customLabel,
+        isFirst
     } = data;
     let isGeneralFailure = failed || isFiltered;
     if ((typeof timestamp != "number") || (typeof name != "string") || (typeof avatarURL != "string") || (typeof authorId != "string") || (typeof text != "string")) {
@@ -467,7 +473,10 @@ function createMessage(data) {
     if (authorId != myId) {
         let labelNode = createNode("span", {
             innerText: (typeof customLabel == "string") ? customLabel : "c.diy"
-        }, ["chat-message-label"]);
+        }, [
+            "chat-message-label",
+            isFirst ? "user-label" : "bot-label"
+        ]);
         headerContainer.appendChild(labelNode);
     }
 
@@ -483,7 +492,7 @@ function createMessage(data) {
     let messageButtonsContainer;
     let regenerateMessageButton;
     let deleteMessageButton;
-    if (!isGeneralFailure) {
+    if (!isGeneralFailure && !isFirst) {
         messageButtonsContainer = createNode("div", {}, ["chat-message-menu"]);
         if (authorId != myId) {
             regenerateMessageButton = createNode("span", {}, [ "chat-message-button", "regenerate-message-button" ]);

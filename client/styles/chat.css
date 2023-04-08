@@ -138,13 +138,20 @@ div.chat-message-header > span {
 }
 
 .chat-message-label {
-    border: 0.1vh solid var(--theme-color);
-    background: var(--theme-color);
+    border: 0.1vh solid;
     border-radius: 0.75vh;
     padding-left: 0.5vh;
     padding-right: 0.5vh;
     font-size: 1.25vh;
     font-weight: 700;
+}
+.bot-label {
+    border-color: var(--theme-color);
+    background: var(--theme-color);
+}
+.user-label {
+    background: var(--settings-icon-color);
+    border-color: var(--settings-icon-color);
 }
 
 .regenerate-message-button {
