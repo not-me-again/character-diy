@@ -153,6 +153,8 @@ async function doChatSetup() {
             if ((message.authorType == "ai") && (authorId != activeCharacterId))
                 continue;
 
+            const customLabel = message.customLabel;
+
             const isSelfAuthor = authorId == myId;
 
             const msg = createMessage({
@@ -163,7 +165,8 @@ async function doChatSetup() {
                 authorId,
                 isFiltered: message.isFiltered,
                 failed: false,
-                timestamp: message.timestamp
+                timestamp: message.timestamp,
+                customLabel
             });
 
             if (isSelfAuthor) {
@@ -441,7 +444,8 @@ function createMessage(data) {
         failed,
         timestamp,
         id,
-        isFiltered
+        isFiltered,
+        customLabel
     } = data;
     let isGeneralFailure = failed || isFiltered;
     if ((typeof timestamp != "number") || (typeof name != "string") || (typeof avatarURL != "string") || (typeof authorId != "string") || (typeof text != "string")) {
@@ -454,15 +458,26 @@ function createMessage(data) {
     pfpContainer.appendChild(avatarNode);
     container.appendChild(pfpContainer);
     let contentContainer = createNode("td", {}, ["chat-message-extra"]);
+
     let headerContainer = createNode("div", {}, ["chat-message-header"]);
+
     let usernameNode = createNode("span", { innerText: name }, ["chat-message-name"]);
     headerContainer.appendChild(usernameNode);
+
+    if (authorId != myId) {
+        let labelNode = createNode("span", {
+            innerText: (typeof customLabel == "string") ? customLabel : "c.diy"
+        }, ["chat-message-label"]);
+        headerContainer.appendChild(labelNode);
+    }
+
     let metaDataNode = createNode("span", {
         innerText: isGeneralFailure ? (isFiltered ? "FILTERED" : "ERROR") : timestampToString(timestamp)
     }, [
         isGeneralFailure ? "chat-message-error" : "chat-message-timestamp"
     ]);
     headerContainer.appendChild(metaDataNode);
+
     contentContainer.appendChild(headerContainer);
     
     let messageButtonsContainer;

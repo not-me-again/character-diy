@@ -22,6 +22,17 @@ module.exports = chat => {
             return reject("Invalid chat owner!");
 
         const activeCharacterId = await chat.get("activeCharacterId");
+        
+        let botAuthorName = "User";
+
+        const character = db.getCharacter(activeCharacterId);
+        if (await character.exists()) {
+            const authorId = await character.get("authorId");
+            const botAuthor = db.getUser(authorId);
+            if (await botAuthor.exists())
+                botAuthorName = await botAuthor.get("displayName");
+        }
+
         const cachedCharacter = await chat.getCharacterData();
         if (typeof cachedCharacter != "object")
             return reject("Chat does not contain a valid character");
@@ -89,7 +100,8 @@ module.exports = chat => {
                     timestamp: Date.now(),
                     isFiltered: false,
                     text: sanitizedMessageText,
-                    moods: messageData.currentMoods
+                    moods: messageData.currentMoods,
+                    customLabel: `@${botAuthorName}`
                 }
             ], true);
             // set finished
