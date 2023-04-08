@@ -137,6 +137,7 @@ div.chat-message-header > span {
     margin-right: 1vw;
     overflow: hidden;
     margin-right: 0.75vmin;
+    color: #d1d1d2;
 }
 
 .chat-message-label {

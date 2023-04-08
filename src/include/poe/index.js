@@ -585,7 +585,7 @@ class Poe {
                         continue;
 
                     if (messageText.match(/^\s*\*\s+\w/))
-                        messageText = messageText.replace(/\*\s*(.*?(?=\s*?))\s*\*/ig, "*$1*");
+                        messageText = messageText.replaceAll(/\*\s*(.*?(?=\s*?))\s*\*/ig, "*$1*");
 
                     // BEGIN MOOD EVALUATION //
                     let characterMoods = [];
