@@ -197,6 +197,8 @@ span:is(.chat-message-text, .chat-message-loading) {
 .chat-message-loading {
     align-items: flex-start;
     flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: flex-start;
 }
 .chat-message-text > :is(p) {
     flex: 1;
