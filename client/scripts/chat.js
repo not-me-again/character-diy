@@ -47,6 +47,12 @@ async function getAllChats() {
 async function clearChatHistory() {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/reset`, { method: "POST" }, true);
 }
+async function addCharacterToChat(charId) {
+    return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/setCharacter`, {
+        method: "POST",
+        body: JSON.stringify({ characterId: charId })
+    }, true);
+}
 async function setFilterEnabled(doEnable) {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/setFilterEnabled`, {
         method: "POST",
@@ -237,6 +243,21 @@ async function sendMessage() {
         body: JSON.stringify({ text })
     })
         .then(async (response) => {
+            if (response.status != 200) {
+                const { success, error } = await response.json();
+                console.log("inference failed with reason:", error);
+
+                userMessage.metaDataNode.classList = "chat-message-error";
+                userMessage.metaDataNode.innerText = "ERROR";
+                userMessage.messageTextNode.classList = "chat-message-filtered";
+                userMessage.deleteMessageButton.remove();
+
+                botMessage.container.remove();
+
+                alert("Inference failed: " + error);
+                return;
+            }
+
             const failed = false;
             // sanity check
             if (failed) {
@@ -515,6 +536,18 @@ resetChatButton.addEventListener("click", async () => {
     if (confirm("Are you sure? If you continue, the chat history will be cleared and the character will forget everything")) {
         showLoadingOverlay();
         await clearChatHistory();
+        closeSettingsModal();
+        chatMessageCount = 0;
+        await doChatSetup();
+        hideLoadingOverlay();
+    }
+});
+
+const updateChatCharButton = document.querySelector("#update-chat-btn");
+updateChatCharButton.addEventListener("click", async () => {
+    if (botId && confirm("Are you sure? If you continue, the chat history will be cleared and the character will forget everything")) {
+        showLoadingOverlay();
+        await addCharacterToChat(botId);
         closeSettingsModal();
         chatMessageCount = 0;
         await doChatSetup();

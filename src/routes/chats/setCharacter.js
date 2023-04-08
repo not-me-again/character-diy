@@ -22,6 +22,17 @@ module.exports = {
         const characterCreatorId = await character.get("authorId");
         if (!isPublicCharacter && (characterCreatorId != userId))
             return res.status(403).send({ success: false, error: "not_authorized" });
+
+        let cachedCharacterData = {
+            backend: await character.get("backend"),
+            startMessage: await character.get("startMessage"),
+            personalityPrompt: await character.get("personalityPrompt"),
+            blurb: await character.get("blurb"),
+            pronouns: await character.get("pronouns"),
+            exampleConvo: await character.get("exampleConvo"),
+            avatarURL: await character.get("avatarURL"),
+            displayName: await character.get("displayName")
+        };
         
         let name = await character.get("displayName");
         let thumbnailURL = await character.get("avatarURL");
@@ -32,7 +43,8 @@ module.exports = {
             name,
             messages: [],
             messageCount: 0,
-            thumbnailURL
+            thumbnailURL,
+            cachedCharacterData
         });
         await chat.save();
 

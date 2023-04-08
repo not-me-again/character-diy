@@ -11,7 +11,7 @@ const log = new Logger("Poe");
 
 const BOT_TYPES = {
     "claude": {
-        NAME: "claude",
+        NAME: "claude-instant",
         CODENAME: "a2"
     },
     "claude+": {
@@ -247,18 +247,18 @@ class PoeAccount {
 
 class Poe {
     constructor(authCookie, botType) {
-        if (typeof authCookie != "string")
-            throw new Error("Argument #1 must be authCookie: string");
+        if ((typeof authCookie != "string") || (authCookie.length <= 0))
+            throw new Error("Argument #1 must be authCookie: string[len>=1]");
 
-        if (typeof botType == "string")
+        /*if (typeof botType == "string")
             botType = BOT_TYPES[botType.toLowerCase()];
 
         if ((typeof botType != "object") || (typeof botType.CODENAME != "string") || (typeof botType.ID != "string"))
-            botType = BOT_TYPES.claude;
+            botType = BOT_TYPES.claude;*/
         
         this.botType = botType;
 
-        log.info(`BotType: ${botType.NAME}`);
+        log.info(`BotType: ${botType}`);
 
         this.headers = {
             ...DEFAULTS.HEADERS,
@@ -266,6 +266,7 @@ class Poe {
         }
         this.messageHistory = [];
         this.socketServer = "tch596472.tch.quora.com";
+        this.lastUsed = Date.now();
     }
 
     async getChannelSettings() {
@@ -284,6 +285,8 @@ class Poe {
         const channelData = this.channelData;
         if (!channelData)
             throw new Error("Channel not yet initialized");
+        
+        this.latUsed = Date.now();
 
         return new Promise((resolve, reject) => {
             const socket = new WebSocket(`wss://${this.socketServer}/up/${channelData.boxName}/updates?min_seq=${channelData.minSeq}&channel=${channelData.channel}&hash=${channelData.channelHash}`);
@@ -318,9 +321,14 @@ class Poe {
     }
 
     async getBotId() {
-        let botName = this.botType.NAME;
-        if (botName == "claude")
-            botName += "-instant";
+        let botName;
+
+        for (const [_, bot] of Object.entries(BOT_TYPES))
+            if (bot.CODENAME == this.botType)
+                botName = bot.NAME;
+
+        if (!botName)
+            botName = "claude-instant";
 
         const info_req = await httpRequest({
             url: `https://poe.com/_next/data/${this.nextId}/${encodeURIComponent(botName)}.json`,
@@ -328,11 +336,11 @@ class Poe {
             method: "GET"
         });
         if (typeof info_req?.data != "object")
-            throw new Error("Failed to get bot info for: " + this.botType.NAME);
+            throw new Error("Failed to get bot info for: " + this.botType);
 
         const botId = info_req.data?.pageProps?.payload?.chatOfBotDisplayName?.id;
         if ((typeof botId != "string") || (botId.length <= 0))
-            throw new Error("Failed to get bot id for: " + this.botType.NAME);
+            throw new Error("Failed to get bot id for: " + this.botType);
 
         return botId;
     }
@@ -402,6 +410,8 @@ class Poe {
 
     async deleteMessage(...ids) {
         log.info("Deleting messages with ids " + ids.join(", "));
+        
+        this.latUsed = Date.now();
 
         const delete_req = await httpRequest({
             url: "https://poe.com/api/gql_POST",
@@ -431,6 +441,8 @@ class Poe {
 
     async resetChat() {
         log.info("Resetting chat context");
+        
+        this.latUsed = Date.now();
 
         const reset_req = await httpRequest({
             url: "https://poe.com/api/gql_POST",
@@ -473,6 +485,10 @@ class Poe {
             dataEvent.emit("error", { message: "Already replying!", data: null });
             return;
         }
+
+        this.lastDataEvent = dataEvent;
+        
+        this.latUsed = Date.now();
     
         let replyStart = Date.now();
         this.isReplying = true;
@@ -480,6 +496,8 @@ class Poe {
             if (!this.isReplying)
                 return;
             this.isReplying = false;
+            
+            this.lastDataEvent = undefined;
 
             this.socket.removeEventListener("message");
             this.socket.removeEventListener("error");
@@ -494,6 +512,8 @@ class Poe {
 
         this.socket.once("unexpected-response", err => {
             this.isReplying = false;
+            
+            this.lastDataEvent = undefined;
 
             this.socket.removeEventListener("error");
             this.socket.removeEventListener("message");
@@ -504,6 +524,8 @@ class Poe {
 
         this.socket.once("error", err => {
             this.isReplying = false;
+            
+            this.lastDataEvent = undefined;
 
             this.socket.removeEventListener("unexpected-response");
             this.socket.removeEventListener("message");
@@ -556,6 +578,9 @@ class Poe {
                     if ((typeof messageText != "string") || (messageText.length <= 0))
                         continue;
 
+                    if (messageText.match(/^\s*\*\s+\w/))
+                        messageText = messageText.replace(/\*\s*(.*?(?=\s*?))\s*\*/ig, "*$1*");
+
                     // BEGIN MOOD EVALUATION //
                     let characterMoods = [];
                     const moodMatches = Array.from(messageText.matchAll(DEFAULTS.MOOD_CAPTURE_REGEX));
@@ -576,7 +601,7 @@ class Poe {
                         messageData.linkifiedText = messageData.linkifiedText.replace(/(\(\s*\#mood\=)([a-zA-Z0-9\- ,]*)$/mi, "");
 
                     messageData.currentMoods = characterMoods;
-                    messageData.author = this.botType.NAME;
+                    messageData.author = this.botType;
                     // END MESSAGEDATA MODIFICATIONS //
 
                     // BEGIN JAILBREAK STUFF //
@@ -595,6 +620,8 @@ class Poe {
                     
                     if (!ignoreOOC && isFinal && ((characterMoods.length <= 0) || (messageData.isBreakingCharacter))) {
                         this.isReplying = false;
+            
+                        this.lastDataEvent = undefined;
 
                         clearTimeout(this.timeoutDaemon);
                         this.socket.removeEventListener("error");
@@ -624,6 +651,8 @@ class Poe {
                     
                     if (isFinal) {
                         this.isReplying = false;
+            
+                        this.lastDataEvent = undefined;
 
                         clearTimeout(this.timeoutDaemon);
                         this.socket.removeEventListener("message");
@@ -637,6 +666,8 @@ class Poe {
                 }
             } catch(err) {
                 this.isReplying = false;
+            
+                this.lastDataEvent = undefined;
 
                 console.warn("Got:", Buffer.from(data).toString("utf-8"));
 
@@ -650,7 +681,7 @@ class Poe {
         });
         
         try {
-            let codename = this.botType.CODENAME;
+            let codename = this.botType;
             if ((codename == "a2_2") || (codename == "beaver"))
                 log.warn("Paid model detected");
 
@@ -684,6 +715,8 @@ class Poe {
                 
                 if (typeof selfMessage != "object") {
                     this.isReplying = false;
+            
+                    this.lastDataEvent = undefined;
 
                     this.socket.removeEventListener("message");
                     this.socket.removeEventListener("error");
@@ -698,6 +731,8 @@ class Poe {
                 }
             }).catch(err => {
                 this.isReplying = false;
+            
+                this.lastDataEvent = undefined;
 
                 clearTimeout(this.timeoutDaemon);
                 this.socket.removeEventListener("message");
@@ -708,6 +743,8 @@ class Poe {
             });
         } catch(err) {
             this.isReplying = false;
+            
+            this.lastDataEvent = undefined;
 
             this.socket.removeEventListener("message");
             this.socket.removeEventListener("error");

@@ -3,6 +3,7 @@ const db = require("../db");
 const generateStartPrompt = require("./generateStartPrompt");
 const sanitizeMessageText = require("./sanitizeMessageText");
 const removeListenerSafe = require("./removeListenerSafe");
+const signupHandler = require("./signupHandler");
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
@@ -16,24 +17,32 @@ module.exports = chat => {
         if (!userId)
             return reject("Chat has no owner!");
 
+        const user = db.getUser(userId);
+        if (!await user.exists())
+            return reject("Invalid chat owner!");
+
         const activeCharacterId = await chat.get("activeCharacterId");
-        const character = db.getCharacter(activeCharacterId);
-        if (!await character.exists())
+        const cachedCharacter = await chat.getCharacterData();
+        if (typeof cachedCharacter != "object")
             return reject("Chat does not contain a valid character");
 
         const charData = {
-            backend: await character.get("backend"),
-            startMessage: await character.get("startMessage"),
-            personalityPrompt: await character.get("personalityPrompt"),
-            exampleConvo: await character.get("exampleConvo"),
-            blurb: await character.get("blurb"),
-            pronouns: await character.get("pronouns"),
-            name: await character.get("displayName")
+            backend: cachedCharacter["backend"],
+            startMessage: cachedCharacter["startMessage"],
+            personalityPrompt: cachedCharacter["personalityPrompt"],
+            exampleConvo: cachedCharacter["exampleConvo"],
+            blurb: cachedCharacter["blurb"],
+            pronouns: cachedCharacter["pronouns"],
+            name: cachedCharacter["displayName"]
         }
 
         let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
-            const authCookie = await chat.get("poeCookie");
+            let authCookie = await chat.get("poeCookie");
+            if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
+                authCookie = await signupHandler().catch(console.error);
+                await chat.set("poeCookie", authCookie);
+            }
             
             let backend = charData.backend;
             if (!backend)
@@ -44,7 +53,13 @@ module.exports = chat => {
 
         await poeInstance.resetChat();
 
-        const dataStream = poeInstance.sendMessage(generateStartPrompt(charData));
+        let startPromptData = {
+            ...charData,
+            customUserName: await user.get("displayName"),
+            customUserContext: await user.get("customChatContext")
+        }
+
+        const dataStream = poeInstance.sendMessage(generateStartPrompt(startPromptData));
         dataStream.on("error", errObj => {
             console.error(errObj);
 
@@ -60,7 +75,8 @@ module.exports = chat => {
             removeListenerSafe(dataStream, "error");
             removeListenerSafe(dataStream, "messageComplete");
             // deserialize data
-            const rawMessageText = messageData.text;
+            ///////////const rawMessageText = messageData.text;
+            const rawMessageText = (typeof charData.startMessage == "string") ? charData.startMessage : messageData.text;
             // sanitize text
             const sanitizedMessageText = sanitizeMessageText(rawMessageText);
             // append chat history

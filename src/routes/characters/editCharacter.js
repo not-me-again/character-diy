@@ -59,6 +59,21 @@ module.exports = {
                 isPublic
             } = config;
 
+            if (displayName.length < 2)
+                return res.status(400).send({ success: false, error: "display_name_too_short" });
+            else if (displayName.length > 32)
+                return res.status(400).send({ success: false, error: "display_name_too_long" });
+
+            if (blurb.length < 1)
+                return res.status(400).send({ success: false, error: "blurb_too_short" });
+            else if (blurb.length > 30)
+                return res.status(400).send({ success: false, error: "blurb_too_long" });
+
+            if (startMessage.length < 1)
+                return res.status(400).send({ success: false, error: "start_message_too_short" });
+            else if (startMessage.length > 1000)
+                return res.status(400).send({ success: false, error: "start_message_too_long" });
+
             if ((typeof avatarURL == "string") && (avatarURL.length >= 1))
                 await character.set("avatarURL", avatarURL);
 

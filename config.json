@@ -31,9 +31,9 @@
         }
     },
     "BACKEND_CONVERSION": {
-        "text-davinci-003": "gpt-3",
-        "gpt-3.5": "gpt-3.5-t",
-        "gpt-3.5-turbo-0301": "gpt-3.5-t-ml",
-        "claude": "claude"
+        "text-davinci-003": "nutria",
+        "gpt-3.5": "chinchilla",
+        "gpt-3.5-turbo-0301": "capybara",
+        "claude": "a2"
     }
 }

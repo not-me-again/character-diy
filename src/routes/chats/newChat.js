@@ -21,20 +21,18 @@ module.exports = {
         let activeCharacterId = "";
         let name = "";
         let thumbnailURL = "";
-        if (characterId) {
-            const character = await db.getCharacter(characterId);
-            if (await character.exists()) {
-                const isPublicCharacter = await character.get("isPublic");
-                const characterCreatorId = await character.get("authorId");
-                if (!isPublicCharacter && (characterCreatorId != userId))
-                    return res.status(403).send({ success: false, error: "not_authorized" });
-                
-                activeCharacterId = characterId;
-                name = await character.get("displayName");
-                thumbnailURL = await character.get("avatarURL");
-            } else
-                return res.status(404).send({ success: false, error: "character_not_found" });
-        }
+        const character = await db.getCharacter(characterId);
+        if (await character.exists()) {
+            const isPublicCharacter = await character.get("isPublic");
+            const characterCreatorId = await character.get("authorId");
+            if (!isPublicCharacter && (characterCreatorId != userId))
+                return res.status(403).send({ success: false, error: "not_authorized" });
+            
+            activeCharacterId = characterId;
+            name = await character.get("displayName");
+            thumbnailURL = await character.get("avatarURL");
+        } else
+            return res.status(404).send({ success: false, error: "character_not_found" });
         
         let chats = await user.get("chats");
         if (chats.length >= MAX_ALLOWED_CHATS_PER_USER)
@@ -46,6 +44,17 @@ module.exports = {
 
         const birthdate = await user.get("birthdate");
         const needsFilterEnabled = typeof birthdate != "number" || ((Date.now() - birthdate) < AGE_OF_MAJORITY_MS);
+        
+        let cachedCharacterData = {
+            backend: await character.get("backend"),
+            startMessage: await character.get("startMessage"),
+            personalityPrompt: await character.get("personalityPrompt"),
+            blurb: await character.get("blurb"),
+            pronouns: await character.get("pronouns"),
+            exampleConvo: await character.get("exampleConvo"),
+            avatarURL: await character.get("avatarURL"),
+            displayName: await character.get("displayName")
+        };
 
         const newChat = db.getChat(db.getUniqueId());
         await newChat.set({
@@ -56,7 +65,8 @@ module.exports = {
             activeCharacterId,
             name,
             thumbnailURL,
-            isFilterEnabled: needsFilterEnabled
+            isFilterEnabled: needsFilterEnabled,
+            cachedCharacterData
         });
         await newChat.save();
 

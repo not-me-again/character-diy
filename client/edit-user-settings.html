@@ -67,9 +67,18 @@
                                 <tr class="chat-list-item">
                                     <td class="chat-bot-extra">
                                         <span class="chat-bot-name">Display Name <span class="required-text">required</span></span>
-                                        <span class="chat-message-count"><i class="fa-solid fa-pencil"></i>The name used for you in chats</span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pencil"></i>The name used to refer to you in chats (3-24 characters)</span>
                                         <span class="chat-link-button">
-                                            <input name="Display Name" required id="display-name" type="text" maxlength="24" placeholder="User">
+                                            <input name="Display Name" required id="display-name" type="text" minlength="3" maxlength="24" placeholder="User">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">User Description</span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-pen-fancy"></i>This information will be provided characters at the start of every chat (0-1000 characters)</span>
+                                        <span class="chat-link-button">
+                                            <textarea name="User Description" id="user-desc" maxlength="1000" wrap="hard" cols="16" rows="10" placeholder="He is ..."></textarea>
                                         </span>
                                     </td>
                                 </tr>

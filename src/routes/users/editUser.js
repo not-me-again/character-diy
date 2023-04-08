@@ -42,11 +42,16 @@ module.exports = {
 
             let config = JSON.parse(rawSettings);
 
-            if (typeof config.displayName == "string")
-                await user.set("displayName", config.displayName);
+            const displayName = typeof config.displayName == "string" ? config.displayName.trim() : undefined;
+            if (displayName && (displayName.length >= 3))
+                await user.set("displayName", displayName);
 
             if (typeof config.birthdate == "number")
                 await user.set("birthdate", config.birthdate);
+
+            const customChatContext = typeof config.customChatContext == "string" ? config.customChatContext.trim() : undefined;
+            if (customChatContext && (customChatContext.length >= 1))
+                await user.set("customChatContext", config.customChatContext);
             
             await user.save();
         

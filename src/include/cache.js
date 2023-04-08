@@ -2,6 +2,8 @@ const db = require("../include/db");
 const { Poe } = require("../include/poe");
 const { Logger } = require("../include/logging");
 
+const POE_INSTANCE_IDLE_TIME = 5 * 60 * 1e3; // 5mins
+
 const log = new Logger("Caching");
 
 class Cache {
@@ -25,6 +27,8 @@ class Cache {
     }
 
     async newPoeInstance(chatId, authCookie, botType) {
+        log.debug("Launching new poeInstance for chat", chatId);
+
         let poeInstance = new Poe(authCookie, botType);
         await poeInstance.init();
 
@@ -34,9 +38,10 @@ class Cache {
     }
 
     _prunePoeInstances() {
+        const currentTime = Date.now();
         for (let idx in this.poeInstances) {
             const poeInstance = this.poeInstances[idx];
-            if (!poeInstance.isConnected) {
+            if ((!poeInstance.isConnected) || ((currentTime - poeInstance.lastUsed) > POE_INSTANCE_IDLE_TIME)) {
                 log.debug("Clearing idle poeInstance: " + idx.toString());
                 delete this.poeInstances[idx];
             }

@@ -88,8 +88,14 @@ setAllDisabled(true);
 function doRequiredCheck() {
     let elems = [];
     for (const elem of FORM_ELEM_LIST)
-        if (elem.required && !elem.value)
-            elems.push(elem);
+        if (elem.required) {
+            if (!elem.value)
+                elems.push([ elem, "Required value" ]);
+            else if ((typeof elem.minLength == "number") && (elem.minLength >= 0) && (elem.value.length < elem.minLength))
+                elems.push([ elem, `Value too short (minimum ${elem.minLength.toString()})` ]);
+            else if ((typeof elem.maxLength == "number") && (elem.maxLength >= 1) && (elem.value.length > elem.maxLength))
+                elems.push([ elem, `Value too long (maximum ${elem.maxLength.toString()})` ]);
+        }
 
     return (elems.length >= 1) ? elems : false;
 }
@@ -146,10 +152,13 @@ async function doSetup(isNew) {
         saveButton.addEventListener("click", async e => {
             const missingInputs = doRequiredCheck();
             if (missingInputs && (missingInputs.length >= 1)) {
-                for (let input of missingInputs)
+                let errorMsg = "Please correct the following errors:";
+                for (let [ input, message ] of missingInputs) {
+                    errorMsg += `\n${input.name}: ` + message.toString();
                     input.style.border = "1px solid red";
-                missingInputs[0].scrollIntoView();
-                return alert("Missing required field: " + missingInputs[0].name);
+                }
+                missingInputs[0][0].scrollIntoView();
+                return alert(errorMsg);
             }
             if (isNew && (submitPfpButton.files.length <= 0)) {
                 return alert("Missing profile picture");

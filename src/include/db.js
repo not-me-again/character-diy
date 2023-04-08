@@ -40,6 +40,7 @@ const USER_PROPERTIES = [
     [ "email", "" ], // user email (got from discord login)
     [ "displayName", "" ], // username from discord
     [ "username", "" ],
+    [ "customChatContext", "" ],
     [ "profilePictureURL", "" ], // profile pic url
     [ "characters", [] ], // list of user-created character IDs
     [ "apiKeys", [] ], // list of active session IDs
@@ -59,7 +60,8 @@ const CHAT_PROPERTIES = [
     [ "createdAt", 0 ],
     [ "updatedAt", 0 ],
     [ "lastMessageAt", 0 ],
-    [ "isFilterEnabled", true ]
+    [ "isFilterEnabled", true ],
+    [ "cachedCharacterData", {} ]
 ];
 const API_KEY_PROPERTIES = [
     [ "id", "" ],
@@ -273,6 +275,10 @@ class Chat extends BaseDB {
     constructor(id) {
         super("chats", id, CHAT_PROPERTIES);
         this.maxLength = MAX_CHAT_HISTORY_LENGTH;
+    }
+
+    async getCharacterData() {
+        return await this.get("cachedCharacterData");
     }
 
     async getMessages(count) {

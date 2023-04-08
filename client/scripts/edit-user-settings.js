@@ -32,12 +32,14 @@ submitPfpButton.onchange = () => {
 
 const displayNameInput = document.querySelector("#display-name");
 const birthdayInput = document.querySelector("#birthdate");
+const customContextInput = document.querySelector("#user-desc");
 
 const saveButton = document.querySelector("#save-btn");
 
 const FORM_ELEM_LIST = [
     displayNameInput,
-    birthdayInput
+    birthdayInput,
+    customContextInput
 ];
 
 function setAllDisabled(isDisabled) {
@@ -49,8 +51,14 @@ setAllDisabled(true);
 function doRequiredCheck() {
     let elems = [];
     for (const elem of FORM_ELEM_LIST)
-        if (elem.required && !elem.value)
-            elems.push(elem);
+        if (elem.required) {
+            if (!elem.value)
+                elems.push([ elem, "Required value" ]);
+            else if ((typeof elem.minLength == "number") && (elem.minLength >= 0) && (elem.value.length < elem.minLength))
+                elems.push([ elem, `Value too short (minimum ${elem.minLength.toString()})` ]);
+            else if ((typeof elem.maxLength == "number") && (elem.maxLength >= 1) && (elem.value.length > elem.maxLength))
+                elems.push([ elem, `Value too long (maximum ${elem.maxLength.toString()})` ]);
+        }
 
     return (elems.length >= 1) ? elems : false;
 }
@@ -63,28 +71,39 @@ for (const elem of FORM_ELEM_LIST)
                 elem.style.border = "";
         });
 
+
+function formatBirthday(birthdateDate) {
+    const day = birthdateDate.getDate() + 1;
+    const month = birthdateDate.getMonth() + 1;
+    return `${birthdateDate.getUTCFullYear()}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`
+}
+
 async function doSetup(isNew) {
     setAllDisabled(true);
 
-    let { profilePictureURL, displayName, birthdate } = await waitForCachedState();
+    let { profilePictureURL, displayName, birthdate, customChatContext } = await waitForCachedState();
 
     const birthdateDate = typeof birthdate == "number" ? new Date(birthdate) : new Date();
-    const formattedBirthdate = `${birthdateDate.getUTCFullYear()}-${birthdateDate.getUTCMonth().toString().padStart(2, "0")}-${birthdateDate.getUTCDate().toString().padStart(2, "0")}`;
+    const formattedBirthdate = formatBirthday(birthdateDate);
 
     setAllDisabled(false);
 
     pfpImg.src = profilePictureURL;
     displayNameInput.value = displayName;
+    customContextInput.value = customChatContext;
     birthdayInput.defaultValue = formattedBirthdate;
     console.log(formattedBirthdate);
 
     saveButton.addEventListener("click", async e => {
         const missingInputs = doRequiredCheck();
         if (missingInputs && (missingInputs.length >= 1)) {
-            for (let input of missingInputs)
+            let errorMsg = "Please correct the following errors:";
+            for (let [ input, message ] of missingInputs) {
+                errorMsg += `\n${input.name}: ` + message.toString();
                 input.style.border = "1px solid red";
-            missingInputs[0].scrollIntoView();
-            return alert("Missing required field: " + missingInputs[0].name);
+            }
+            missingInputs[0][0].scrollIntoView();
+            return alert(errorMsg);
         }
         if (isNew && (submitPfpButton.files.length <= 0))
             return alert("Missing profile picture");
@@ -93,7 +112,8 @@ async function doSetup(isNew) {
 
         const data = {
             displayName: displayNameInput.value,
-            birthdate: (new Date(birthdayInput.value)).getTime()
+            birthdate: (new Date(birthdayInput.value)).getTime(),
+            customChatContext: customContextInput.value
         };
 
         const form = new FormData();

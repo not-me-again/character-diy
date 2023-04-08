@@ -77,6 +77,10 @@ tr.chat-list-item > td {
     position: relative;
 }
 
+tr.ignored {
+    filter: blur(0.5vh);
+}
+
 img.chat-message-image {
     border-radius: 50%;
 }
