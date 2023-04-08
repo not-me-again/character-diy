@@ -238,6 +238,7 @@ async function sendMessage() {
     let botMessageId;
 
     let isSuccess = true;
+    let errorType;
 
     await window.makeAuthenticatedRequest(`/api/chats/${chatId}/inference`, {
         method: "POST",
@@ -250,8 +251,8 @@ async function sendMessage() {
                 const { success, error } = await response.json();
                 console.log("inference failed with reason:", error);
 
-                userMessage.metaDataNode.classList = "chat-message-error";
-                userMessage.metaDataNode.innerText = "ERROR";
+                errorType = "ERROR";
+
                 userMessage.messageTextNode.classList = "chat-message-filtered";
                 userMessage.deleteMessageButton.remove();
 
@@ -287,8 +288,7 @@ async function sendMessage() {
 
                                 console.warn("message hit filter");
 
-                                botMessage.metaDataNode.classList = "chat-message-error";
-                                botMessage.metaDataNode.innerText = "FILTERED";
+                                errorType = "FILTERED";
 
                                 const childrenParagraphs = botMessage?.messageTextNode?.children;
                                 if (childrenParagraphs)
@@ -318,14 +318,12 @@ async function sendMessage() {
                             botMessage.messageTextNode.innerHTML = "<p>Error during inferencing</p>";
                         
                         isSuccess = false;
+                        errorType = "ERROR";
 
                         if (typeof botMessage.messageButtonsContainer == "object")
                             botMessage.messageButtonsContainer.remove();
 
                         console.error("error occurred:", errorMessage);
-
-                        botMessage.metaDataNode.classList = "chat-message-error";
-                        botMessage.metaDataNode.innerText = "ERROR";
 
                         const childrenParagraphs = botMessage?.messageTextNode?.children;
                         if (childrenParagraphs)
@@ -341,15 +339,18 @@ async function sendMessage() {
                 }
             } catch (err) {
                 console.error(err);
-                botMessage.metaDataNode.classList = "chat-message-error";
-                botMessage.metaDataNode.innerText = "ERROR";
+
+                errorType = "ERROR";
+
                 alert(err.toString());
             }
         })
         .catch((err) => {
             console.error(err);
+
             userMessage.metaDataNode.classList = "chat-message-error";
             userMessage.metaDataNode.innerText = "ERROR";
+            
             alert(err.toString());
         });
     console.log("received msg end");
@@ -359,6 +360,9 @@ async function sendMessage() {
         
         userMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
         botMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
+    } else {
+        botMessage.metaDataNode.classList = "chat-message-error";
+        botMessage.metaDataNode.innerText = (typeof errorType == "string") ? errorType : "ERROR";
     }
 
     textBar.disabled = false;
