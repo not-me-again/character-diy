@@ -6,6 +6,7 @@ module.exports = {
     path: "/api/characters",
     async callback(req, res) {
         const { user } = req.auth;
+        const userId = await user.get("id");
         
         let charIds = await user.get("characters");
         if (typeof charIds != "object")
@@ -19,7 +20,7 @@ module.exports = {
             const charObj = db.getCharacter(charId);
             await charObj.load();
 
-            if (!await charObj.exists()) {
+            if ((!await charObj.exists()) || (await charObj.get("authorId") != userId)) {
                 charIds.splice(i, 1);
                 isSaved = true;
                 continue;
