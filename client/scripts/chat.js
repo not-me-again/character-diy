@@ -218,7 +218,8 @@ async function sendMessage() {
         text,
         authorId: myId,
         failed: false,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        isPending: false
     });
     // send bot message
     const botMessage = createMessage({
@@ -480,7 +481,9 @@ function createMessage(data) {
 
     let messageTextNode = createNode("span", {
         innerHTML: text
-    }, ["chat-message-loading"]);
+    }, [
+        isPending ? "chat-message-loading" : "chat-message-text"
+    ]);
     contentContainer.appendChild(messageTextNode);
     container.appendChild(contentContainer);
     chatList.append(container);

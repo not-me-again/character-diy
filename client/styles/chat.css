@@ -185,7 +185,7 @@ p.error-message {
     display: inline-block;
     z-index: 1;
     font-size: 2vh;
-    /*top: 0;*/
+    align-self: flex-start;
 }
 
 span:is(.chat-message-text, .chat-message-loading) {
@@ -194,8 +194,13 @@ span:is(.chat-message-text, .chat-message-loading) {
     position: relative;
     min-width: 75vw;
 }
+.chat-message-loading {
+    align-items: flex-start;
+    flex-wrap: nowrap;
+}
 .chat-message-text > :is(p) {
     flex: 1;
+    align-self: flex-start;
 }
 .chat-message-text > p > em {
     padding-right: 0.5vw;
