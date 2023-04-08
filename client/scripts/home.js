@@ -55,6 +55,21 @@ async function doCharactersSetup() {
 }
 doCharactersSetup();
 
+const addCharName = document.querySelector("#add-char-name");
+
+async function doAddCharSetup(charId) {
+    const { success, error, characterData } = await getCharacterInfo(charId);
+    if (!success) {
+        console.error("Failed to fetch character info for", charId, "with reason:", error);
+        return;
+    }
+    handleChatOpen(characterData);
+}
+
+const addCharacterId = location.query["add-character"];
+if (typeof addCharacterId == "string")
+    doAddCharSetup(addCharacterId);
+
 const chatList = document.querySelector("#chat-list");
 const chatHelperOverlay = document.querySelector("#chat-helper-overlay");
 const chatHelperCloseButton = document.querySelector("#chat-helper-close");
@@ -140,6 +155,20 @@ function displayChat(data) {
     chatList.prepend(container);
 }
 
+async function handleCharShare(charData) {
+    if (!charData)
+        return;
+
+    const { id: charId } = charData;
+    if (typeof charId != "string")
+        return;
+
+    const shareURL = `${location.protocol}//${location.hostname}${location.pathname}?add-character=${charId}`;
+    console.log("share url:", shareURL);
+    await navigator.clipboard.writeText(shareURL);
+    alert("Share URL copied to clipboard");
+}
+
 async function handleCharDelete(charData) {
     if (!charData)
         return;
@@ -169,7 +198,7 @@ let chats = undefined;
 async function handleChatOpen(charData) {
     console.log("Char:", charData);
 
-    const { id: charId } = charData;
+    const { id: charId, displayName: charName } = charData;
     selectedCharId = charId;
 
     if (!charId)
@@ -185,6 +214,8 @@ async function handleChatOpen(charData) {
     const { quotas } = await waitForCachedState();
 
     console.log("Chat list:", chats);
+
+    addCharName.innerText = charName;
     
     chatList.innerHTML = chatNewItemHTML;
 
@@ -266,6 +297,13 @@ function displayCharacter(charData) {
     deleteButtonNode.addEventListener("click", () => handleCharDelete(charData));
 
     linkButtonContainer.appendChild(deleteButtonNode);
+
+    let shareButtonNode = createNode("a", { }, [ "link-clear" ]);
+    let faShareIconNode = createNode("i", {}, [ "fa-regular", "fa-share-from-square", "fa-btn" ]);
+    shareButtonNode.appendChild(faShareIconNode);
+    shareButtonNode.addEventListener("click", () => handleCharShare(charData));
+
+    linkButtonContainer.appendChild(shareButtonNode);
 
     contentContainer.appendChild(linkButtonContainer);
     container.appendChild(contentContainer);

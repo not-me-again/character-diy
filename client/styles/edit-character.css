@@ -2,10 +2,10 @@
     height: auto;
     min-height: 10vh;
     margin: auto;
-    background: var(--body-bg-color);
-    padding: 1vh;
-    border: 1.5vh solid var(--body-bg-color);
-    border-radius: 4vh;
+    /* background: var(--body-bg-color); */
+    /* padding: 1vh; */
+    /* border: 1.5vh solid var(--body-bg-color); */
+    /* border-radius: 4vh; */
     width: 95%;
 }
 

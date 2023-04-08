@@ -269,16 +269,16 @@ a.chat-new-button[disabled] {
 }
 .overlay > .modal {
     margin: auto;
-    max-width: 1000px;
-    margin-top: 6vh;
+    /* max-width: 1000px; */
+    margin-top: 1vh;
 }
 .chat-options-container {
     height: auto;
     min-height: 10vh;
     margin: auto;
-    background: var(--body-bg-color);
-    padding: 1vh;
-    border: 1.5vh solid var(--body-bg-color);
+    /* background: var(--body-bg-color); */
+    /* padding: 1vh; */
+    /* border: 1.5vh solid var(--body-bg-color); */
     border-radius: 4vh;
     width: 95%;
 }
@@ -339,7 +339,7 @@ input:disabled {
     align-self: stretch;
     font-size: 2vh;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-content: stretch;
     justify-content: center;
     align-items: center;
