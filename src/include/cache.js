@@ -39,7 +39,7 @@ class Cache {
 
     _prunePoeInstances() {
         const currentTime = Date.now();
-        for (let [ idx, poeInstance ] in Object.entries(this.poeInstances)) {
+        for (let [ idx, poeInstance ] of Object.entries(this.poeInstances)) {
             if ((!poeInstance.isConnected) || ((currentTime - poeInstance.lastUsed) > POE_INSTANCE_IDLE_TIME)) {
                 log.debug("Clearing idle poeInstance: " + idx.toString());
                 delete this.poeInstances[idx];
