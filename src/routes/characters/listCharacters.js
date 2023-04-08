@@ -20,7 +20,7 @@ module.exports = {
             await charObj.load();
 
             if (!await charObj.exists()) {
-                delete charIds[i];
+                charIds.splice(i, 1);
                 isSaved = true;
                 continue;
             }

@@ -409,7 +409,13 @@ class Poe {
     }
 
     async deleteMessage(...ids) {
-        log.info("Deleting messages with ids " + ids.join(", "));
+        let safeIds = [];
+
+        for (let id of ids)
+            if (Number(id) != NaN)
+                safeIds.push(id);
+
+        log.info("Deleting messages with ids " + safeIds.join(", "));
         
         this.latUsed = Date.now();
 
@@ -422,7 +428,7 @@ class Poe {
                     "connections": [
                         `client:${this.botId}:__ChatMessagesView_chat_messagesConnection_connection`
                     ],
-                    "messageIds": ids
+                    "messageIds": safeIds
                 },
                 "query": DEFAULTS.GRAPHQL_QUERIES.DELETE_MESSAGE
             },
