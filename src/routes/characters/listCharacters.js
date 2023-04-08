@@ -11,10 +11,19 @@ module.exports = {
         if (typeof charIds != "object")
             return res.status(500).send({ success: false, error: "preflight_condition_failure" });
 
+        let isSaved = false;
+
         let chars = [];
-        for (const charId of charIds) {
+        for (const i in charIds) {
+            const charId = charIds[i];
             const charObj = db.getCharacter(charId);
             await charObj.load();
+
+            if (!await charObj.exists()) {
+                delete charIds[i];
+                isSaved = true;
+                continue;
+            }
             
             let characterData = { ...charObj.getObject() };
             
@@ -26,7 +35,12 @@ module.exports = {
 
             chars.push(characterData);
         }
-    
+
+        if (isSaved) {
+            await user.set("characters", charIds);
+            await user.save();
+        }
+
         res.status(200).send({ success: true, chars });
     }
 }
