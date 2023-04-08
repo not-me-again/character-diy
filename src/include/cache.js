@@ -11,9 +11,9 @@ class Cache {
         this.poeInstances = {};
         this.popularCharacters = [];
 
-        setInterval(this._prunePoeInstances, 5e3);
+        setInterval(() => this._prunePoeInstances(), 5e3);
         
-        setInterval(this._updatePopularCharacters, 7200e3); // 7200e3 = 2 hours
+        setInterval(() => this._updatePopularCharacters(), 7200e3); // 7200e3 = 2 hours
         this._updatePopularCharacters();
     }
 
