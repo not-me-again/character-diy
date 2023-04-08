@@ -243,6 +243,8 @@ async function sendMessage() {
         body: JSON.stringify({ text })
     })
         .then(async (response) => {
+            botMessage.messageTextNode.classList = "chat-message-text";
+            
             if (response.status != 200) {
                 const { success, error } = await response.json();
                 console.log("inference failed with reason:", error);
@@ -380,6 +382,9 @@ function timestampToString(timestamp) {
 }
 
 async function deleteMessage(messageId) {
+    if (!confirm("Are you sure?"))
+        return;
+
     console.log(`DELETE message ${messageId}`);
     showLoadingOverlay();
     const { success, error: errorMessage } = await makeAuthenticatedRequest(`/api/chats/${chatId}/deleteMessage`, {
@@ -475,7 +480,7 @@ function createMessage(data) {
 
     let messageTextNode = createNode("span", {
         innerHTML: text
-    }, ["chat-message-text"]);
+    }, ["chat-message-loading"]);
     contentContainer.appendChild(messageTextNode);
     container.appendChild(contentContainer);
     chatList.append(container);
@@ -506,7 +511,7 @@ downloadChatButton.addEventListener("click", async () => {
             if (typeof messages != "object") {
                 alert("Failed to load chat messages");
             } else {
-                const fileName = "cidy_export_" + chatId + "_" + Date.now().toString();
+                const fileName = "cdiy_export_" + chatId + "_" + Date.now().toString();
                 const chosenFile = await window.showSaveFilePicker({
                     types: [
                         {

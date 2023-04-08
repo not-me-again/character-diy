@@ -113,6 +113,11 @@ td > span {
     display: flex;
     flex-flow: wrap;
     align-self: stretch;
+    flex-direction: column;
+    align-content: flex-start;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
 }
 td > span > p {
     padding: 0;
@@ -183,13 +188,13 @@ p.error-message {
     /*top: 0;*/
 }
 
-span.chat-message-text {
+span:is(.chat-message-text, .chat-message-loading) {
     font-size: 1.5vh;
     align-items: center;
     position: relative;
     min-width: 75vw;
 }
-.chat-message-text > * {
+.chat-message-text > :is(p) {
     flex: 1;
 }
 .chat-message-text > p > em {
