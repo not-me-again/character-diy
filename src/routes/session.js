@@ -12,7 +12,8 @@ module.exports = {
 
         userObj.quotas = {
             maxAllowedChats: config.MAX_ALLOWED_CHATS_PER_USER,
-            maxAllowedCharacters: config.MAX_ALLOWED_CHARS_PER_USER
+            maxAllowedCharacters: config.MAX_ALLOWED_CHARS_PER_USER,
+            dailyMessageLimit: config.DAILY_MESSAGE_LIMIT
         }
 
         res.status(200).send({ success: true, user: userObj });
