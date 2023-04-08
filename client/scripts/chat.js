@@ -369,11 +369,11 @@ async function sendMessage() {
         
         userMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
         botMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
-
-        textBar.value = text;
     } else {
         botMessage.metaDataNode.classList = "chat-message-error";
         botMessage.metaDataNode.innerText = (typeof errorType == "string") ? errorType : "ERROR";
+
+        textBar.value = text;
     }
 
     textBar.disabled = false;
