@@ -146,6 +146,7 @@ div.chat-message-header > span {
     padding-right: 0.5vh;
     font-size: 1.25vh;
     font-weight: 700;
+    user-select: none;
 }
 .bot-label {
     border-color: var(--theme-color);
