@@ -299,6 +299,7 @@ async function sendMessage() {
                                 const filterErrorNode = createNode("p", { innerText: text }, [ "error-message" ]);
                                 botMessage.messageTextNode.appendChild(filterErrorNode);
                             } else {
+                                isSuccess = true;
                                 botMessage.messageTextNode.innerHTML = text;
                             }
 
