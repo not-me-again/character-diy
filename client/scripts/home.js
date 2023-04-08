@@ -159,9 +159,12 @@ async function handleCharShare(charData) {
     if (!charData)
         return;
 
-    const { id: charId } = charData;
+    const { id: charId, isPublic } = charData;
     if (typeof charId != "string")
         return;
+
+    if (!isPublic)
+        return alert("This character cannot be shared because it has not been made public.");
 
     const shareURL = `${location.protocol}//${location.hostname}${location.pathname}?add-character=${charId}`;
     console.log("share url:", shareURL);
