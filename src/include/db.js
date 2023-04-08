@@ -159,8 +159,12 @@ class BaseDB {
     }
 
     async exists() {
-        const id = await this.get("id");
-        return typeof id == "string" ? ((id.length >= 1) && (id != "undefined")) : false;
+        try {
+            const id = await this.get("id");
+            return typeof id == "string" ? ((id.length >= 1) && (id != "undefined")) : false;
+        } catch(err) {
+            return false;
+        }
     }
 
     async save() {
