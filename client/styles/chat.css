@@ -189,6 +189,9 @@ span.chat-message-text {
     position: relative;
     min-width: 75vw;
 }
+.chat-message-text > * {
+    flex: 1;
+}
 .chat-message-text > p > em {
     padding-right: 0.5vw;
 }
