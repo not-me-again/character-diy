@@ -137,8 +137,10 @@ async function doChatSetup() {
     isFilterEnabled = chatData.isFilterEnabled;
     filterStatusText.innerText = isFilterEnabled ? "Disable" : "Enable";
 
-    botName = chatData.name;
-    botProfilePicture = chatData.thumbnailURL;
+    const { displayName, avatarURL } = chatData.cachedCharacterData;
+
+    botName = displayName;
+    botProfilePicture = avatarURL;
     botId = chatData.activeCharacterId;
 
     chatList.innerHTML = "";

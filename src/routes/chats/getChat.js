@@ -19,7 +19,14 @@ module.exports = {
 
         delete chatData.poeCookie;
         delete chatData.poeChatId;
-        delete chatData.cachedCharacterData;
+
+        let cachedCharacterData = { ...chatData.cachedCharacterData };
+
+        delete cachedCharacterData.personalityPrompt;
+        delete cachedCharacterData.pronouns;
+        delete cachedCharacterData.exampleConvo;
+
+        chatData.cachedCharacterData = cachedCharacterData;
 
         chatData.messages = [];
 
