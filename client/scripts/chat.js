@@ -163,8 +163,8 @@ async function doChatSetup() {
 
             const msg = createMessage({
                 id: message.id,
-                displayName: isSelfAuthor ? myName : chatData.name,
-                avatarURL: isSelfAuthor ? myProfilePicture : chatData.thumbnailURL,
+                displayName: isSelfAuthor ? myName : botName,
+                avatarURL: isSelfAuthor ? myProfilePicture : botProfilePicture,
                 text: message.text,
                 authorId,
                 isFiltered: message.isFiltered,
