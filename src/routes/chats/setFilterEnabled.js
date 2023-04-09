@@ -1,3 +1,4 @@
+const resetChatContext = require("../../include/helpers/resetChatContext");
 const { AGE_OF_MAJORITY_MS } = require("../../../config.json");
 
 module.exports = {
@@ -21,6 +22,13 @@ module.exports = {
             isFilterEnabled: doEnableFilter
         });
         await chat.save();
+        
+        try {
+            await resetChatContext(chat);
+        } catch(err) {
+            console.error(err);
+            return res.status(500).send({ success: false, error: err.toString() });
+        }
 
         res.status(200).send({ success: true });
     }

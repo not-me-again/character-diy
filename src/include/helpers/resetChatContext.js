@@ -67,7 +67,8 @@ module.exports = chat => {
         let startPromptData = {
             ...charData,
             customUserName: await user.get("displayName"),
-            customUserContext: await user.get("customChatContext")
+            customUserContext: await user.get("customChatContext"),
+            isFilterEnabled: await chat.get("isFilterEnabled")
         }
 
         const dataStream = poeInstance.sendMessage(generateStartPrompt(startPromptData));

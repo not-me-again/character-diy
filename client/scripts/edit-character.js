@@ -126,6 +126,11 @@ const DEFAULT_CHARACTER_INFO = {
     }
 }
 
+const errModal = document.querySelector("#err-msg-modal");
+const errText = document.querySelector("#err-msg-text");
+
+let saveBtnDebounce = Date.now();
+
 async function doSetup(isNew) {
     showLoadingOverlay();
     await waitForCachedState();
@@ -154,6 +159,10 @@ async function doSetup(isNew) {
 
     if (isOwner)
         saveButton.addEventListener("click", async e => {
+            if ((Date.now() - saveBtnDebounce) < 1e3)
+                return;
+            saveBtnDebounce = Date.name();
+
             const missingInputs = doRequiredCheck();
             if (missingInputs && (missingInputs.length >= 1)) {
                 let errorMsg = "Please correct the following errors:";
@@ -161,8 +170,12 @@ async function doSetup(isNew) {
                     errorMsg += `\n${input.name}: ` + message.toString();
                     input.style.border = "1px solid red";
                 }
-                missingInputs[0][0].scrollIntoView();
-                return alert(errorMsg);
+
+                errText.innerText = errorMsg;
+                errModal.style.display = "";
+                errModal.scrollIntoView();
+
+                return;
             }
             if (isNew && (submitPfpButton.files.length <= 0)) {
                 return alert("Missing profile picture");

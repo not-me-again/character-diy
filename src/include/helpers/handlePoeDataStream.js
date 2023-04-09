@@ -3,6 +3,7 @@ const db = require("../db");
 const nsfwFilter = require("./nsfwFilter");
 const sanitizeMessageText = require("./sanitizeMessageText");
 const removeListenerSafe = require("./removeListenerSafe");
+const handleCharacterInteractionDataUpdate = require("./handleCharacterInteractionDataUpdate");
 
 const activeHandlers = {};
 
@@ -131,6 +132,8 @@ class DataStreamHandler {
                 botMessageObject.poeId = finalMessageData.messageId;
                 // append chat history
                 chat.addMessages([ selfMessageObject, botMessageObject ]);
+                // handle char data updates (message count, etc.)
+                handleCharacterInteractionDataUpdate(characterId);
             } else {
                 log.debug("Deleting filtered interaction");
                 poeInstance.deleteMessage(selfMessageObject.poeId, botMessageObject.poeId);

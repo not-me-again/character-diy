@@ -15,7 +15,8 @@ module.exports = {
         let chats = [];
         for (const chatId of chatIds) {
             const chatObj = db.getChat(chatId);
-            await chatObj.load();
+            if (!await chatObj.exists())
+                continue;
 
             let chatData = { ...chatObj.getObject() };
 

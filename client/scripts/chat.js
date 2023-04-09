@@ -193,6 +193,8 @@ async function doChatSetup() {
     else {
         filterToggleButton.removeAttribute("disabled");
         filterToggleButton.addEventListener("click", async () => {
+            if (!confirm("Are you sure? You may see questionable/objectionable content produced by the AI if you continue. The chat history will also be cleared."))
+                return;
             showLoadingOverlay();
             const { success, error } = await setFilterEnabled(!isFilterEnabled);
             if (success)

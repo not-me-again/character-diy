@@ -8,7 +8,7 @@ console.log(characterId);
 
 const addCharButton = document.querySelector("#add-btn");
 addCharButton.addEventListener("click", () => {
-    window.location = "/?add-character=" + characterId;
+    window.location = "/characters?add-character=" + characterId;
 });
 
 if (window.showIsPubWarn)

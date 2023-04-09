@@ -16,8 +16,8 @@ if (query) {
 async function getCharacterInfo(charId) {
     return await window.makeAuthenticatedRequest(`/api/characters/${charId}/info`, {}, true);
 }
-async function getPopularCharacters() {
-    return await window.makeAuthenticatedRequest(`/api/popularCharacters`, {}, true);
+async function getAllCharacters() {
+    return await window.makeAuthenticatedRequest(`/api/characters`, {}, true);
 }
 async function getAllChats() {
     return await window.makeAuthenticatedRequest(`/api/chats`, {}, true);
@@ -35,9 +35,14 @@ async function addCharacterToChat(charId, chatId) {
     }, true);
 }
 
+const newButton = document.querySelector("#new-btn");
+newButton.addEventListener("click", () => {
+    window.location = "/characters/new";
+});
+
 async function doCharactersSetup() {
     showLoadingOverlay();
-    const { chars } = await getPopularCharacters();
+    const { chars } = await getAllCharacters();
     hideLoadingOverlay();
     console.log("Char list:", chars);
     
@@ -261,8 +266,8 @@ function displayCharacter(charData) {
             </td>
         </tr>
     */
-    const { totalMessagesCount, displayName, avatarURL, id } = charData;
-    const messageCount = window.formatNumberToHumanReadable(totalMessagesCount, 1);
+    const { totalMessageCount, displayName, avatarURL, id } = charData;
+    const messageCount = window.formatNumberToHumanReadable(totalMessageCount, 1);
     let container = createNode("tr", {}, [ "chat-list-item" ]);
     let pfpContainer = createNode("td", {}, [ "chat-bot-image" ]);
     let avatarNode = createNode("img", { src: avatarURL, alt: "pfp" }, [ "chat-bot-image" ]);

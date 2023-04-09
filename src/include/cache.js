@@ -8,12 +8,14 @@ const log = new Logger("Caching");
 
 class Cache {
     constructor() {
+        this.popularCharacterManager = db.getPopularCharacterManager();
+
         this.poeInstances = {};
         this.popularCharacters = [];
 
         setInterval(() => this._prunePoeInstances(), 5e3);
         
-        setInterval(() => this._updatePopularCharacters(), 7200e3); // 7200e3 = 2 hours
+        setInterval(() => this._updatePopularCharacters(), 600e3); // 10 mins
         this._updatePopularCharacters();
     }
 
@@ -49,12 +51,41 @@ class Cache {
 
     //////////////
 
+    _sortPopularCharacters() {
+        this.popularCharacters = this.popularCharacters.sort((a, b) => a.totalMessageCount - b.totalMessageCount);
+    }
+
     async _updatePopularCharacters() {
         log.debug("Updating popular character list");
 
-        const popularCharacterManager = db.getPopularCharacterManager();
-        await popularCharacterManager.load();
-        this.popularCharacters = popularCharacterManager.get("characters");
+        this.popularCharacters = await this.popularCharacterManager.get("characters");
+        this._sortPopularCharacters();
+
+        await this.popularCharacterManager.save();
+    }
+
+    async getPopularCharacterById(charId) {
+        return this.popularCharacters.find(c => c.id == charId);
+    }
+
+    async addToPopularCharacterList(characterData) {
+        if (typeof characterData != "object")
+            throw new Error("Expected argument #1 to be type object");
+            
+        this._sortPopularCharacters();
+        
+        const lastChar = this.popularCharacters[this.popularCharacters.length - 1];
+        if (lastChar.totalMessageCount > characterData.totalMessageCount)
+            return log.warn("Not appending popular character list as new entry does not meet minimum requirements");
+
+        const { popularCharacters } = this;
+
+        popularCharacters.unshift(characterData);
+
+        if (popularCharacters.length > 100)
+            popularCharacters.length = 100;
+
+        await this.popularCharacterManager.set("characters", popularCharacters);
     }
 
     getPopularCharacters() {
