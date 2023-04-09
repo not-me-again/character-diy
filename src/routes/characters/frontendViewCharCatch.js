@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const db = require("../../include/db");
+const removeXSS = require("../../include/helpers/removeXSS");
 
 const characterEditPage = path.join(path.resolve(__dirname), "../../../client/view-character.html");
 const characterEditPageHTML = fs.readFileSync(characterEditPage, { encoding: "utf-8" });
@@ -44,11 +45,11 @@ module.exports = {
 
         res.status(200).send(
             pageHTML
-                .replaceAll("%%char_name%", await character.get("displayName"))
-                .replaceAll("%%char_pfp%", await character.get("avatarURL"))
-                .replaceAll("%%char_blurb%", await character.get("blurb"))
-                .replaceAll("%%char_backend%", friendlyBackendName)
-                .replaceAll("%%char_authorName%", charAuthorName)
+                .replaceAll("%%char_name%", removeXSS(await character.get("displayName")))
+                .replaceAll("%%char_pfp%", removeXSS(await character.get("avatarURL")))
+                .replaceAll("%%char_blurb%", removeXSS(await character.get("blurb")))
+                .replaceAll("%%char_backend%", removeXSS(friendlyBackendName))
+                .replaceAll("%%char_authorName%", removeXSS(charAuthorName))
                 .replaceAll("%%char_showPubWarn%", !isPublic ? "1" : "0")
         );
     }

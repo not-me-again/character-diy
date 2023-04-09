@@ -1,7 +1,8 @@
+const removeXSS = require("./removeXSS");
 const { Converter } = require("showdown");
 
 module.exports = (rawMessageText) => {
-    let messageText = rawMessageText.trim();
+    let messageText = removeXSS(rawMessageText.trim());
     // todo: replace poe:// links with custom identifiers
 
     const markdownParser = new Converter();
