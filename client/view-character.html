@@ -6,19 +6,27 @@
     <meta name="theme-color" content="#0086ff">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="character.diy">
-    <meta property="og:title" content="c.diy">
-    <meta property="og:description" content="The premium tailored AI experience">
-    <meta property="og:image" content="/image/3806e05507104506b049.png">
+    <meta property="og:title" content="c.diy — %%char_name%">
+    <meta property="og:description" content="Talk to %%char_name%, a '%%char_blurb%', created by @%%char_authorName% using character.diy">
+    <meta property="og:image" content="%%char_pfp%">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@j_ACK_SYN">
     <meta name="twitter:creator" content="@j_ACK_SYN">
-    <meta property="twitter:description" content="Tailored AI done right">
-    <meta property="twitter:image" content="/image/3806e05507104506b049.png">
+    <meta property="twitter:description" content="Talk to %%char_name%, a '%%char_blurb%', created by @%%char_authorName% using character.diy">
+    <meta property="twitter:image" content="%%char_pfp%">
 
     <link rel="stylesheet" href="/styles/global.css" />
     <link rel="stylesheet" href="/styles/home.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .chat-message-count > i {
+            padding-left: unset;
+            padding: 0.5vw;
+        }
+    </style>
+    <script>window.showIsPubWarn = "%%char_showPubWarn%" == true;</script>
 </head>
 
 <body style="margin:0;padding:0;">
@@ -60,36 +68,32 @@
                         <div class="loading-img"></div>
                     </div>
                 </div>
-                <div id="chat-helper-overlay" style="display:none;" class="overlay">
-                    <div id="chat-helper-modal" class="modal">
-                        <div class="chat-list-container">
-                            <span id="chat-helper-close" class="modal-close-btn"><i class="fa-solid fa-square-xmark"></i></span>
-                            <h1>Select A Chat</h1>
-                            <span class="chat-message-count"><i class="fa-solid fa-lightbulb"></i>&nbsp;&nbsp;You can add <span id="add-char-name">this character</span> to a new or existing chat room</span>
-                            <table class="chat-list">
-                                <tbody id="chat-list">
-                                    <tr class="chat-new-item">
-                                        <td class="chat-btn-container">
-                                            <a id="new-chat-btn" class="chat-new-button">
-                                                New Chat <i class="fa-regular fa-square-plus fa-btn"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
                 <div class="content-area-main">
+                    <div style="display: none;" id="not-public-warn" class="bg-warn">
+                        <span class="warn-text"><strong>WARNING:</strong>&nbsp;This character is not public, no one will be able to use it except you</span>
+                    </div>
                     <div class="chat-list-container">
-                        <h1>My Characters</h1>
+                        <h1 id="char-name">View Character</h1>
                         <table class="chat-list">
-                            <tbody id="char-list">
-                                <tr class="chat-new-item">
-                                    <td class="chat-btn-container">
-                                        <a id="new-btn" class="chat-new-button">
-                                            New Character <i class="fa-regular fa-square-plus fa-btn"></i>
-                                        </a>
+                            <tbody id="chat-list">
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-image">
+                                        <img src="%%char_pfp%" alt="pfp" class="chat-bot-image">
+                                    </td>
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">%%char_name%</span>
+                                        <span class="chat-message-count" style="font-weight: 800;">
+                                            <i class="fa-solid fa-at"></i>%%char_authorName%
+                                        </span>
+                                        <span class="chat-message-count">
+                                            <i class="fa-solid fa-robot"></i>%%char_backend%
+                                        </span>
+                                        <span class="chat-message-count">
+                                            <i class="fa-solid fa-quote-left"></i>%%char_blurb%<i class="fa-solid fa-quote-right"></i>
+                                        </span>
+                                        <span id="add-btn" class="chat-link-button">
+                                            <span class="chat-choose-button">Add to chat<i class="fa-regular fa-message fa-btn"></i></span>
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -100,7 +104,7 @@
         </div>
     </div>
     <script src="/scripts/_global.js"></script>
-    <script src="/scripts/home.js"></script>
+    <script src="/scripts/view-character.js"></script>
 </body>
 
 </html>

@@ -2,7 +2,13 @@ const db = require("../db");
 const cache = require("../cache");
 
 async function preAuthMiddleware(req, res, next) {
-    const { authorization } = req.headers;
+    let { authorization } = req.headers;
+
+    if ((typeof authorization != "string") || (authorization.length <= 0)) {
+        const { session } = req.cookies;
+        if (typeof session == "string")
+            authorization = session;
+    }
 
     let auth = {};
     if (typeof authorization == "string") {

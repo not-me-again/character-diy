@@ -166,7 +166,8 @@ async function handleCharShare(charData) {
     if (!isPublic)
         return alert("This character cannot be shared because it has not been made public.");
 
-    const shareURL = `${location.protocol}//${location.hostname}${location.pathname}?add-character=${charId}`;
+    const shareURL = `${location.protocol}//${location.hostname}/characters/${charId}/view`;
+    //`${location.protocol}//${location.hostname}${location.pathname}?add-character=${charId}`;
     console.log("share url:", shareURL);
     await navigator.clipboard.writeText(shareURL);
     alert("Share URL copied to clipboard");

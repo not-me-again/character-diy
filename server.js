@@ -1,6 +1,7 @@
 // Imports
 require("dotenv").config();
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const express = require("express");
 const fs = require("fs");
 const http = require("http");
@@ -16,6 +17,7 @@ const clientFolder = __dirname + "/client";
 // env vars
 const { IS_DEV } = process.env;
 // Middleware
+app.use(cookieParser());
 app.use(express.static(clientFolder));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
