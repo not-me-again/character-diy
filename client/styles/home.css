@@ -135,6 +135,7 @@ span > a > i.fa-btn {
     position: fixed;
     backdrop-filter: blur(25px);
     z-index: 99;
+    overflow: auto;
 }
 
 .overlay > .modal {
