@@ -14,14 +14,18 @@ async function getCharacterInfo() {
 }
 
 async function updateCharacterInfo(formData, isNew) {
-    const req = await fetch(!isNew ? `/api/characters/${characterId}/edit` : "/api/newCharacter", {
-        headers: {
-            authorization: localStorage.getItem("api-key")
-        },
-        method: "POST",
-        body: formData
-    });
-    return await req.json();
+    try {
+        const req = await fetch(!isNew ? `/api/characters/${characterId}/edit` : "/api/newCharacter", {
+            headers: {
+                authorization: localStorage.getItem("api-key")
+            },
+            method: "POST",
+            body: formData
+        });
+        return await req.json();
+    } catch(err) {
+        return { success: false, error: err.toString() };
+    }
 }
 
 let pfpUpdated = false;

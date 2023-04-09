@@ -71,12 +71,11 @@ td > span {
 }
 
 span.chat-message-count {
-    font-size: 1.5vh;
-    white-space: normal;
+    font-size: 2vh;
 }
 span.chat-message-count > i {
+    padding-left: 1vh;
     align-self: center;
-    padding-right: 1vw;
 }
 
 span.chat-link-button > a > i {
@@ -162,4 +161,19 @@ tr:is(.coming-soon) * {
     filter: blur(0.5vh);
     user-select: none;
     cursor: not-allowed;
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    backdrop-filter: blur(25px);
+    z-index: 99;
+    overflow: auto;
+}
+
+.overlay > .modal {
+    margin: auto;
+    /* max-width: 1000px; */
+    margin-top: 1vh;
 }
