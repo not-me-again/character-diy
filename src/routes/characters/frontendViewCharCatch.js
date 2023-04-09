@@ -19,7 +19,7 @@ module.exports = {
         let pageHTML = characterEditPageHTML;
 
         const { user } = req.auth;
-        const userId = await user.get("id");
+        const userId = user ? (await user.get("id")) : "-1";
         
         const { characterId } = req.params;
 
