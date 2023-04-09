@@ -152,6 +152,7 @@ div.chat-message-header > span {
 .bot-label {
     border-color: var(--theme-color);
     background: var(--theme-color);
+    color: #d1d1d2;
 }
 .user-label {
     background: var(--settings-icon-color);
