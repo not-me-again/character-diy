@@ -181,7 +181,7 @@ async function handleCharDelete(charData) {
     if (typeof charId != "string")
         return;
 
-    if (!confirm("Are you sure? Deleting a character is permanent! Any chats that use this character will stop working!"))
+    if (!confirm("Are you sure? Deleting a character is permanent!"))
         return;
 
     showLoadingOverlay();

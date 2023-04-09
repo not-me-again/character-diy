@@ -1,4 +1,5 @@
-const { MAX_ALLOWED_CHARS_PER_USER, PRONOUN_CONVERSION, BACKEND_CONVERSION, MAX_FILE_SIZE } = require("../../../config.json");
+const { getQuotasForUserId } = require("../../include/helpers/quotaManager");
+const { PRONOUN_CONVERSION, BACKEND_CONVERSION, MAX_FILE_SIZE } = require("../../../config.json");
 const { handleImageUpload } = require("../../include/helpers/imageService");
 const db = require("../../include/db");
 
@@ -11,6 +12,8 @@ module.exports = {
     async callback(req, res) {
         const { user } = req.auth;
         const userId = await user.get("id");
+
+        const { MAX_ALLOWED_CHARS_PER_USER } = await getQuotasForUserId(userId);
         
         let chars = await user.get("characters");
         if (chars.length >= MAX_ALLOWED_CHARS_PER_USER)

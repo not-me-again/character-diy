@@ -1,8 +1,9 @@
-const { MAX_ALLOWED_CHATS_PER_USER, AGE_OF_MAJORITY_MS } = require("../../../config.json");
-
+const { getQuotasForUserId } = require("../../include/helpers/quotaManager");
 const signupHandler = require("../../include/helpers/signupHandler");
 const resetChatContext = require("../../include/helpers/resetChatContext");
 const db = require("../../include/db");
+
+const { AGE_OF_MAJORITY_MS } = require("../../../config.json");
 
 module.exports = {
     method: "POST",
@@ -34,6 +35,8 @@ module.exports = {
         } else
             return res.status(404).send({ success: false, error: "character_not_found" });
         
+        const { MAX_ALLOWED_CHATS_PER_USER } = await getQuotasForUserId(userId);
+
         let chats = await user.get("chats");
         if (chats.length >= MAX_ALLOWED_CHATS_PER_USER)
             return res.status(403).send({ success: false, error: "chat_limit_reached" });

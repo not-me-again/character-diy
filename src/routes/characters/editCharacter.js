@@ -1,4 +1,4 @@
-const { MAX_ALLOWED_CHARS_PER_USER, PRONOUN_CONVERSION, BACKEND_CONVERSION, MAX_FILE_SIZE } = require("../../../config.json");
+const { PRONOUN_CONVERSION, BACKEND_CONVERSION, MAX_FILE_SIZE } = require("../../../config.json");
 const { handleImageUpload } = require("../../include/helpers/imageService");
 const db = require("../../include/db");
 
