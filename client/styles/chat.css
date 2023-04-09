@@ -189,7 +189,7 @@ span:is(.chat-message-timestamp, .chat-message-error) {
     flex-wrap: nowrap;
 }
 .chat-message-timestamp {
-    color: var(--msg-date);
+    color: var(--msg-date) !important;
     font-weight: 400;
 }
 .chat-message-error {
