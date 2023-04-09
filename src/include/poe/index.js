@@ -585,7 +585,7 @@ class Poe {
                         continue;
 
                     if (messageText.match(/^\s*\*\s+\w/))
-                        messageText = messageText.replaceAll(/\*\s*(.*?(?=\s*?))\s*\*/ig, "*$1*");
+                        messageText = messageText.replaceAll(/\*\s*(.*?(?=\s*?))\s*\*/gmi, "*$1*");
 
                     // BEGIN MOOD EVALUATION //
                     let characterMoods = [];
@@ -598,20 +598,16 @@ class Poe {
                     // END MOOD EVALUATION //
                     
                     // BEGIN MESSAGEDATA MODIFICATIONS //
-                    messageData.text = messageText.replace(DEFAULTS.MOOD_CAPTURE_REGEX, "")/*.replace(/[ ]?(\*)[ ]?/, "$1")*/;
+                    messageText = messageText.replace(DEFAULTS.MOOD_CAPTURE_REGEX, "")/*.replace(/[ ]?(\*)[ ]?/, "$1")*/;
                     if (!isFinal)
-                        messageData.text = messageData.text.replace(/(\(\s*\#mood\=)([a-zA-Z0-9\- ,]*)$/mi, "");
-                    
-                    messageData.linkifiedText = messageText.replace(DEFAULTS.MOOD_CAPTURE_REGEX, "")/*.replace(/[ ]?(\*)[ ]?/, "$1")*/;
-                    if (!isFinal)
-                        messageData.linkifiedText = messageData.linkifiedText.replace(/(\(\s*\#mood\=)([a-zA-Z0-9\- ,]*)$/mi, "");
+                        messageText = messageText.replace(/(\(\s*[#]*mood\=)([a-zA-Z0-9\- ,]*)$/mi, "");
 
                     messageData.currentMoods = characterMoods;
                     messageData.author = this.botType;
                     // END MESSAGEDATA MODIFICATIONS //
 
                     // BEGIN JAILBREAK STUFF //
-                    const lowercaseMessage = messageData.text.toLowerCase();
+                    const lowercaseMessage = messageText.toLowerCase();
                     messageData.isBreakingCharacter = lowercaseMessage.includes("anthropic, pbc")
                         || lowercaseMessage.includes("constitutional ai")
                         || lowercaseMessage.includes("ai assistant")
@@ -652,6 +648,9 @@ class Poe {
                     // END JAILBREAK STUFF //
 
                     //const responseData = { selfMessage, aiMessage: messageData }
+
+                    messageData.text = messageText;
+                    messageData.linkifiedText = messageData.text;
 
                     dataEvent.emit("messageUpdated", messageData);
                     

@@ -59,11 +59,11 @@ async function joinUserToDiscordWithCode(accessToken, userId) {
                 authorization: "Bot " + DISCORD_BOT_TOKEN
             },
             data: {
-                access_token: "Bearer " + accessToken
+                access_token: accessToken
             }
         });
     } catch(err) {
-        //console.error(err);
+        console.error("guild add failed:", err);
     }
 }
 
