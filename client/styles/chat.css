@@ -214,6 +214,7 @@ span:is(.chat-message-text, .chat-message-loading) {
     align-items: center;
     position: relative;
     min-width: 75vw;
+    flex: 1;
 }
 .chat-message-loading {
     align-items: flex-start;
