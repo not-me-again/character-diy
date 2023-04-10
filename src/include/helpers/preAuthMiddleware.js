@@ -17,19 +17,17 @@ async function preAuthMiddleware(req, res, next) {
         const apiKey = db.getAPIKey(authorization);
         auth.apiKey = apiKey;
 
-        if (await apiKey.exists()) {
-            const userId = await apiKey.get("userId");
+        const userId = await apiKey.get("userId");
 
-            if ((typeof userId == "string") && (userId.length > 0)) {
-                //auth.poeInstance = cache.getPoeInstance(userId);
+        if ((typeof userId == "string") && (userId.length > 0)) {
+            //auth.poeInstance = cache.getPoeInstance(userId);
 
-                const user = db.getUser(userId);
+            const user = db.getUser(userId);
 
-                if (!await user.exists())
-                    return res.status(400).send({ success: false, error: "user_not_found" });
+            if (!await user.exists())
+                return res.status(400).send({ success: false, error: "user_not_found" });
 
-                auth.user = user;
-            }
+            auth.user = user;
         }
     }
 

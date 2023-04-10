@@ -55,11 +55,10 @@ async function getIDFromOAuth(temp_code) {
 async function joinUserToDiscordWithCode(accessToken, userId) {
     try {
         await axios.put("https://discord.com/api/v10/guilds/" + DISCORD_SERVER_ID + "/members/" + userId, {
+            access_token: accessToken
+        }, {
             headers: {
                 authorization: "Bot " + DISCORD_BOT_TOKEN
-            },
-            data: {
-                access_token: accessToken
             }
         });
     } catch(err) {
