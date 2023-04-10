@@ -238,11 +238,12 @@ async function handleChatOpen(charData) {
             const { success, chat, error } = await newChat(selectedCharId);
             if (success && (typeof chat == "object"))
                 window.location = `/chats/${chat.id}`;
-            else
+            else {
                 alert(error);
+                location.reload();
+            }
 
             hideLoadingOverlay();
-            location.reload();
         });
     
     for (const chat of chats)
