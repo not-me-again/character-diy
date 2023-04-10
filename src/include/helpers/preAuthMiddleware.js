@@ -38,7 +38,7 @@ async function preAuthMiddleware(req, res, next) {
 }
 
 function authRequiredHandler(req, res, next) {
-    if (!req || !req.auth || !req.auth.session)
+    if (!req || !req.auth)
         res.status(401).end("Authentication required");
     else
         next();
