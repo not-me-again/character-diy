@@ -257,8 +257,6 @@ async function sendMessage() {
         body: JSON.stringify({ text })
     })
         .then(async (response) => {
-            botMessage.messageTextNode.classList = "chat-message-text";
-            
             if (response.status != 200) {
                 const { success, error } = await response.json();
                 console.log("inference failed with reason:", error);
@@ -314,6 +312,8 @@ async function sendMessage() {
                                 isSuccess = true;
                                 botMessage.messageTextNode.innerHTML = text;
                             }
+                            
+                            botMessage.messageTextNode.classList = "chat-message-text";
 
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else if (authorId == myId) {
@@ -345,6 +345,7 @@ async function sendMessage() {
                                     p.classList = "chat-message-filtered";
 
                         const filterErrorNode = createNode("p", { innerText: errorMessage }, ["error-message"]);
+                        botMessage.messageTextNode.classList = "chat-message-text";            
                         botMessage.messageTextNode.appendChild(filterErrorNode);
 
                         continue;

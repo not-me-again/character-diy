@@ -25,6 +25,7 @@ module.exports = {
         delete cachedCharacterData.personalityPrompt;
         delete cachedCharacterData.pronouns;
         delete cachedCharacterData.exampleConvo;
+        delete cachedCharacterData.backend;
 
         chatData.cachedCharacterData = cachedCharacterData;
 

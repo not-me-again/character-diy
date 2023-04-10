@@ -137,7 +137,6 @@ div.chat-message-header > span {
     margin-right: 1vw;
     overflow: hidden;
     margin-right: 0.75vmin;
-    color: #d1d1d2;
 }
 
 .chat-message-label {
@@ -228,6 +227,7 @@ span:is(.chat-message-text, .chat-message-loading) {
 }
 .chat-message-text > p > em {
     padding-right: 0.5vw;
+    color: #898989;
 }
 span.chat-message-text > i {
     padding-left: 1vh;
@@ -235,7 +235,7 @@ span.chat-message-text > i {
     position: relative;
 }
 .chat-message-filtered {
-    filter: blur(0.25vmax);
+    filter: blur(0.5vmax);
     user-select: none;
 }
 
