@@ -161,7 +161,7 @@ async function doSetup(isNew) {
         saveButton.addEventListener("click", async e => {
             if ((Date.now() - saveBtnDebounce) < 1e3)
                 return;
-            saveBtnDebounce = Date.name();
+            saveBtnDebounce = Date.now();
 
             const missingInputs = doRequiredCheck();
             if (missingInputs && (missingInputs.length >= 1)) {
