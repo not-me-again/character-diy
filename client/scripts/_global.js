@@ -180,7 +180,8 @@ async function updateCachedState(force) {
         localStorage.setItem("cached-state", JSON.stringify(newCachedState));
     } catch (err) {
         console.error(err);
-        alert("error: " + err);
+        if (!window.skipAuthRedir)
+            alert("error: " + err);
     }
     console.log("Cached state saved");
 }
