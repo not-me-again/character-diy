@@ -617,7 +617,9 @@ class Poe {
                         || lowercaseMessage.match(/as an ai (language)?\s?model/i);
 
                     let doSkipUpdate = lowercaseMessage.startsWith("i'm sorry")
-                        || lowercaseMessage.startsWith("as an ai");
+                        || lowercaseMessage.startsWith("as an ai")
+                        || lowercaseMessage.startsWith("usage guidelines")
+                        || lowercaseMessage.startsWith("poe.com");
                     
                     if (!ignoreOOC && isFinal && ((characterMoods.length <= 0) || (messageData.isBreakingCharacter))) {
                         this.isReplying = false;
@@ -651,7 +653,8 @@ class Poe {
                     messageData.text = messageText;
                     messageData.linkifiedText = messageData.text;
 
-                    dataEvent.emit("messageUpdated", messageData);
+                    if (!doSkipUpdate)
+                        dataEvent.emit("messageUpdated", messageData);
                     
                     if (isFinal) {
                         this.isReplying = false;
