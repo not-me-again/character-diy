@@ -618,6 +618,7 @@ class Poe {
 
                     let doSkipUpdate = lowercaseMessage.startsWith("i'm sorry")
                         || lowercaseMessage.startsWith("as an ai")
+                        || lowercaseMessage.match(/^as\s*(an)*\s*/mi)
                         || lowercaseMessage.startsWith("usage guidelines")
                         || lowercaseMessage.startsWith("poe.com");
                     
