@@ -54,6 +54,14 @@ tr.chat-new-item {
 
 td.chat-btn-container {
     display: flex;
+    align-items: center;
+    font-size: 2vh;
+}
+
+input.checkbox {
+    width: 2vh;
+    height: 2vh;
+    margin-left: 2vh;
 }
 
 tbody#chat-list {

@@ -130,7 +130,7 @@ hideLoadingOverlay();
 
 // api stuff
 const apiKey = localStorage.getItem("api-key");
-if (typeof apiKey != "string")
+if ((typeof apiKey != "string") && (!window.skipAuthRedir))
     window.location = "/login";
 
 async function makeAuthenticatedRequest(url, opts, parseJson) {
@@ -180,7 +180,8 @@ async function updateCachedState(force) {
         localStorage.setItem("cached-state", JSON.stringify(newCachedState));
     } catch (err) {
         console.error(err);
-        window.location = "/login";
+        if (!window.skipAuthRedir)
+            window.location = "/login";
     }
     console.log("Cached state saved");
 }
@@ -190,6 +191,6 @@ waitForCachedState().then(state => {
     const profilePic = document.querySelector("#pfp");
     profilePic.addEventListener("click", () => {
         window.location = "/user";
-    })
+    });
     profilePic.src = state.profilePictureURL;
 });

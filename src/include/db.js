@@ -63,6 +63,19 @@ const CHAT_PROPERTIES = [
     [ "isFilterEnabled", true ],
     [ "cachedCharacterData", {} ]
 ];
+const SAVED_CHAT_PROPERTIES = [
+    [ "id", "" ],
+    [ "ownerId", "" ],
+    [ "messages", [] ],
+    [ "messageCount", 0 ],
+    [ "activeCharacterId", "" ],
+    [ "isPublic", false ],
+    [ "name", "" ],
+    [ "createdAt", 0 ],
+    [ "updatedAt", 0 ],
+    [ "cachedCharacterData", {} ],
+    [ "cachedUserData", {} ]
+];
 const API_KEY_PROPERTIES = [
     [ "id", "" ],
     [ "userId", "" ],
@@ -275,10 +288,47 @@ class User extends BaseDB {
     }
 }
 
+class SavedChat extends BaseDB {
+    constructor(id) {
+        super("saved-chats", id, SAVED_CHAT_PROPERTIES);
+    }
+
+    async getMessages() {
+        return await this.get("messages");
+    }
+}
+
 class Chat extends BaseDB {
     constructor(id) {
         super("chats", id, CHAT_PROPERTIES);
         this.maxLength = MAX_CHAT_HISTORY_LENGTH;
+    }
+
+    async createSavedChat() {
+        const saved = new SavedChat(generateId());
+
+        await saved.set("messages", await this.getMessages());
+        await saved.set("ownerId", await this.get("ownerId"));
+        await saved.set("activeCharacterId", await this.get("activeCharacterId"));
+        await saved.set("cachedCharacterData", await this.getCharacterData());
+        await saved.set("createdAt", Date.now());
+
+        const user = await this.getUser();
+        if (!await user.exists())
+            throw new Error("Invalid chat owner");
+
+        let cachedUserData = {
+            profilePictureURL: await user.get("profilePictureURL"),
+            displayName: await user.get("displayName")
+        };
+
+        await saved.set("cachedUserData", cachedUserData);
+
+        return saved;
+    }
+
+    async getUser() {
+        return new User(await this.get("ownerId"));
     }
 
     async getCharacterData() {
@@ -388,6 +438,7 @@ class DatabaseManager {
         this.emails = [];
         this.apikeys = [];
         this.chats = [];
+        this.savedchats = [];
         this.popularCharacterManager = new PopularCharacters();
     }
 
@@ -405,6 +456,9 @@ class DatabaseManager {
                     break;
                 case "chats":
                     obj = new Chat(id);
+                    break;
+                case "savedchats":
+                    obj = new SavedChat(id);
                     break;
                 case "characters":
                     obj = new Character(id);
@@ -443,6 +497,10 @@ class DatabaseManager {
 
     getChat(id) {
         return this._returnOrInstantiate("chats", id);
+    }
+
+    getSavedChat(id) {
+        return this._returnOrInstantiate("savedchats", id);
     }
 
     getCharacter(id) {

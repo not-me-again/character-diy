@@ -3,11 +3,25 @@
 
 <head>
     <title>character.diy</title>
+    <meta name="theme-color" content="#0086ff">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="character.diy">
+    <meta property="og:title" content="c.diy — %%chat_name%">
+    <meta property="og:description" content="Come view %%chat_name% on character.diy">
+    <meta property="og:image" content="%%char_pfp%">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@j_ACK_SYN">
+    <meta name="twitter:creator" content="@j_ACK_SYN">
+    <meta property="twitter:description" content="Come view %%chat_name% on character.diy">
+    <meta property="twitter:image" content="%%char_pfp%">
+
     <link rel="stylesheet" href="/styles/global.css" />
     <link rel="stylesheet" href="/styles/chat.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script>window.skipAuthRedir=true;</script>
 </head>
 
 <body style="margin:0;padding:0;">
@@ -20,9 +34,7 @@
             </div>
             <div class="center-menu">
                 <div class="chat-info">
-                    <span class="chat-name" id="chat-name">Chat</span>
-                    <span class="separator">&bull;</span>
-                    <i class="fa-regular fa-message"></i><span class="chat-msg-count" id="chat-msg-count">0</span>
+                    <span class="chat-name" id="chat-name">%%chat_name%</span>
                 </div>
             </div>
             <div class="rightside-menu">
@@ -61,7 +73,6 @@
                         <div class="chat-options-container">
                             <span id="chat-helper-close" class="modal-close-btn"><i class="fa-solid fa-square-xmark"></i></span>
                             <h1>Chat Options</h1>
-                            <span class="modal-tooltip-text"><i class="fa-solid fa-lightbulb"></i>&nbsp;&nbsp;You can only change the character assigned to this chat by replacing it with another character</span>
                             <table>
                                 <tbody>
                                     <tr class="chat-save-item">
@@ -92,15 +103,6 @@
                                             <a id="download-chat-btn" class="chat-new-button">
                                                 Download Chat <i class="fa-solid fa-file-export fa-btn"></i>
                                             </a>
-                                        </td>
-                                    </tr>
-                                    <tr class="chat-save-item">
-                                        <td class="chat-btn-container">
-                                            <a id="share-chat-btn" class="chat-new-button">
-                                                Publish Chat <i class="fa-solid fa-cloud-arrow-up fa-btn"></i>
-                                            </a>
-                                            <input class="checkbox" type="checkbox" value="on" checked="true" name="ispub" id="share-chat-public">
-                                            <label for="ispub">Make link public?</label>  
                                         </td>
                                     </tr>
                                     <tr class="chat-save-item">
@@ -138,16 +140,16 @@
                         </table>
                     </div>
                 </div>
-                <div class="content-area-footer">
-                    <a id="settings-btn" class="link-clear submit-chat"><i style="font-weight: 600;" class="fa-gear fa-solid fa-btn"></i></a>
+                <!--<div class="content-area-footer">
+                    <a id="settings-btn" style="display:none;" class="link-clear submit-chat"><i style="font-weight: 600;" class="fa-gear fa-solid fa-btn"></i></a>
                     <input autocomplete="off" id="textbar" type="text" placeholder="Type your message" />
                     <a id="submit-btn" class="link-clear submit-chat"><i class="fa-regular fa-paper-plane fa-btn"></i></a>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
     <script src="/scripts/_global.js"></script>
-    <script src="/scripts/chat.js"></script>
+    <script src="/scripts/view-chat.js"></script>
 </body>
 
 </html>

@@ -36,7 +36,7 @@ async function* parseJsonStream(readableStream) {
     }
 }
 // real shtuff
-const chatId = location.pathname.match(/[a-zA-Z0-9_-]*$/).toString();
+const chatId = location.pathname.match(/(?<=chats\/)[a-zA-Z0-9_-]*(?=\/*)/).toString();
 
 async function getChatInfo() {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/info`, {}, true);
@@ -51,6 +51,12 @@ async function addCharacterToChat(charId) {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/setCharacter`, {
         method: "POST",
         body: JSON.stringify({ characterId: charId })
+    }, true);
+}
+async function publishChat(isPublic) {
+    return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/publish`, {
+        method: "POST",
+        body: JSON.stringify({ isPublic })
     }, true);
 }
 async function setFilterEnabled(doEnable) {
@@ -594,6 +600,27 @@ updateChatCharButton.addEventListener("click", async () => {
         closeSettingsModal();
         chatMessageCount = 0;
         await doChatSetup();
+        hideLoadingOverlay();
+    }
+});
+
+const isPublicToggle = document.querySelector("#share-chat-public");
+const shareChatButton = document.querySelector("#share-chat-btn");
+shareChatButton.addEventListener("click", async () => {
+    if (botId) {
+        if (isPublicToggle.checked && (!confirm("Are you sure you want to share this chat publicly? Anyone with the link will be able to read your messages.")))
+            return;
+        showLoadingOverlay();
+
+        const { success, error, savedChatId } = await publishChat(isPublicToggle.checked);
+        if (!success) {
+            console.error("Failed to publish!", error);
+            alert("Publish failed with error: " + error);
+        } else {
+            window.location = `/archive/${savedChatId}`;
+        }
+
+        closeSettingsModal();
         hideLoadingOverlay();
     }
 });
