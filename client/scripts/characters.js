@@ -242,6 +242,7 @@ async function handleChatOpen(charData) {
                 alert(error);
 
             hideLoadingOverlay();
+            location.reload();
         });
     
     for (const chat of chats)

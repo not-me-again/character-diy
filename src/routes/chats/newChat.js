@@ -41,6 +41,18 @@ module.exports = {
         if (chats.length >= MAX_ALLOWED_CHATS_PER_USER)
             return res.status(403).send({ success: false, error: "chat_limit_reached" });
 
+        let nameIteration = 0;
+        for (const chatId of chats) {
+            const chat = db.getChat(chatId);
+            if (!await chat.exists())
+                continue;
+            const chatName = await chat.get("name");
+            if ((typeof chatName == "string") && (chatName.toLowerCase() == name.toLowerCase()))
+                nameIteration++;
+        }
+        if (nameIteration > 0)
+            name = name + ` (${nameIteration + 1})`;
+
         const poeCookie = await signupHandler().catch(console.error);
         if (typeof poeCookie != "string")
             res.status(500).send({ success: false, error: "preflight_failure0" });
