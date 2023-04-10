@@ -310,10 +310,9 @@ async function sendMessage() {
                                 botMessage.messageTextNode.appendChild(filterErrorNode);
                             } else {
                                 isSuccess = true;
+                                botMessage.messageTextNode.classList = "chat-message-text";
                                 botMessage.messageTextNode.innerHTML = text;
                             }
-                            
-                            botMessage.messageTextNode.classList = "chat-message-text";
 
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else if (authorId == myId) {

@@ -9,6 +9,8 @@ async function doChatsSetup() {
     
     const { chats } = await getAllChats();
     console.log("Chat list:", chats);
+
+    chats.sort((a, b) => a.messageCount - b.messageCount);
     for (const chat of chats)
         displayChat(chat);
 
