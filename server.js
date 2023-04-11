@@ -27,6 +27,7 @@ app.use(rateLimit({
 	max: 8, // Limit each IP to 100 requests per `window`
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    skip: req => req.path.startsWith("/image")
 }));
 // Establish HTTPS routes
 app.use((req, res, next) => {

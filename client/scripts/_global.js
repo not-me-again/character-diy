@@ -167,11 +167,12 @@ async function updateCachedState(force) {
     console.log("Updating cached data...");
     window.cachedState = undefined;
     try {
-        const session = await makeAuthenticatedRequest("/api/session");
-        const data = await session.json();
-        const userData = data?.user;
-        if (!data || !userData)
-            throw new Error("Failed to update cache");
+        const session = await makeAuthenticatedRequest("/api/session", {}, true);
+        const { user: userData } = session;
+        if (!userData && (!window.skipAuthRedir)) {
+            window.location = "/login";
+            return;
+        }
         const newCachedState = {
             updatedAt: Date.now(),
             ...userData
