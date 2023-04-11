@@ -231,7 +231,8 @@ span:is(.chat-message-text, .chat-message-loading) {
     justify-content: flex-start;
 }
 .chat-message-text > :is(p) {
-    flex: 1;
+    /*flex: 1;*/
+    width: 100%;
     align-self: flex-start;
 }
 .chat-message-text > p > em {

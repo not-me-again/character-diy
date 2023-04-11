@@ -35,7 +35,7 @@ async function addCharacterToChat(charId, chatId) {
     }, true);
 }
 
-let myId;
+let myId = (typeof cachedState == "object") ? cachedState.id : undefined;
 waitForCachedState().then(state => {
     myId = state.id;
 });
