@@ -134,7 +134,7 @@ function displayCharacter(charData) {
             <span class="chat-choose-button">Add to chat<i class="fa-regular fa-message fa-btn"></i></span>
         </span>
     */
-    const { totalMessageCount, displayName, avatarURL, id, authorId } = charData;
+    const { totalMessageCount, displayName, avatarURL, id, authorId, blurb } = charData;
     const messageCount = window.formatNumberToHumanReadable(totalMessageCount, 1);
     let container = createNode("tr", {}, [ "chat-list-item" ]);
 
@@ -152,6 +152,14 @@ function displayCharacter(charData) {
     messageCountNode.appendChild(faMessageIconNode);
     contentContainer.appendChild(messageCountNode);
 
+    let blurbContainerNode = createNode("span", {}, [ "chat-message-count" ]);
+    let faLeftQuoteNode = createNode("i", {}, [ "fa-solid", "fa-quote-left" ]);
+    blurbContainerNode.appendChild(faLeftQuoteNode);
+    let blurbTextNode = createNode("span", { innerText: blurb }, []);
+    blurbContainerNode.appendChild(blurbTextNode);
+    let faRightQuoteNode = createNode("i", {}, [ "fa-solid", "fa-quote-right" ]);
+    blurbContainerNode.appendChild(faRightQuoteNode);
+    contentContainer.appendChild(blurbContainerNode);
 
     let linkButtonContainer = createNode("span", {}, [ "chat-link-button" ]);
 
