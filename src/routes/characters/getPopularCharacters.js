@@ -7,17 +7,33 @@ module.exports = {
     path: "/api/popularCharacters",
     async callback(req, res) {
         let charObjs = cache.getPopularCharacters();
+
         let chars = [];
-        for (const charObj in charObjs) {
-            let characterData = { ...charObj };
-            
-            const currentBackend = characterData.backend;
+        
+        for (const idx in charObjs) {
+            const charObj = charObjs[idx];
+
+            let backend = "claude";
+            const currentBackend = charObj.backend;
             if (typeof currentBackend == "string") {
                 const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
-                characterData.backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
+                backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
             }
 
-            chars.push(characterData);
+            chars.push({
+                backend,
+                id: charObj.id,
+                authorId: charObj.authorId,
+                avatarURL: charObj.avatarURL,
+                displayName: charObj.displayName,
+                tags: charObj.tags,
+                blurb: charObj.blurb,
+                totalMessageCount: charObj.totalMessageCount,
+                monthlyActiveUsers: charObj.monthlyActiveUsers,
+                views: charObj.views,
+                createdAt: charObj.createdAt,
+                updatedAt: charObj.updatedAt
+            });
         }
 
         res.status(200).send({ success: true, chars });

@@ -1,3 +1,5 @@
+const cache = require("../../include/cache");
+
 module.exports = {
     method: "POST",
     path: "/api/characters/:characterId/delete",
@@ -5,6 +7,9 @@ module.exports = {
         const { character, isCharacterOwner } = req;
         if (!isCharacterOwner)
             return res.status(403).send({ success: false, error: "unauthorized" });
+
+        const id = await character.get("id");
+        cache.removePopularCharacterById(id);
 
         await character.delete();
 

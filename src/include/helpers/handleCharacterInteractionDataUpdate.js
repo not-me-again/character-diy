@@ -19,10 +19,19 @@ module.exports = async function(characterId) {
             break;
         }
     }
-    if (isEligible) {
-        await cache.addToPopularCharacterList(char.getObject());
-    }
 
-    if ((totalMessages % 10) == 0)
+    const authorId = await char.get("authorId");
+    const user = db.getUser(authorId);
+
+    if (isEligible)
+        await cache.addToPopularCharacterList({
+            ...char.getObject(),
+            cachedUserData: {
+                displayName: await user.get("displayName"),
+                profilePictureURL: await user.get("profilePictureURL")
+            }
+        });
+
+    if ((totalMessages % 5) == 0)
         await char.save();
 }
