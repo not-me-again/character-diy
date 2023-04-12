@@ -211,9 +211,23 @@ async function handleChatOpen(charData) {
     if (!chats) {
         showLoadingOverlay();
         const data = await getAllChats();
-        chats = data.chats;
+        if (typeof data.chats != "object") {
+            console.error("failed to load chats", data);
+            alert("Failed to load chats");
+        } else
+            chats = data.chats;
+        
         hideLoadingOverlay();
     }
+    
+    chats.sort((a, b) => {
+        if (a.activeCharacterId == charId)
+            return chats.length;
+        else if (b.activeCharacterId == charId)
+            return -chats.length;
+            
+        return a.messageCount - b.messageCount;
+    });
 
     const { quotas } = await waitForCachedState();
 
