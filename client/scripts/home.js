@@ -1,16 +1,3 @@
-const { query } = location;
-let showUpdateSuccessModal = false;
-if (query) {
-    const { doOnboarding, showUpdateSuccessModal: doShowUpdateSuccessModal } = query;
-    showUpdateSuccessModal = doShowUpdateSuccessModal;
-    if (doOnboarding)
-        localStorage.setItem("onboardingComplete", false);
-    if (!localStorage.getItem("onboardingComplete")) {
-        // onboard
-        console.log("Needs onboarding");
-    }
-}
-
 // real shtuff
 
 async function getCharacterInfo(charId) {
