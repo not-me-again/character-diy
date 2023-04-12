@@ -22,6 +22,12 @@ async function getPopularCharacters() {
 async function getAllChats() {
     return await window.makeAuthenticatedRequest(`/api/chats`, {}, true);
 }
+async function setOnboardingComplete(isComplete) {
+    return await window.makeAuthenticatedRequest(`/api/setUserOnboardingCompleted`, {
+        method: "POST",
+        body: JSON.stringify({ isComplete })
+    }, true);
+}
 async function newChat(id) {
     return await window.makeAuthenticatedRequest(`/api/createChat`, {
         method: "POST",
@@ -35,9 +41,23 @@ async function addCharacterToChat(charId, chatId) {
     }, true);
 }
 
+const onboardingModal = document.querySelector("#onboarding-overlay");
+function doShowOnboardingModal() {
+    onboardingModal.style.display = "";
+}
+
+const onboardingCloseButton = document.querySelector("#onboarding-close");
+function doHideOnboardingModal() {
+    onboardingModal.style.display = "none";
+    setOnboardingComplete(true);
+}
+onboardingCloseButton.addEventListener("click", doHideOnboardingModal);
+
 let myId = (typeof cachedState == "object") ? cachedState.id : undefined;
 waitForCachedState().then(state => {
     myId = state.id;
+    if (!state.onboardingCompleted)
+        doShowOnboardingModal();
 });
 
 const charList = document.querySelector("#char-list");

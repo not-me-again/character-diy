@@ -269,8 +269,10 @@ async function sendMessage() {
 
                 errorType = "ERROR";
 
-                userMessage.messageTextNode.classList = "chat-message-filtered";
-                userMessage.deleteMessageButton.remove();
+                if (userMessage) {
+                    userMessage.messageTextNode.classList = "chat-message-filtered";
+                    userMessage.deleteMessageButton.remove();
+                }
 
                 botMessage.container.remove();
 
@@ -323,7 +325,9 @@ async function sendMessage() {
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else if (authorId == myId) {
                             userMessageId = id;
-                            userMessage.messageTextNode.innerHTML = text;
+                            if (userMessage) {
+                                userMessage.messageTextNode.innerHTML = text;
+                            }
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else {
                             console.warn("ignoring msg for unknown author:", authorId);
@@ -367,8 +371,10 @@ async function sendMessage() {
         .catch((err) => {
             console.error(err);
 
-            userMessage.metaDataNode.classList = "chat-message-error";
-            userMessage.metaDataNode.innerText = "ERROR";
+            if (userMessage) {
+                userMessage.metaDataNode.classList = "chat-message-error";
+                userMessage.metaDataNode.innerText = "ERROR";
+            }
             
             alert(err.toString());
         });
@@ -377,7 +383,9 @@ async function sendMessage() {
     if (isSuccess) {
         lastUserMessageId = userMessageId;
         
-        userMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
+        if (userMessage)
+            userMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
+        if (botMessage)
         botMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
     } else {
         botMessage.metaDataNode.classList = "chat-message-error";

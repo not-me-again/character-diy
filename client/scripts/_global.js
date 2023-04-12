@@ -1,3 +1,28 @@
+const CACHED_GUEST_STATE = {
+    "updatedAt": Date.now(),
+    "onboardingCompleted": true,
+    "hasCompletedSignup": true,
+    "birthdate": undefined,
+    "discordId": undefined,
+    "membershipPlan": 0,
+    "id": "0__GUEST",
+    "moderationActions": [],
+    "accountStanding": 5,
+    "email": undefined,
+    "displayName": "Guest",
+    "profilePictureURL": "/assets/icons/guest.svg",
+    "characters": [],
+    "chats": [],
+    "customChatContext": undefined,
+    "quotas": {
+        "maxAllowedChats": 0,
+        "maxAllowedCharacters": 0,
+        "dailyMessageLimit": 0,
+        "chatHistoryLimit": 0
+    },
+    "isGuest": true
+};
+
 window.cachedState = undefined;
 const sleep = ms => { return new Promise(res => setTimeout(res, ms)) };
 async function waitForCachedState() {
@@ -186,7 +211,10 @@ async function updateCachedState(force) {
     }
     console.log("Cached state saved");
 }
-updateCachedState();
+if (!window.skipAuthRedir)
+    updateCachedState();
+else if ((typeof window.cachedState != "object") || (typeof window.cachedState.id != "string"))
+    window.cachedState = CACHED_GUEST_STATE;
 
 waitForCachedState().then(state => {
     const profilePic = document.querySelector("#pfp");

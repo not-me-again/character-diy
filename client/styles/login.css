@@ -2,22 +2,11 @@
     height: auto;
     min-height: 10vh;
     margin: auto;
+    /* background: var(--body-bg-color); */
+    /* padding: 1vh; */
+    /* border: 1.5vh solid var(--body-bg-color); */
     border-radius: 4vh;
     width: 95%;
-}
-
-.onboarding-container {
-    height: auto;
-    min-height: 10vh;
-    margin: auto;
-    margin-top: 4vh;
-    border-radius: 4vh;
-    width: 95%;
-}
-.onboarding-container > * {
-    text-align: center;
-    margin: auto;
-    display: block;
 }
 
 
@@ -74,18 +63,25 @@ span.chat-bot-name {
 }
 
 td.chat-bot-extra {
-    margin-left: 3vh;
     align-self: stretch;
     flex-direction: column;
     justify-content: center;
 }
 
 td > span {
-    margin-left: 1.5vh;
     display: flex;
     flex-flow: row;
     align-self: stretch;
     padding-bottom: 1vh;
+}
+
+table {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: column;
 }
 
 span.chat-message-count {
@@ -104,40 +100,32 @@ span.chat-link-button > a > i {
 span > a.link-clear {
     font-size: 3vh;
     font-weight: 600;
-    color: var(--theme-color);
 }
 span > a.link-clear:hover {
     text-decoration: wavy;
 }
 
-span > a > i.fa-btn {
-    color: var(--theme-color);
-}
-
-:is(.close-onboarding-button, .chat-choose-button) > i {
+:is(.chat-new-button, .chat-choose-button) > .fa-btn {
     color: var(--button-color);
     align-self: center;
     padding-left: 0.5vw;
     font-weight: 900;
 }
 
-:is(.close-onboarding-button, .chat-choose-button) {
-    background-color: #179b00;
+:is(.chat-new-button, .chat-choose-button) {
+    display: flex;
+    background-color: var(--button-bg-color);
     border: 2vh solid;
-    border-color: #179b00;
+    border-color: var(--button-bg-color);
     border-radius: 2vh;
     cursor: pointer;
     color: var(--button-color);
     font-weight: 600;
     font-size: 2vh;
-    width: 12vmax;
-    text-align: center;
-    margin: auto;
-    margin-top: 2vh;
 }
-:is(.close-onboarding-button, .chat-choose-button):hover {
-    background-color: #148600;
-    border-color: #148600;
+:is(.chat-new-button, .chat-choose-button):hover {
+    background-color: var(--theme-color);
+    border-color: var(--theme-color);
 }
 
 .chat-link-button > a {
@@ -148,7 +136,7 @@ span > a > i.fa-btn {
     width: 100%;
     height: 100%;
     position: fixed;
-    backdrop-filter: blur(3vh);
+    backdrop-filter: blur(25px);
     z-index: 99;
     overflow: auto;
 }
@@ -157,6 +145,37 @@ span > a > i.fa-btn {
     margin: auto;
     /* max-width: 1000px; */
     margin-top: 1vh;
+}
+
+h1, span.title-tooltip {
+    margin: auto;
+    width: 70vw;
+    text-align: center;
+    display: block;
+}
+span.title-tooltip {
+    font-size: 2vh;
+}
+
+.chatroom-button, .characters-button {
+    display: none;
+}
+
+.login-button {
+    border: 1vh solid;
+    border-radius: 1vh;
+    padding: 0.5vh;
+}
+.login-button > * {
+    color: #f1f1f1;
+}
+.login-discord {
+    background-color: #5762f5;
+    border-color: #5762f5;
+}
+.login-discord:hover {
+    background-color: #434bb6;
+    border-color: #434bb6;
 }
 
 .modal > * > h1 {

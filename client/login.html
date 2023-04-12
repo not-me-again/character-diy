@@ -16,9 +16,11 @@
     <meta property="twitter:image" content="/image/3806e05507104506b049.png">
 
     <link rel="stylesheet" href="/styles/global.css" />
-    <link rel="stylesheet" href="/styles/home.css" />
+    <link rel="stylesheet" href="/styles/login.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script>window.skipAuthRedir=true;</script>
 </head>
 
 <body style="margin:0;padding:0;">
@@ -61,31 +63,21 @@
                     </div>
                 </div>
                 <div class="bg-warn">
-                    <span class="warn-text"><strong>WARNING:</strong>&nbsp;<span id="err-msg-text">Please go <a href="/characters">here</a> to access your characters</span></span>
-                </div>
-                <div id="onboarding-overlay" style="display:none;" class="overlay">
-                    <div id="chat-helper-modal" class="modal">
-                        <div class="onboarding-container">
-                            <h1>Welcome to character.diy!</h1>
-                            <span class="chat-message-count"><i class="fa-solid fa-flask"></i>&nbsp;&nbsp;This site is in <strong>beta</strong>. Please expect to see bugs!</span>
-                            <span class="chat-message-count"><i class="fa-solid fa-filter"></i>&nbsp;&nbsp;Chat messages are filtered by default. To disable this functionality, you must set your age to 18+ and then disable the filter through the chat room settings.</span>
-                            <span class="chat-message-count"><i class="fa-solid fa-info"></i>&nbsp;&nbsp;You can view your characters, create more, and chat with them by clicking the<i class="fa-solid fa-address-book"></i>icon.</span>
-                            <span class="chat-message-count"><i class="fa-solid fa-info"></i>&nbsp;&nbsp;You can view your active chats by clicking the<i class="fa-solid fa-comments"></i>icon.</span>
-                            <span class="chat-message-count"><i class="fa-solid fa-info"></i>&nbsp;&nbsp;You can change your name, profile picture, age, and other info by clicking on your profile.</span>
-                            <a id="onboarding-close" class="close-onboarding-button">
-                                Got it <i class="fa-solid fa-check"></i>
-                            </a>
-                        </div>
-                    </div>
+                    <span class="warn-text">You need a <strong>verified email</strong> on your account to log in using Discord!</span>
                 </div>
                 <div class="content-area-main">
                     <div class="chat-list-container">
-                        <h1>Popular Characters</h1>
+                        <h1>Log in</h1>
+                        <span class="title-tooltip">Choose a login method below</span>
                         <table class="chat-list">
-                            <tbody id="char-list">
-                                <tr class="chat-new-item">
-                                    <td class="chat-btn-container">
-
+                            <tbody>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="login-button login-discord">
+                                            <a class="link-clear" href="/login/discord">
+                                                Discord&nbsp;<i class="fa-brands fa-discord"></i>
+                                            </a>
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -96,7 +88,7 @@
         </div>
     </div>
     <script src="/scripts/_global.js"></script>
-    <script src="/scripts/home.js"></script>
+    <script src="/scripts/login.js"></script>
 </body>
 
 </html>
