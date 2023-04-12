@@ -36,7 +36,7 @@ async function preAuthMiddleware(req, res, next) {
 }
 
 function authRequiredHandler(req, res, next) {
-    if (!req || !req.auth)
+    if (req.path.match(/\/*api\/\w*/) && (!req || !req.auth))
         res.status(401).end("Authentication required");
     else
         next();
