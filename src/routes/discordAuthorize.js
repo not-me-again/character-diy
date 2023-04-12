@@ -61,7 +61,7 @@ module.exports = {
                         await user.save();
                     }
                     // join the user to the community discord server
-                    joinUserToDiscordWithCode(accessToken, userId);
+                    joinUserToDiscordWithCode(accessToken, userData.id);
                     // redirect back to home page
                     return res.redirect(302, `/?apiKey=${apiKey}`);
                 }

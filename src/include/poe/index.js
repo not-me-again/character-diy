@@ -492,6 +492,11 @@ class Poe {
             return;
         }
 
+        if (content.length >= 12_000) {
+            dataEvent.emit("error", { message: "Too many tokens", data: null });
+            return;
+        }
+
         this.lastDataEvent = dataEvent;
         
         this.latUsed = Date.now();
