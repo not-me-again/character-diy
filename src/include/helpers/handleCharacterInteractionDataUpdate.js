@@ -20,10 +20,12 @@ module.exports = async function(characterId) {
         }
     }
 
+    const isPublic = await char.get("isPublic");
+
     const authorId = await char.get("authorId");
     const user = db.getUser(authorId);
 
-    if (isEligible)
+    if (isEligible && isPublic)
         await cache.addToPopularCharacterList({
             ...char.getObject(),
             cachedUserData: {

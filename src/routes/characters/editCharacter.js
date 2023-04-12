@@ -1,6 +1,7 @@
 const { PRONOUN_CONVERSION, BACKEND_CONVERSION, MAX_FILE_SIZE } = require("../../../config.json");
 const { handleImageUpload } = require("../../include/helpers/imageService");
 const db = require("../../include/db");
+const cache = require("../../include/cache");
 
 const formidable = require("formidable");
 const fs = require("fs");
@@ -90,6 +91,9 @@ module.exports = {
                 id: character.id
             });
             await character.save();
+            
+            if (!isPublic)
+                cache.removePopularCharacterById(character.id);
 
             let characterData = { ...character.getObject() };
             
