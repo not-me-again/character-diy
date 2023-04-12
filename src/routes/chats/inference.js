@@ -25,9 +25,12 @@ module.exports = {
         const userMessageText = rawUserMessageText.trim();
         if (userMessageText.length <= 0)
             return res.status(400).send({ success: false, error: "message_emtpy" });
+
+        if (userMessageText.length >= 10_000)
+            return res.status(400).send({ success: false, error: "too_many_tokens" });
             
         const characterId = await chat.get("activeCharacterId");
-        log.info("Inferencing for character ID " + characterId);
+        log.info("Inferencing for character ID " + characterId + " @ chat ID " + chatId);
 
         const cachedCharacter = await chat.getCharacterData();
         if (!cachedCharacter)

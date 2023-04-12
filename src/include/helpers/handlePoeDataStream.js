@@ -138,6 +138,8 @@ class DataStreamHandler {
                 log.debug("Deleting filtered interaction");
                 poeInstance.deleteMessage(selfMessageObject.poeId, botMessageObject.poeId);
             }
+            log.info("Inference finished for character ID " + characterId + " @ chat ID " + chat.id);
+            log.info("Final messageObject:", botMessageObject);
             //  end req
             this.res.end("<|endofstream|>");
         });
