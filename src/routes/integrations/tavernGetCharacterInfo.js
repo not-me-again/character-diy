@@ -40,7 +40,7 @@ module.exports = {
         let returnData = {
             displayName,
             blurb,
-            backend: "claude",
+            backend: "gpt-3.5",
             isPublic: false
         };
 
@@ -56,6 +56,8 @@ module.exports = {
                 quirks
             } = parseCharaFields(description);
             
+            let pronouns = PRONOUN_CONVERSION["they/them/their"];
+
             let personalityPrompt = "";
             if (typeof backstory == "string") {
                 personalityPrompt = backstory
