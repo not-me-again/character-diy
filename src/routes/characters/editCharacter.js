@@ -57,8 +57,12 @@ module.exports = {
                 startMessage,
                 blurb,
                 personalityPrompt,
-                isPublic
+                isPublic,
+                charaAvatar
             } = config;
+
+            if ((typeof charaAvatar == "string") && (charaAvatar.length > 0) && (charaAvatar.match(/\w+\.\w+/mi)))
+                avatarURL = `/image/chara/${charaAvatar}`;
 
             if (displayName.length < 2)
                 return res.status(400).send({ success: false, error: "display_name_too_short" });
@@ -67,7 +71,7 @@ module.exports = {
 
             if (blurb.length < 1)
                 return res.status(400).send({ success: false, error: "blurb_too_short" });
-            else if (blurb.length > 30)
+            else if (blurb.length > 100)
                 return res.status(400).send({ success: false, error: "blurb_too_long" });
 
             if (startMessage.length < 1)

@@ -8,9 +8,16 @@ if (!location.pathname.includes("/new"))
 
 console.log(characterId);
 
+const { query } = location;
+let charaImportId = query["import-chara"];
+console.log("chara import id:", charaImportId);
+
 async function getCharacterInfo() {
     const req = await window.makeAuthenticatedRequest(`/api/characters/${characterId}/info`);
     return await req.json();
+}
+async function getCharaInfo(charaId) {
+    return await window.makeAuthenticatedRequest(`/api/integrations/getTavernCharacterInfo/${charaId}`, {}, true);
 }
 
 async function updateCharacterInfo(formData, isNew) {
@@ -135,7 +142,14 @@ async function doSetup(isNew) {
     showLoadingOverlay();
     await waitForCachedState();
 
-    let { characterData } = isNew ? DEFAULT_CHARACTER_INFO : await getCharacterInfo();
+    let { characterData } = isNew
+        ? (
+            (typeof charaImportId == "string")
+                ? await getCharaInfo(charaImportId)
+                : DEFAULT_CHARACTER_INFO
+        )
+        : await getCharacterInfo();
+    
     if (typeof characterData != "object")
         window.location = "/";
 
@@ -148,7 +162,8 @@ async function doSetup(isNew) {
     pfpImg.src = characterData.avatarURL;
     displayNameInput.value = characterData.displayName;
     shortDescriptionInput.value = characterData.blurb;
-    backend.value = characterData.backend;
+    if (characterData.backend)
+        backend.value = characterData.backend;
     startMessageInput.value = characterData.startMessage;
     longDescriptionInput.value = characterData.personalityPrompt;
     exampleConvoInput.value = characterData.exampleConvo;
@@ -177,7 +192,7 @@ async function doSetup(isNew) {
 
                 return;
             }
-            if (isNew && (submitPfpButton.files.length <= 0)) {
+            if (!charaImportId && isNew && (submitPfpButton.files.length <= 0)) {
                 return alert("Missing profile picture");
             }
 
@@ -191,7 +206,8 @@ async function doSetup(isNew) {
                 exampleConvo: exampleConvoInput.value,
                 pronouns: pronounsInput.selectedOptions[0].value,
                 isPublic: isPublicInput.selectedIndex == 1,
-                backend: backendInput.selectedOptions[0].value
+                backend: backendInput.selectedOptions[0].value,
+                charaAvatar: charaImportId ? `${charaImportId}.webp` : undefined
             };
 
             const form = new FormData();

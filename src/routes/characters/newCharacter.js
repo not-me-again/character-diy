@@ -61,8 +61,12 @@ module.exports = {
                 startMessage,
                 blurb,
                 personalityPrompt,
-                isPublic
+                isPublic,
+                charaAvatar
             } = config;
+            
+            if ((typeof charaAvatar == "string") && (charaAvatar.length > 0) && (charaAvatar.match(/\w+\.\w+/mi)))
+                avatarURL = `/image/chara/${charaAvatar}`;
 
             await newChar.set({
                 createdAt: Date.now(),

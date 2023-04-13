@@ -24,6 +24,7 @@ module.exports = chat => {
         const activeCharacterId = await chat.get("activeCharacterId");
         
         let botAuthorName = "User";
+        const userName = await user.get("displayName");
 
         const character = db.getCharacter(activeCharacterId);
         if (await character.exists()) {
@@ -46,6 +47,12 @@ module.exports = chat => {
             pronouns: cachedCharacter["pronouns"],
             name: cachedCharacter["displayName"]
         }
+        
+        let startMessage = charData.startMessage
+            if (typeof startMessage == "string")
+                startMessage = startMessage
+                    .replaceAll("{{user}}", userName)
+                    .replaceAll("{{char}}", charData.name);
 
         let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
@@ -88,7 +95,7 @@ module.exports = chat => {
             removeListenerSafe(dataStream, "messageComplete");
             // deserialize data
             ///////////const rawMessageText = messageData.text;
-            const rawMessageText = (typeof charData.startMessage == "string") ? charData.startMessage : messageData.text;
+            const rawMessageText = (typeof startMessage == "string") ? startMessage : messageData.text;
             // sanitize text
             const sanitizedMessageText = sanitizeMessageText(rawMessageText);
             // append chat history

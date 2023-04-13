@@ -6,6 +6,12 @@ async function getCharacterInfo(charId) {
 async function getPopularCharacters() {
     return await window.makeAuthenticatedRequest(`/api/popularCharacters`, {}, true);
 }
+async function getTavernCharacters(search) {
+    let url = `/api/integrations/getTavernCharacters`;
+    if (typeof search == "string")
+        url += `/?search={encodeURIComponent(search)}`;
+    return await window.makeAuthenticatedRequest(url, {}, true);
+}
 async function getAllChats() {
     return await window.makeAuthenticatedRequest(`/api/chats`, {}, true);
 }
@@ -52,14 +58,19 @@ const charList = document.querySelector("#char-list");
 async function doCharactersSetup() {
     showLoadingOverlay();
 
-    const { chars } = await getPopularCharacters();
+    const { chars: popularChars } = await getPopularCharacters();
+    const { chars: tavernChars } = await getTavernCharacters();
 
     hideLoadingOverlay();
 
-    console.log("Char list:", chars);
+    console.log("pop char list:", popularChars);
+    console.log("tavern char list:", tavernChars);
     
-    for (const char of chars)
+    for (const char of popularChars)
         displayCharacter(char);
+    
+    for (const char of tavernChars)
+        displayTavernCharacter(char);
 }
 doCharactersSetup();
 
@@ -123,7 +134,49 @@ async function handleChatOpen(charData) {
     const { id } = charData;
     window.location = "/characters?add-character=" + id;
 }
+//
+const tavernAIList = document.querySelector("#tavern-list");
+function displayTavernCharacter(charData) {
+    const { tags, displayName, avatarURL, charaId, blurb } = charData;
+    let container = createNode("tr", {}, [ "chat-list-item" ]);
 
+    let pfpContainer = createNode("td", {}, [ "chat-bot-image" ]);
+    let avatarNode = createNode("img", { src: avatarURL, alt: "pfp" }, [ "chat-bot-image" ]);
+    pfpContainer.appendChild(avatarNode);
+    container.appendChild(pfpContainer);
+
+    let contentContainer = createNode("td", {}, [ "chat-bot-extra" ]);
+    let usernameNode = createNode("span", { innerText: displayName }, [ "chat-bot-name" ]);
+    contentContainer.appendChild(usernameNode);
+
+    let messageCountNode = createNode("span", {}, [ "chat-message-count" ]);
+    let faMessageIconNode = createNode("i", {}, [ "fa-solid", "fa-hashtag" ]);
+    messageCountNode.appendChild(faMessageIconNode);
+    let tagsNode = createNode("span", { innerText: tags.join(", ") }, []);
+    messageCountNode.appendChild(tagsNode);
+    contentContainer.appendChild(messageCountNode);
+
+    let blurbContainerNode = createNode("span", {}, [ "chat-message-count" ]);
+    let faLeftQuoteNode = createNode("i", {}, [ "fa-solid", "fa-quote-left" ]);
+    blurbContainerNode.appendChild(faLeftQuoteNode);
+    let blurbTextNode = createNode("span", { innerText: blurb }, []);
+    blurbContainerNode.appendChild(blurbTextNode);
+    let faRightQuoteNode = createNode("i", {}, [ "fa-solid", "fa-quote-right" ]);
+    blurbContainerNode.appendChild(faRightQuoteNode);
+    contentContainer.appendChild(blurbContainerNode);
+
+    let linkButtonContainer = createNode("span", {}, [ "chat-link-button" ]);
+
+    let openButtonNode = createNode("a", { href: `/characters/new?import-chara=${charaId}` }, [ "link-clear" ]);
+    let faOpenIconNode = createNode("i", {}, [ "fa-regular", "fa-comments", "fa-btn" ]);
+    openButtonNode.appendChild(faOpenIconNode);
+
+    linkButtonContainer.appendChild(openButtonNode);
+
+    contentContainer.appendChild(linkButtonContainer);
+    container.appendChild(contentContainer);
+    tavernAIList.prepend(container);
+}
 function displayCharacter(charData) {
     /*
         
