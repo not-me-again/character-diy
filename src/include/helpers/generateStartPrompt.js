@@ -115,7 +115,7 @@ module.exports = function(characterData) {
     //prompt += ` The conversation between ${name} and the user so far has been: ”${formattedExampleConvo}”\n\n`; // experimental
 
     if (typeof startMessage == "string")
-        prompt += ` This first message sent by ${name} (immediately following this message) should be ”${replaceDynamicIdentifiers(startMessage, { userName, name })}”`;
+        prompt += ` The first message sent by ${name} (immediately following this message) should be ”${replaceDynamicIdentifiers(startMessage, { userName, name })}”`;
     else
         prompt += ` Acknowledge everything I have explained to you so far by responding as ${name}.`;
 

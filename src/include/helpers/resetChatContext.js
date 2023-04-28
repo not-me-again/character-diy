@@ -57,8 +57,12 @@ module.exports = chat => {
         let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
             let authCookie = await chat.get("poeCookie");
-            if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
+            if ((typeof authCookie != "string") || (authCookie.length <= 1)) {
                 authCookie = await signupHandler().catch(console.error);
+
+                if (!authCookie)
+                    return reject("Failed to get auth cookie");
+
                 await chat.set("poeCookie", authCookie);
             }
             

@@ -21,6 +21,7 @@
     "express-rate-limit": "^6.7.0",
     "form-data": "^4.0.0",
     "formidable": "^2.1.1",
+    "md5": "^2.3.0",
     "png-chunk-text": "^1.0.0",
     "png-chunks-extract": "^1.0.0",
     "qs": "^6.11.1",

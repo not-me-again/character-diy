@@ -20,12 +20,7 @@ class Cache {
     }
 
     async getPoeInstance(chatId) {
-        const instance = this.poeInstances[chatId];
-
-        if (instance && !instance.isConnected)
-            await instance.connectSocket();
-
-        return instance;
+        return this.poeInstances[chatId];
     }
 
     async newPoeInstance(chatId, authCookie, botType) {
@@ -42,7 +37,7 @@ class Cache {
     _prunePoeInstances() {
         const currentTime = Date.now();
         for (let [ idx, poeInstance ] of Object.entries(this.poeInstances)) {
-            if ((!poeInstance.isConnected) || ((currentTime - poeInstance.lastUsed) > POE_INSTANCE_IDLE_TIME)) {
+            if (((currentTime - poeInstance.lastUsed) > POE_INSTANCE_IDLE_TIME)) {
                 log.debug("Clearing idle poeInstance: " + idx.toString());
                 delete this.poeInstances[idx];
             }

@@ -28,7 +28,8 @@ module.exports = {
                 if (await email.exists())
                     user = await email.getUser();
                 else
-                    user = db.getUser(db.getUniqueId());
+                    //user = db.getUser(db.getUniqueId());
+                    return res.status(403).send("<h1>New user registration has been closed indefinitely</h1>");
                 // discord id
                 const discordId = userData.id;
                 //
