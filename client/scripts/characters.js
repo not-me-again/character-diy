@@ -40,6 +40,8 @@ newButton.addEventListener("click", () => {
     window.location = "/characters/new";
 });
 
+const charQuotaData = document.querySelector("#char-quota-data");
+
 async function doCharactersSetup() {
     showLoadingOverlay();
     const { chars } = await getAllCharacters();
@@ -52,6 +54,8 @@ async function doCharactersSetup() {
     const { quotas } = await waitForCachedState();
     if (!quotas || chars.length >= quotas.maxAllowedCharacters)
         newButton.remove();
+
+    charQuotaData.innerText = `(${chars?.length}/${quotas?.maxAllowedCharacters})`;
 }
 doCharactersSetup();
 
