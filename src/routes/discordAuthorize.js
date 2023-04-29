@@ -1,6 +1,7 @@
 const { handleImageURLUpload } = require("../include/helpers/imageService");
 const { getIDFromOAuth, joinUserToDiscordWithCode } = require("../include/helpers/discordAuth");
 const db = require("../include/db");
+const CONFIG = require("../../config.json");
 
 module.exports = {
     method: "GET",
@@ -27,8 +28,9 @@ module.exports = {
                 let user;
                 if (await email.exists())
                     user = await email.getUser();
+                else if (!CONFIG.REGISTRATION_DISABLED)
+                    user = db.getUser(db.getUniqueId());
                 else
-                    //user = db.getUser(db.getUniqueId());
                     return res.status(403).send("<h1>New user registration has been closed indefinitely</h1>");
                 // discord id
                 const discordId = userData.id;
