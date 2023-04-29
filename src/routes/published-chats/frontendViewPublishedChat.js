@@ -38,6 +38,7 @@ module.exports = {
         res.status(200).send(
             pageHTML
                 .replaceAll("%%char_name%", removeXSS(character.displayName))
+                .replaceAll("%%char_id%", await savedChat.get("activeCharacterId"))
                 .replaceAll("%%char_pfp%", removeXSS(character.avatarURL))
                 .replaceAll("%%chat_name%", removeXSS(await savedChat.get("name")))
         );

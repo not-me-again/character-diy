@@ -31,7 +31,8 @@ module.exports = {
             pronouns: await character.get("pronouns"),
             exampleConvo: await character.get("exampleConvo"),
             avatarURL: await character.get("avatarURL"),
-            displayName: await character.get("displayName")
+            displayName: await character.get("displayName"),
+            version: await character.get("updateId")
         };
         
         let name = await character.get("displayName");

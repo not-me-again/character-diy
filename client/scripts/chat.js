@@ -177,6 +177,7 @@ async function doChatSetup() {
                 failed: false,
                 timestamp: message.timestamp,
                 customLabel,
+                moods: message.moods,
                 isFirst
             });
 
@@ -294,7 +295,7 @@ async function sendMessage() {
                     let { messageObject, error: didError, message: errorMessage } = dataChunk;
 
                     if (typeof messageObject == "object") {
-                        let { text, authorType, authorId, isFiltered, timestamp, id } = messageObject;
+                        let { text, authorType, authorId, isFiltered, timestamp, id, moods } = messageObject;
 
                         if (authorId == botId) {
                             botMessageId = id;
@@ -320,8 +321,9 @@ async function sendMessage() {
                                 isSuccess = true;
                                 botMessage.messageTextNode.classList = "chat-message-text";
                                 botMessage.messageTextNode.innerHTML = text;
+                                if ((typeof moods == "object") && (moods.length >= 1))
+                                    botMessage.messageFooterNode.innerHTML = `<p>Mood: ${moods.join(", ")}</p>`;
                             }
-
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else if (authorId == myId) {
                             userMessageId = id;
@@ -468,6 +470,7 @@ function createMessage(data) {
         authorId,
         failed,
         timestamp,
+        moods,
         id,
         isFiltered,
         customLabel,
@@ -534,12 +537,20 @@ function createMessage(data) {
         isPending ? "chat-message-loading" : "chat-message-text"
     ]);
     contentContainer.appendChild(messageTextNode);
+
+    let messageFooterNode = createNode("span", {
+        innerHTML: ((typeof moods == "object") && (moods.length >= 1)) ? (`<p>Mood: ${moods.join(", ")}</p>`) : ""
+    }, [
+        "chat-message-footer"
+    ]);
+    contentContainer.appendChild(messageFooterNode);
+
     container.appendChild(contentContainer);
     chatList.append(container);
     // autoscroll
     contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
 
-    return { container, messageTextNode, metaDataNode, messageButtonsContainer, deleteMessageButton };
+    return { container, messageTextNode, metaDataNode, messageButtonsContainer, deleteMessageButton, messageFooterNode };
 }
 //////////////////
 const chatHelperOverlay = document.querySelector("#chat-helper-overlay");

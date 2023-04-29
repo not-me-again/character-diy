@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+const { Logger } = require("../logging");
+
 const WebSocket = require('ws');
 const axios = require('axios');
 const fs = require('fs');
@@ -31,7 +33,7 @@ let queries = {};
 
 const cached_bots = {};
 
-const logger = console;
+const log = new Logger("Poe");
 
 const user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
 
@@ -230,10 +232,10 @@ async function request_with_retries(method, attempts = 10) {
             if (response.status === 200) {
                 return response;
             }
-            logger.warn(`Server returned a status code of ${response.status} while downloading ${url}. Retrying (${i + 1}/${attempts})...`);
+            log.warn(`Server returned a status code of ${response.status} while downloading ${url}. Retrying (${i + 1}/${attempts})...`);
         }
         catch (err) {
-            console.log(err);
+            log.error(err);
         }
     }
     throw new Error(`Failed to download ${url} too many times.`);
@@ -275,7 +277,7 @@ class Client {
                 "http": proxy,
                 "https": proxy,
             };
-            logger.info(`Proxy enabled: ${proxy}`);
+            log.info(`Proxy enabled: ${proxy}`);
         }
         const cookies = `p-b=${token}; Domain=poe.com`;
         this.headers = {
@@ -287,8 +289,8 @@ class Client {
         this.session.defaults.headers.common = this.headers;
         this.next_data = await this.get_next_data();
         this.channel = await this.get_channel_data();
-        this.bots = await this.get_bots();
-        this.bot_names = this.get_bot_names();
+        //this.bots = await this.get_bots();
+        //this.bot_names = this.get_bot_names();
         this.ws_domain = `tch${Math.floor(Math.random() * 1e6)}`;
         this.gql_headers = {
             "poe-formkey": this.formkey,
@@ -300,8 +302,6 @@ class Client {
     }
 
     async get_next_data() {
-        logger.info('Downloading next_data...');
-
         const r = await request_with_retries(() => this.session.get(this.home_url));
         const jsonRegex = /<script id="__NEXT_DATA__" type="application\/json">(.+?)<\/script>/;
         const jsonText = jsonRegex.exec(r.data)[1];
@@ -313,29 +313,30 @@ class Client {
         return nextData;
     }
 
+    async get_bot_data(botHandle) {
+        const url = `https://poe.com/_next/data/${this.next_data.buildId}/${botHandle}.json`;
+        let r;
+    
+        if (this.use_cached_bots && cached_bots[url]) {
+            r = cached_bots[url];
+        } else {
+            r = await request_with_retries(() => this.session.get(url), 2);
+            cached_bots[url] = r;
+        }
+    
+        return r.data.pageProps.payload.chatOfBotDisplayName;
+    }
+
     async get_bots() {
         const viewer = this.next_data.props.pageProps.payload.viewer;
         if (!viewer.availableBots) {
             throw new Error('Invalid token.');
         }
         const botList = viewer.availableBots;
-        const retries = 2;
         const bots = {};
         for (const bot of botList.filter(x => x.deletionState == 'not_deleted')) {
             try {
-                const url = `https://poe.com/_next/data/${this.next_data.buildId}/${bot.displayName}.json`;
-                let r;
-    
-                if (this.use_cached_bots && cached_bots[url]) {
-                    r = cached_bots[url];
-                }
-                else {
-                    logger.info(`Downloading ${url}`);
-                    r = await request_with_retries(() => this.session.get(url), retries);
-                    cached_bots[url] = r;
-                }
-    
-                const chatData = r.data.pageProps.payload.chatOfBotDisplayName;
+                const chatData = await this.get_bot_data(bot.displayName);
                 bots[chatData.defaultBotObject.nickname] = chatData;
             }
             catch {
@@ -356,7 +357,6 @@ class Client {
     }
 
     async get_channel_data(channel = null) {
-        logger.info('Downloading channel data...');
         const r = await request_with_retries(() => this.session.get(this.settings_url));
         const data = r.data;
 
@@ -381,7 +381,8 @@ class Client {
             _headers['poe-formkey'] = this.formkey;
             const r = await request_with_retries(() => this.session.post(this.gql_url, payload, { headers: this.gql_headers }));
             if (!r.data.data) {
-                logger.warn(`${queryName} returned an error: ${data.errors[0].message} | Retrying (${i + 1}/20)`);
+                console.log(r.data);
+                log.warn(`${queryName} returned an error: ${r.data.errors[0].message} | Retrying (${i + 1}/20)`);
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 continue;
             }
@@ -393,7 +394,6 @@ class Client {
     }
 
     async subscribe() {
-        logger.info("Subscribing to mutations")
         await this.send_query("SubscriptionsMutation", {
             "subscriptions": [
                 {
@@ -458,7 +458,7 @@ class Client {
     }
 
     on_ws_error(ws, error) {
-        logger.warn(`Websocket returned error: ${error}`);
+        log.warn(`Websocket returned error: ${error}`);
         this.disconnect_ws();
 
         if (this.auto_reconnect) {
@@ -510,10 +510,78 @@ class Client {
         }
     }
 
-    async *send_message(chatbot, message, with_chat_break = false, timeout = 20) {
+    async create_bot() {
+        const nuxData = await this.send_query("NuxInitialModalQuery", {});
+        const poeUser = nuxData["data"]["viewer"]["poeUser"];
+        if (!poeUser["fullName"] || !poeUser["handle"]) {
+            //account needs to be "set up"
+            const setNameData = await this.send_query("UserEditNameModal", { "name": "Joseph Smith" }, "UserEditNameModal_poeSetName_Mutation");
+            const poeSetName = setNameData["data"]["poeSetName"];
+            if (poeSetName["status"] !== "success") {
+                throw new Error("Failed to set name.");
+            }
+
+            let userHandle = poeSetName["viewer"]["autoGeneratedHandle"];
+            if (typeof userHandle != "string") {
+                userHandle = (Date.now() * 999999).toString(24);
+            }
+
+            const handleData = await this.send_query("UserEditHandle", { "handle": userHandle }, "UserEditNameModal_poeSetHandle_Mutation");
+            const poeSetHandle = handleData["data"]["poeSetHandle"];
+            if (poeSetHandle["status"] !== "success") {
+                throw new Error("Failed to set handle.")
+            }
+
+            //await this.send_query("UserProfileConfigurePreviewModalQuery", {});
+            const markCompleted = await this.send_query("UserProfileConfigurePreviewModalMutation", {}, "UserProfileConfigurePreviewModal_markMultiplayerNuxCompleted_Mutation");
+            if (!markCompleted["data"]["markMultiplayerNuxCompleted"]["viewer"]["hasCompletedMultiplayerNux"]) {
+                throw new Error("Failed to set up profile.");
+            }
+        }
+
+        const handle = `Bot${Date.now().toString(26).toUpperCase().substring(0, 10)}`;
+        const botData = await this.send_query("CreateBotMain", {
+            "model": "a2",
+            "handle": handle,
+            "prompt": "You are a helpful assistant named Sam.",
+            "isPromptPublic": false,
+            "introduction": "Hi, I'm Sam.",
+            "description": "Funny and chatty.",
+            "profilePictureUrl": null,
+            "apiUrl": null,
+            "apiKey": Buffer.from((Date.now() ** Math.PI).toString(12)).toString("base64url"),
+            "isApiBot": false,
+            "hasLinkification": true,
+            "hasMarkdownRendering": true,
+            "hasSuggestedReplies": true,
+            "isPrivateBot": true
+        }, "CreateBotMain_poeBotCreate_Mutation");
+
+        const createResponse = botData["data"]["poeBotCreate"];
+
+        if (createResponse["status"] !== "success") {
+            throw new Error("Failed to create bot.");
+        }
+
+        const botMetadata = await this.get_bot_data(handle);
+        const chatId = botMetadata["chatId"];
+
+        if (typeof chatId !== "number") {
+            throw new Error("Bot created without chat.");
+        }
+
+        return botMetadata;
+    }
+
+    async *send_message(chatbot, message, chatId) {
         //if there is another active message, wait until it has finished sending
         while (Object.values(this.active_messages).includes(null)) {
             await new Promise(resolve => setTimeout(resolve, 10));
+        }
+
+        if (typeof chatId !== "number") {
+            //chatId = this.bots[chatbot]["chatId"];
+            throw new Error("Missing param #3: chatId");
         }
 
         //null indicates that a message is still in progress
@@ -524,9 +592,9 @@ class Client {
         const messageData = await this.send_query("AddHumanMessageMutation", {
             "bot": chatbot,
             "query": message,
-            "chatId": this.bots[chatbot]["chatId"],
+            "chatId": chatId,
             "source": null,
-            "withChatBreak": with_chat_break
+            "withChatBreak": false
         });
 
         delete this.active_messages["pending"];
@@ -581,26 +649,23 @@ class Client {
         delete this.message_queues[humanMessageId];
     }
 
-    async send_chat_break(chatbot) {
-        logger.info(`Sending chat break to ${chatbot}`);
+    async send_chat_break(chatId) {
         const result = await this.send_query("AddMessageBreakMutation", {
-            "chatId": this.bots[chatbot]["chatId"]
+            "chatId": chatId
         });
         return result["data"]["messageBreakCreate"]["message"];
     }
 
-    async get_message_history(chatbot, count = 25, cursor = null) {
-        logger.info(`Downloading ${count} messages from ${chatbot}`);
+    async get_message_history(chatId, count = 25, cursor = null) {
         const result = await this.send_query("ChatListPaginationQuery", {
             "count": count,
             "cursor": cursor,
-            "id": this.bots[chatbot]["id"]
+            "id": chatId
         });
         return result["data"]["node"]["messagesConnection"]["edges"];
     }
 
     async delete_message(message_ids) {
-        logger.info(`Deleting messages: ${message_ids}`);
         if (!Array.isArray(message_ids)) {
             message_ids = [parseInt(message_ids)];
         }
@@ -609,9 +674,8 @@ class Client {
         });
     }
 
-    async purge_conversation(chatbot, count = -1) {
-        logger.info(`Purging messages from ${chatbot}`);
-        let last_messages = (await this.get_message_history(chatbot, 50)).reverse();
+    async purge_conversation(chatId, count = -1) {
+        let last_messages = (await this.get_message_history(chatId, 50)).reverse();
         while (last_messages.length) {
             const message_ids = [];
             for (const message of last_messages) {
@@ -627,9 +691,8 @@ class Client {
             if (count === 0) {
                 return;
             }
-            last_messages = (await this.get_message_history(chatbot, 50)).reverse();
+            last_messages = (await this.get_message_history(chatId, 50)).reverse();
         }
-        logger.info("No more messages left to delete.");
     }
 }
 

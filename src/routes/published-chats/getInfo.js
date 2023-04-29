@@ -28,7 +28,14 @@ module.exports = {
         }
 
         const activeCharacterId = await savedChat.get("activeCharacterId");
-        const messages = await savedChat.get("messages");
+
+        let messages = [];
+        for (const rawMessage of await savedChat.get("messages")) {
+            let message = { ...rawMessage };
+            delete message.poeId;
+            messages.push(message);
+        }
+
         let cachedCharacterData = await savedChat.get("cachedCharacterData");
 
         delete cachedCharacterData.backend;

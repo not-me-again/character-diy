@@ -23,10 +23,10 @@ class Cache {
         return this.poeInstances[chatId];
     }
 
-    async newPoeInstance(chatId, authCookie, botType) {
+    async newPoeInstance(chatId, authCookie, botType, poeChatId) {
         log.debug("Launching new poeInstance for chat", chatId);
 
-        let poeInstance = new Poe(authCookie, botType);
+        let poeInstance = new Poe(authCookie, botType, poeChatId);
         await poeInstance.init();
 
         this.poeInstances[chatId] = poeInstance;

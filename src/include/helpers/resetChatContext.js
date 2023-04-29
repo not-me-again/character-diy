@@ -1,9 +1,12 @@
 const cache = require("../cache");
 const db = require("../db");
+const { Poe } = require("../poe");
 const generateStartPrompt = require("./generateStartPrompt");
 const sanitizeMessageText = require("./sanitizeMessageText");
 const removeListenerSafe = require("./removeListenerSafe");
-const signupHandler = require("./signupHandler");
+//const signupHandler = require("./signupHandler");
+
+const poeCookieStore = db.getPoeCookieStore();
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
@@ -57,20 +60,22 @@ module.exports = chat => {
         let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
             let authCookie = await chat.get("poeCookie");
-            if ((typeof authCookie != "string") || (authCookie.length <= 1)) {
-                authCookie = await signupHandler().catch(console.error);
-
-                if (!authCookie)
-                    return reject("Failed to get auth cookie");
-
+            if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
+                authCookie = await poeCookieStore.allocateCookieForChat(chatId);
                 await chat.set("poeCookie", authCookie);
             }
+
+            let poeChatId = await chat.get("poeChatId");
+            if ((typeof poeChatId != "number") || (poeChatId <= 0)) {
+                poeChatId = await Poe.createChat(authCookie);
+                await chat.set("poeChatId", poeChatId);
+            }
             
-            let backend = charData.backend;
+            let backend = charData["backend"];
             if (!backend)
                 backend = "claude";
 
-            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
+            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend, poeChatId);
         }
 
         await poeInstance.resetChat();

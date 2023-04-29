@@ -4,7 +4,7 @@
 
 .center-menu {
     display: flex;
-    width: 40vw;
+    /*width: 40vw;*/
     margin: auto;
     justify-content: center;
 }
@@ -16,6 +16,7 @@
 .chat-info > .chat-name {
     font-weight: 800;
     font-size: 3vh;
+    max-width: 40vw;
 }
 .chat-info > .separator {
     font-size: 2vh;
@@ -30,6 +31,9 @@
     text-align: center;
     vertical-align: middle;
     padding: 0.25vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .chat-list-container {
@@ -198,6 +202,8 @@ span:is(.chat-message-timestamp, .chat-message-error) {
 .chat-message-timestamp {
     color: var(--msg-date) !important;
     font-weight: 400;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .chat-message-error {
     color: rgb(255, 100, 100);
@@ -247,6 +253,21 @@ span.chat-message-text > i {
 .chat-message-filtered {
     filter: blur(0.5vmax);
     user-select: none;
+}
+
+span.chat-message-footer {
+    color: var(--msg-date);
+    font-size: 1.45vh;
+    font-weight: 500;
+    height: 1.15vh;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.chat-list-item > td > .chat-message-footer > p {
+    display: none;
+}
+.chat-list-item:hover > td > .chat-message-footer > p {
+    display: block;
 }
 
 span.chat-link-button > a > i {

@@ -3,8 +3,11 @@ const { AGE_OF_MAJORITY_MS, FILTERED_TEXT_PLACEHOLDER } = require("../../../conf
 const { Logger, colors } = require("../../include/logging");
 const cache = require("../../include/cache");
 const { handleDataStream } = require("../../include/helpers/handlePoeDataStream");
+const db = require("../../include/db");
+const { Poe } = require("../../include/poe");
 
 const log = new Logger("InferenceAPI");
+const poeCookieStore = db.getPoeCookieStore();
 
 module.exports = {
     method: "POST",
@@ -57,8 +60,14 @@ module.exports = {
         if (!poeInstance) {
             let authCookie = await chat.get("poeCookie");
             if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
-                authCookie = await signupHandler().catch(console.error);
+                authCookie = await poeCookieStore.allocateCookieForChat(chatId);
                 await chat.set("poeCookie", authCookie);
+            }
+
+            let poeChatId = await chat.get("poeChatId");
+            if ((typeof poeChatId != "number") || (poeChatId <= 0)) {
+                poeChatId = await Poe.createChat(authCookie);
+                await chat.set("poeChatId", poeChatId);
             }
 
             if (!characterId)
@@ -68,7 +77,7 @@ module.exports = {
             if (!backend)
                 backend = "claude";
 
-            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
+            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend, poeChatId);
         } else if (poeInstance.isReplying)
             return res.status(400).send({ success: false, error: "previous_inference_incomplete" });
 

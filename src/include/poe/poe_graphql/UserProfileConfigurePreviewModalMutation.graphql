@@ -1,0 +1,8 @@
+mutation UserProfileConfigurePreviewModal_markMultiplayerNuxCompleted_Mutation {
+  markMultiplayerNuxCompleted {
+    viewer {
+      hasCompletedMultiplayerNux
+      id
+    }
+  }
+}

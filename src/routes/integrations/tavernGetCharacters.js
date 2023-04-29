@@ -12,7 +12,7 @@ module.exports = {
 
         let chars = [];
 
-        const tavernReq = await axios({
+        /*const tavernReq = await axios({
             url: reqURL,
             method: "GET",
             validateStatus: () => true
@@ -54,7 +54,7 @@ module.exports = {
                     updatedAt: updatedAt.getTime()
                 });
             }
-        }
+        }*/
 
         res.status(200).send({ success: true, chars });
     }

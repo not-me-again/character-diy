@@ -33,14 +33,33 @@ const BOT_TYPES = {
     }
 }
 
+function parseAuthCookie(cookie) {
+    return cookie.replace(/^p\-b\=/i, "").toString();
+}
+
 class Poe {
-    constructor(authCookie, botType) {
+    static async createChat(authCookie) {
+        const client = new PoeClient(false);
+        await client.init(parseAuthCookie(authCookie));
+        const createdBot = await client.create_bot();
+        client.disconnect_ws();
+        return createdBot.chatId;
+    }
+
+    constructor(authCookie, botType, chatId) {
         if ((typeof authCookie != "string") || (authCookie.length <= 0))
             throw new Error("Argument #1 must be authCookie: string[len>=1]");
+
+        if (typeof botType != "string")
+            throw new Error("Argument #2 must be botType: string");
+
+        if (typeof chatId != "number")
+            throw new Error("Argument #3 must be chatId: int");
         
         this.botType = botType;
         this.client = new PoeClient(true);
-        this.authCookie = authCookie.replace(/^p\-b\=/i, "").toString();
+        this.authCookie = parseAuthCookie(authCookie);
+        this.chatId = chatId;
 
         log.info(`BotType: ${botType}`);
         this.lastUsed = Date.now();
@@ -72,15 +91,20 @@ class Poe {
         
         this.latUsed = Date.now();
 
-        await this.client.send_chat_break(this.botType);
+        await this.client.send_chat_break(this.chatId);
 
         return true;
     }
 
     async _handleMessageYield(dataEvent, content, isRetry) {
+        let timeoutDaemon = setTimeout(() => {
+            this.client.abortController.abort();
+            dataEvent.emit("error", "Timed out");
+        }, DEFAULTS.INFERENCE_TIMEOUT);
+
         let currentMessageId;
         try {
-            for await (let [ selfMessage, messageData ] of this.client.send_message(this.botType, content, false, DEFAULTS.INFERENCE_TIMEOUT)) {
+            for await (let [ selfMessage, messageData ] of this.client.send_message(this.botType, content, this.chatId)) {
                 if (!currentMessageId)
                     dataEvent.emit("selfMessage", selfMessage);
 
@@ -150,17 +174,17 @@ class Poe {
                         content += ` Also remember to include your mood!`
                         content += ` Show your understanding of everything I have just reminded you of by responding IN CHARACTER, without mentioning any of the previous statements:`
                         content += `\n\n${origContent}`;
-                        return this.deleteMessage(messageData.messageId, selfMessage.messageId).then(() =>
-                            this._handleMessageYield(dataEvent, content, isRetry)
-                        ).catch(err => 
+                        await this.deleteMessage(messageData.messageId, selfMessage.messageId).catch(err => 
                             dataEvent.emit("error", { message: err.toString(), data: err })
                         );
+                        this._handleMessageYield(dataEvent, content, true);
                     } else {
                         messageData.isBreakingCharacter = true;
-                        return this.deleteMessage(messageData.messageId, selfMessage.messageId).finally(() => 
+                        await this.deleteMessage(messageData.messageId, selfMessage.messageId).finally(() => 
                             dataEvent.emit("error", { message: "No character reply", data: messageData })
                         );
                     }
+                    break;
                 }
                 // END JAILBREAK STUFF //
 
@@ -175,6 +199,7 @@ class Poe {
                 if (isFinal) {
                     this.isReplying = false;
                     this.lastDataEvent = undefined;
+
                     dataEvent.emit("messageComplete", messageData);
                     break;
                 }
@@ -186,25 +211,21 @@ class Poe {
             log.error(err?.stack || err);
             dataEvent.emit("error", { message: err.toString(), data: err });
         }
+
+        clearTimeout(timeoutDaemon);
     }
 
     sendMessage(content) {
         let dataEvent = new EventEmitter();
 
-        if (this.isReplying) {
-            dataEvent.emit("error", { message: "Already replying!", data: null });
-            return;
-        }
+        if (this.isReplying)
+            return dataEvent.emit("error", { message: "Already replying!", data: null });
 
-        if (content.length >= 12_000) {
-            dataEvent.emit("error", { message: "Too many tokens", data: null });
-            return;
-        }
+        if (content.length >= 12_000)
+            return dataEvent.emit("error", { message: "Too many tokens", data: null });
 
         this.lastDataEvent = dataEvent;
-        
         this.latUsed = Date.now();
-    
         this.isReplying = true;
     
         this._handleMessageYield(dataEvent, content);

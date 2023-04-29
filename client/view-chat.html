@@ -22,6 +22,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <script>window.skipAuthRedir=true;</script>
+
+    <style>
+        .banner {
+            background-color: var(--border-color);
+        }
+        .banner-link {
+            color: var(--theme-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.75vh;
+        }
+    </style>
 </head>
 
 <body style="margin:0;padding:0;">
@@ -145,6 +157,11 @@
                     <input autocomplete="off" id="textbar" type="text" placeholder="Type your message" />
                     <a id="submit-btn" class="link-clear submit-chat"><i class="fa-regular fa-paper-plane fa-btn"></i></a>
                 </div>-->
+            </div>
+        </div>
+        <div class="header banner">
+            <div class="center-menu">
+                <a href="/characters?add-character=%%char_id%" class="banner-link">Start your own chat with <em>%%char_name%</em></a>
             </div>
         </div>
     </div>

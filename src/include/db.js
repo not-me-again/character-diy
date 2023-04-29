@@ -16,7 +16,8 @@ const CHARACTER_PROPERTIES = [
     [ "displayName", "" ],
     [ "tags", [] ],
     [ "createdAt", 0 ],
-    [ "updatedAt", 0 ]
+    [ "updatedAt", 0 ],
+    [ "updateId", "0" ]
 ];
 const POPULAR_CHARACTERS_PROPERTIES = [
     [ "updatedAt", 0 ],
@@ -53,7 +54,7 @@ const CHAT_PROPERTIES = [
     [ "messageCount", 0 ],
     [ "activeCharacterId", "" ],
     [ "poeCookie", "" ],
-    [ "poeChatId", "" ],
+    [ "poeChatId", -1 ],
     [ "isPublic", false ],
     [ "name", "" ],
     [ "thumbnailURL", "" ],
@@ -156,11 +157,12 @@ class BaseDB {
     }
 
     applyDefaults() {
-        for (let def of this.properties) {
-            const [ prop, val ] = def;
-            if (this.object[prop] === undefined)
-                this.object[prop] = val;
-        }
+        if (typeof this.properties == "object")
+            for (let def of this.properties) {
+                const [ prop, val ] = def;
+                if (this.object[prop] === undefined)
+                    this.object[prop] = val;
+            }
     }
 
     json() {
@@ -208,7 +210,7 @@ class BaseDB {
     }
 
     precheck(property) {
-        if (!this.properties.find(p => p[0] == property))
+        if ((typeof this.properties == "object") && !this.properties.find(p => p[0] == property))
             throw new Error("Unknown property \"" + property + "\"");
     }
 
@@ -251,6 +253,35 @@ class Character extends BaseDB {
 class PopularCharacters extends BaseDB {
     constructor() {
         super("characters", "_popular", POPULAR_CHARACTERS_PROPERTIES);
+    }
+}
+
+class PoeCookieStore extends BaseDB {
+    constructor() {
+        super("etc", "poe-cookies");
+    }
+
+    async allocateCookieForChat(chatId) {
+        if (typeof chatId != "string")
+            throw new Error("Argument #1 must be type String");
+
+        const cookies = await this.get("cookies");
+        for (const [cookie, properties] of Object.entries(cookies)) {
+            if (typeof properties != "object")
+                continue;
+
+            const { chats } = properties;
+            if (typeof chats != "object")
+                continue;
+
+            if (chats.length < 8) {
+                chats.push(chatId);
+                await this.save();
+                return cookie;
+            }
+        }
+
+        throw new Error("Failed to allocate new cookie");
     }
 }
 
@@ -440,6 +471,7 @@ class DatabaseManager {
         this.chats = [];
         this.savedchats = [];
         this.popularCharacterManager = new PopularCharacters();
+        this.poeCookieStore = new PoeCookieStore();
     }
 
     _returnOrInstantiate(type, id) {
@@ -481,6 +513,10 @@ class DatabaseManager {
 
     getPopularCharacterManager() {
         return this.popularCharacterManager;
+    }
+
+    getPoeCookieStore() {
+        return this.poeCookieStore;
     }
 
     getUniqueId() {
