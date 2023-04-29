@@ -97,18 +97,18 @@ class Cache {
             if (this.popularCharacters[idx].id == characterData.id)
                 this.popularCharacters.splice(idx, 1); // delete duplicates
 
-        const lastChar = this.popularCharacters[this.popularCharacters.length - 1];
-        if (lastChar.totalMessageCount > characterData.totalMessageCount)
-            return log.warn("Not appending popular character list as new entry does not meet minimum requirements");
+        if (this.popularCharacters.length >= 100) {
+            const lastChar = this.popularCharacters[this.popularCharacters.length - 1];
+            if (lastChar.totalMessageCount > characterData.totalMessageCount)
+                return log.warn("Not appending popular character list as new entry does not meet minimum requirements");
+        }
 
-        const { popularCharacters } = this;
+        this.popularCharacters.unshift(characterData);
 
-        popularCharacters.unshift(characterData);
+        if (this.popularCharacters.length > 100)
+            this.popularCharacters.length = 100;
 
-        if (popularCharacters.length > 100)
-            popularCharacters.length = 100;
-
-        await this.popularCharacterManager.set("characters", popularCharacters);
+        await this.popularCharacterManager.set("characters", this.popularCharacters);
     }
 
     getPopularCharacters() {
