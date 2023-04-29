@@ -372,7 +372,7 @@ class Client {
     }
 
     async send_query(queryName, variables, queryDisplayName) {
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 4; i++) {
             const payload = generate_payload(queryName, variables);
             if (queryDisplayName) payload['queryName'] = queryDisplayName;
             const scramblePayload = JSON.stringify(payload);
@@ -382,8 +382,8 @@ class Client {
             const r = await request_with_retries(() => this.session.post(this.gql_url, payload, { headers: this.gql_headers }));
             if (!r.data.data) {
                 console.log(r.data);
-                log.warn(`${queryName} returned an error: ${r.data.errors[0].message} | Retrying (${i + 1}/20)`);
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+                log.warn(`${queryName} returned an error: ${r.data.errors[0].message} | Retrying (${i + 1}/4)`);
+                await new Promise((resolve) => setTimeout(resolve, 1000));
                 continue;
             }
 
