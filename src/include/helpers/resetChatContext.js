@@ -62,14 +62,23 @@ module.exports = chat => {
             let authCookie = await chat.get("poeCookie");
             if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
                 authCookie = await poeCookieStore.allocateCookieForChat(chatId);
-                await chat.set("poeCookie", authCookie);
             }
 
             let poeChatId = await chat.get("poeChatId");
             if ((typeof poeChatId != "number") || (poeChatId <= 0)) {
-                poeChatId = await Poe.createChat(authCookie);
+                let tries = 0;
+                while ((tries < 2) && (!poeChatId)) {
+                    tries++;
+                    try {
+                        poeChatId = await Poe.createChat(authCookie);
+                    } catch(err) {
+                        authCookie = await poeCookieStore.allocateCookieForChat(chatId);
+                    }
+                }
                 await chat.set("poeChatId", poeChatId);
             }
+            
+            await chat.set("poeCookie", authCookie);
             
             let backend = charData["backend"];
             if (!backend)

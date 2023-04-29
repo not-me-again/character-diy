@@ -340,7 +340,7 @@ class Client {
                 bots[chatData.defaultBotObject.nickname] = chatData;
             }
             catch {
-                console.log(`Could not load bot: ${bot.displayName}`);
+                log.error(`Could not load bot: ${bot.displayName}`);
             }
         }
 
@@ -504,7 +504,7 @@ class Client {
             }
         }
         catch (err) {
-            console.log('Error occurred in onMessage', err);
+            log.error('Error occurred in onMessage', err);
             this.disconnect_ws();
             await this.connect_ws();
         }
@@ -587,7 +587,7 @@ class Client {
         //null indicates that a message is still in progress
         this.active_messages["pending"] = null;
 
-        console.log(`Sending message to ${chatbot}: ${message}`);
+        //console.log(`Sending message to ${chatbot}: ${message}`);
 
         const messageData = await this.send_query("AddHumanMessageMutation", {
             "bot": chatbot,
