@@ -13,7 +13,9 @@ module.exports = async function(characterId) {
     let isEligible = false;
     const popularCharacters = cache.getPopularCharacters();
     for (let charData of popularCharacters) {
-        const { totalMessageCount } = charData;
+        const totalMessageCount = charData?.totalMessageCount;
+        if (!totalMessageCount)
+            continue;
         if ((typeof totalMessageCount == "number") && (totalMessageCount < totalMessages)) {
             isEligible = true;
             break;

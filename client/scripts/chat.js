@@ -217,16 +217,16 @@ async function doChatSetup() {
 waitForCachedState().then(doChatSetup);
 
 async function sendMessage() {
-    if (typeof textBar.value != "string")
+    if (typeof textBar.innerText != "string")
         return;
     
-    const text = textBar.value.trim();
+    const text = textBar.innerText.trim();
     if (text.length <= 0)
         return;
 
     lastUserMessagePrompt = text;
 
-    textBar.value = "";
+    textBar.innerText = "";
     textBar.disabled = true;
 
     console.log("sending message:", text);
@@ -284,7 +284,7 @@ async function sendMessage() {
             const failed = false;
             // sanity check
             if (failed) {
-                textBar.value = text;
+                textBar.innerText = text;
                 return;
             }
             // read incoming stream
@@ -393,7 +393,7 @@ async function sendMessage() {
         botMessage.metaDataNode.classList = "chat-message-error";
         botMessage.metaDataNode.innerText = (typeof errorType == "string") ? errorType : "ERROR";
 
-        textBar.value = text;
+        textBar.innerText = text;
     }
 
     textBar.disabled = false;
@@ -453,7 +453,7 @@ async function regenerateMessage(messageId, text) {
         console.error("failed to delete:", deleteErrorMessage);
         alert(deleteErrorMessage);
     } else {
-        textBar.value = text;
+        textBar.innerText = text;
         await sendMessage();
     }
 }
@@ -662,13 +662,22 @@ const FUNNY_PLACEHOLDERS = [
     "Say it ain't so"
 ];
 
+const textBarPlaceholder = document.getElementById("placeholder");
+const textBarPreview = document.getElementById("textbarpreview");
 const textBar = document.getElementById("textbar");
-textBar.placeholder = FUNNY_PLACEHOLDERS[randInt(0, FUNNY_PLACEHOLDERS.length - 1)];
+textBarPlaceholder.innerText = FUNNY_PLACEHOLDERS[randInt(0, FUNNY_PLACEHOLDERS.length - 1)];
 let isFocused = false;
-textBar.onfocus = () => isFocused = true;
-textBar.onblur = () => isFocused = false;
+function updateTextBarFocus(hasFocus) {
+    isFocused = hasFocus;
+    if (textBar.innerText.trim().length >= 1)
+        textBarPlaceholder.style.display = "none";
+    else
+        textBarPlaceholder.style.display = "";
+}
+textBar.addEventListener("focus", () => updateTextBarFocus(true));
+textBar.addEventListener("blur", () => updateTextBarFocus(false));
 document.addEventListener("keypress", (e) => {
-    if (!isFocused) {
+    if (!isFocused && (e.code != "Enter")) {
         e = e || window.event;
         textBar.focus();
     }
@@ -677,9 +686,23 @@ document.addEventListener("keypress", (e) => {
 document.getElementById("submit-btn").addEventListener("click", sendMessage);
 document.getElementById("settings-btn").addEventListener("click", openChatSettingsModal);
 
+/*textBarPreview.addEventListener("focus", e => {
+    e.preventDefault();
+    textBar.focus();
+});*/
+
 let waitingForReply = false;
-textBar.onkeyup = (async e => {
-    if (e.keyCode == 13 && !waitingForReply) {
-        await sendMessage();
+textBar.addEventListener("keydown", e => {
+    if (e.code == "Enter") {
+        if (!e.shiftKey) {
+            e.preventDefault();
+            if (!waitingForReply)
+                sendMessage();
+        }
     }
+    updateTextBarFocus(true);
 });
+/*const mdConverter = new showdown.Converter();
+textBar.addEventListener("keyup", e => {
+    textBarPreview.innerHTML = mdConverter.makeHtml(textBar.innerText) + "<span class=\"blinking-cursor\">|</span>";
+});*/

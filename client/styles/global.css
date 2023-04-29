@@ -1,5 +1,50 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css?family=Manrope:300,400,500,600,700&display=swap&subset=latin-ext");
+  
+@keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: var(--body-color);
+  }
+}
+
+@-moz-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: var(--body-color);
+  }
+}
+
+@-webkit-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: var(--body-color);
+  }
+}
+
+@-ms-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: var(--body-color);
+  }
+}
+
+@-o-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: var(--body-color);
+  }
+}
 
 ::-webkit-scrollbar {
     width: 10px;
@@ -539,7 +584,36 @@ html {
     margin-left: 12px;
 }
 
-.content-area-footer input {
+.blinking-cursor {
+    font-weight: 100;
+    font-size: 30px;
+    color: #2E3D48;
+    -webkit-animation: 1s blink step-end infinite;
+    -moz-animation: 1s blink step-end infinite;
+    -ms-animation: 1s blink step-end infinite;
+    -o-animation: 1s blink step-end infinite;
+    animation: 1s blink step-end infinite;
+}
+
+/*#textbarpreview {
+    position: absolute;
+    top: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 1;
+}
+
+#textbar {
+    z-index: -999;
+}*/
+
+.content-area-footer .placeholder {
+    position: absolute;
+    z-index: 0;
+    color: var(--input-chat-color);
+}
+
+.content-area-footer .text-input {
     border: none;
     color: var(--body-color);
     background-color: var(--input-bg);
@@ -548,10 +622,12 @@ html {
     font-size: 1.5vh;
     margin: 0 12px;
     width: 100%;
-    height: 4vh;
+    min-height: 4vh;
+    display: flex;
+    cursor: text;
 }
 
-.content-area-footer input::placeholder {
+.content-area-footer .text-input::placeholder {
     color: var(--input-chat-color);
 }
 

@@ -47,13 +47,27 @@ class Cache {
     //////////////
 
     _sortPopularCharacters() {
-        this.popularCharacters = this.popularCharacters.sort((a, b) => a.totalMessageCount - b.totalMessageCount);
+        this.popularCharacters = this.popularCharacters.sort((a, b) => {
+            let amc = a?.totalMessageCount;
+            if (typeof amc != "number")
+                amc = -1;
+            let bmc = b?.totalMessageCount;
+            if (typeof bmc != "number")
+                bmc = -1;
+            return amc - bmc;
+        });
     }
 
     _removeDuplicateCharacters() {
         let addedIds = {};
         for (const idx in this.popularCharacters) {
-            const { id } = this.popularCharacters[idx];
+            const char = this.popularCharacters[idx];
+            const id = char?.id;
+            if (typeof id != "string") {
+                this.popularCharacters.splice(idx, 1);
+                addedIds[id] = true;
+                continue;
+            }
             if (addedIds[id])
                 this.popularCharacters.splice(idx, 1);
             else

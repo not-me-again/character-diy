@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/styles/chat.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/assets/js/showdown.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
@@ -140,7 +141,11 @@
                 </div>
                 <div class="content-area-footer">
                     <a id="settings-btn" class="link-clear submit-chat"><i style="font-weight: 600;" class="fa-gear fa-solid fa-btn"></i></a>
-                    <input autocomplete="off" id="textbar" type="text" placeholder="Type your message" />
+                    <div class="text-input">
+                        <div contenteditable="true" autocomplete="off" id="textbar" type="text"></div>
+                        <span class="placeholder" id="placeholder">Type your message here</span>
+                        <!--<div autocomplete="off" id="textbarpreview" type="text" placeholder="Type your message"></div>-->
+                    </div>
                     <a id="submit-btn" class="link-clear submit-chat"><i class="fa-regular fa-paper-plane fa-btn"></i></a>
                 </div>
             </div>
