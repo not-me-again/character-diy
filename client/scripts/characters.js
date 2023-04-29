@@ -52,10 +52,15 @@ async function doCharactersSetup() {
         displayCharacter(char);
 
     const { quotas } = await waitForCachedState();
-    if (!quotas || chars.length >= quotas.maxAllowedCharacters)
+    const remainingCharSlots = quotas.maxAllowedCharacters - chars.length;
+    if (remainingCharSlots <= 0) {
+        charQuotaData.classList = "quota-data-0";
         newButton.remove();
+    } else {
+        charQuotaData.classList = "quota-data";
+    }
 
-    charQuotaData.innerText = `(${chars?.length}/${quotas?.maxAllowedCharacters})`;
+    charQuotaData.innerText = remainingCharSlots;
 }
 doCharactersSetup();
 
@@ -202,6 +207,8 @@ async function handleCharDelete(charData) {
 
 const chatNewItemHTML = document.querySelector("tr.chat-new-item").innerHTML;
 
+const chatQuotaData = document.querySelector("#chat-quota-data");
+
 let chats = undefined;
 async function handleChatOpen(charData) {
     console.log("Char:", charData);
@@ -234,6 +241,7 @@ async function handleChatOpen(charData) {
     });
 
     const { quotas } = await waitForCachedState();
+    const remainingChatSlots = quotas.maxAllowedChats - chats.length;
 
     console.log("Chat list:", chats);
 
@@ -243,9 +251,10 @@ async function handleChatOpen(charData) {
 
     newChatButton = document.querySelector("#new-chat-btn");
 
-    if (chats.length >= quotas.maxAllowedChats)
+    if (remainingChatSlots <= 0) {
         newChatButton.remove();
-    else
+        chatQuotaData.classList = "quota-data-0";
+    } else {
         newChatButton.addEventListener("click", async () => {
             console.log("Make new chat for: " + selectedCharId);
 
@@ -263,6 +272,9 @@ async function handleChatOpen(charData) {
 
             hideLoadingOverlay();
         });
+        chatQuotaData.classList = "quota-data";
+    }
+    chatQuotaData.innerText = remainingChatSlots;
     
     for (const chat of chats)
         displayChat(chat, charId);

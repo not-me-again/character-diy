@@ -144,10 +144,19 @@ span > a > i.fa-btn {
     margin-top: 1vh;
 }
 
+h1 {
+    margin-bottom: 1vh;
+}
+.quota-data {
+    color: var(--theme-color);
+}
+.quota-data-0 {
+    color: var(--msg-failed);
+}
+
 .modal > * > h1 {
     font-size: 4vh;
     margin-top: 1vh;
-    margin-bottom: 1vh;
 }
 .modal > * > span {
     font-weight: 500;
