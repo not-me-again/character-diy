@@ -265,18 +265,21 @@ class PoeCookieStore extends BaseDB {
         if (typeof chatId != "string")
             throw new Error("Argument #1 must be type String");
 
-        const cookies = await this.get("cookies");
-        for (const [cookie, properties] of Object.entries(cookies)) {
+        let cookies = await this.get("cookies");
+        for (let [cookie, properties] of Object.entries(cookies)) {
             if (typeof properties != "object")
                 continue;
 
-            const { chats } = properties;
+            let { chats } = properties;
             if (typeof chats != "object")
                 continue;
 
             if (chats.length < 8) {
                 chats.push(chatId);
+                
+                await this.set("cookies", cookies);
                 await this.save();
+
                 return cookie;
             }
         }
