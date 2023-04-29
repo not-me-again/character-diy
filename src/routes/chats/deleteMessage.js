@@ -17,12 +17,13 @@ module.exports = {
         let poeInstance = await cache.getPoeInstance(chatId);
         if (!poeInstance) {
             const authCookie = await chat.get("poeCookie");
+            const poeChatId = await chat.get("poeChatId");
             
             let backend = await character.get("backend");
             if (!backend)
                 backend = "claude";
     
-            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend);
+            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend, poeChatId);
         }
 
         const { messageId } = req.body;
