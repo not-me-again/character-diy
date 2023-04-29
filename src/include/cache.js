@@ -69,6 +69,16 @@ class Cache {
         this._sortPopularCharacters();
         this._removeDuplicateCharacters();
 
+        for (const i in this.popularCharacters) {
+            const characterData = this.popularCharacters[i];
+            const char = db.getCharacter(characterData.id);
+            if (!await char.exists()) {
+                delete this.popularCharacters[i];
+                log.debug("Removing nonexistent character " + characterData.id);
+            }
+        }
+
+        await this.popularCharacterManager.set("characters", this.popularCharacters);
         await this.popularCharacterManager.save();
     }
 

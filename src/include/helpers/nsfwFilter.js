@@ -33,7 +33,7 @@ module.exports = function(messageData) {
             isFiltered: false
         }
 
-    const nsfwMood = currentMoods.find(m => NSFW_MOODS.find(n => n == m.toLowerCase()))
+    const nsfwMood = currentMoods.find(m => NSFW_MOODS.find(n => m.toLowerCase().includes(n)));
     if (nsfwMood)
         return {
             isFiltered: true,
