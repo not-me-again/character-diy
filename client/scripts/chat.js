@@ -776,12 +776,15 @@ document.getElementById("settings-btn").addEventListener("click", openChatSettin
 });*/
 
 let waitingForReply = false;
-textBar.addEventListener("keydown", e => {
+textBar.addEventListener("keydown", async e => {
     if (e.code == "Enter") {
         if (!e.shiftKey) {
             e.preventDefault();
-            if (!waitingForReply)
-                sendMessage();
+            if (!waitingForReply) {
+                waitingForReply = true;
+                await sendMessage();
+                waitingForReply = false;
+            }
         }
     }
     updateTextBarFocus(true);
