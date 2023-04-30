@@ -6,6 +6,7 @@ const CHARACTER_PROPERTIES = [
     [ "backend", "claude" ],
     [ "startMessage", "" ],
     [ "personalityPrompt", "" ],
+    [ "isImageGenerating", false ],
     [ "blurb", "" ],
     [ "pronouns", { personal: "they", intensive: "them", possessive: "their" } ],
     [ "exampleConvo", "" ],

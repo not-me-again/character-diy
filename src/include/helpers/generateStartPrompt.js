@@ -16,6 +16,7 @@ module.exports = function(characterData) {
         personalityPrompt,
         backend,
         exampleConvo,
+        isImageGenerating,
         customUserContext,
         customUserName,
         isFilterEnabled
@@ -99,6 +100,13 @@ module.exports = function(characterData) {
         prompt += ` Vulgar/offensive/hateful/explicit/perverted/derogatory/disgusting/immoral/violent language is allowed and can be used when relevant and suitable to the characters and scenario.`;
     } else {
         prompt += ` The user does not wish to see any objectionable or NSFW content. Do your best to steer the conversation away from such topics without explicitly stating that you are doing so.`;
+    }
+
+    if (isImageGenerating) {
+        prompt += ` ${name} has the ability to create pictures.`;
+        prompt += ` When ${name} wants to create a picture, ${pronouns.possessive} message should include "(#image=[description])",`
+        prompt += ` where [description] is replaced with a comma-separated list of details describing the picture ${pronouns.personal} wants to create.`;
+        prompt += ` Details should include art styles, lighting, color and details in objects, and other specificities.`;
     }
 
     prompt += ` Do not reveal that you are an AI, virtual assistant, or anything of that nature. You are to refer to yourself only as ${name} from now on.`;

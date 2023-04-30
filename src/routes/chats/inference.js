@@ -9,6 +9,8 @@ const { Poe } = require("../../include/poe");
 const log = new Logger("InferenceAPI");
 const poeCookieStore = db.getPoeCookieStore();
 
+let activeChatInferences = {};
+
 module.exports = {
     method: "POST",
     path: "/api/chats/:chatId/inference",
@@ -20,6 +22,10 @@ module.exports = {
         if (!chat)
             return res.status(500).send({ success: false, error: "preflight_condition2_failure" });
         const chatId = await chat.get("id");
+
+        /*if (activeChatInferences[chatId])
+            return res.status(429).send({ success: false, error: "ongoing_inference" });*/
+        activeChatInferences[chatId] = true;
 
         const { text: rawUserMessageText } = req.body;
         if (typeof rawUserMessageText != "string")
@@ -49,6 +55,7 @@ module.exports = {
             name: cachedCharacter["displayName"]
         }
         
+        const isImageGenerating = cachedCharacter["isImageGenerating"];
         const filterEnabled = await chat.get("isFilterEnabled");
         const userBirthdate = await user.get("birthdate");
         const needsFiltering = filterEnabled || typeof userBirthdate != "number" || ((Date.now() - userBirthdate) < AGE_OF_MAJORITY_MS);
@@ -84,6 +91,8 @@ module.exports = {
         res.writeHead(200, { "Content-Type": "application/json" });
 
         const dataStream = poeInstance.sendMessage(userMessageText);
-        handleDataStream(dataStream, { chat, poeInstance, res, characterId, userMessageText, userId, needsFiltering, log });
+        handleDataStream(dataStream, { chat, poeInstance, res, characterId, userMessageText, userId, needsFiltering, log, isImageGenerating }).done(() => {
+            activeChatInferences[chatId] = false;
+        });
     }
 }

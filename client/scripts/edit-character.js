@@ -64,6 +64,7 @@ const longDescriptionInput = document.querySelector("#long-desc");
 const exampleConvoInput = document.querySelector("#example-convo");
 
 const isPublicInput = document.querySelector("#is-public");
+const isImageGeneratingInput = document.querySelector("#is-image-generating");
 
 const saveButton = document.querySelector("#save-btn");
 
@@ -87,7 +88,8 @@ const FORM_ELEM_LIST = [
     shortDescriptionInput,
     longDescriptionInput,
     exampleConvoInput,
-    isPublicInput
+    isPublicInput,
+    isImageGeneratingInput
 ];
 
 function setAllDisabled(isDisabled) {
@@ -207,6 +209,7 @@ async function doSetup(isNew) {
                 pronouns: pronounsInput.selectedOptions[0].value,
                 isPublic: isPublicInput.selectedIndex == 1,
                 backend: backendInput.selectedOptions[0].value,
+                isImageGenerating: isImageGeneratingInput.selectedIndex == 1,
                 charaAvatar: charaImportId ? `${charaImportId}.webp` : undefined
             };
 

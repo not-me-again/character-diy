@@ -613,6 +613,10 @@ html {
     color: var(--input-chat-color);
 }
 
+.content-area-footer .busy {
+    filter: blur(3vh);
+}
+
 .content-area-footer .text-input {
     border: none;
     color: var(--body-color);

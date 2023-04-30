@@ -194,7 +194,7 @@ function displayCharacter(charData) {
             <span class="chat-choose-button">Add to chat<i class="fa-regular fa-message fa-btn"></i></span>
         </span>
     */
-    const { totalMessageCount, displayName, avatarURL, id, authorId, blurb } = charData;
+    const { totalMessageCount, displayName, avatarURL, id, authorId, blurb, isImageGenerating } = charData;
     const messageCount = window.formatNumberToHumanReadable(totalMessageCount, 1);
     let container = createNode("tr", {}, [ "chat-list-item" ]);
 
@@ -204,7 +204,13 @@ function displayCharacter(charData) {
     container.appendChild(pfpContainer);
 
     let contentContainer = createNode("td", {}, [ "chat-bot-extra" ]);
-    let usernameNode = createNode("span", { innerText: displayName }, [ "chat-bot-name" ]);
+    let usernameNode = createNode("span", {}, [ "chat-bot-name" ]);
+    let usernameText = createNode("span", { innerText: displayName }, []);
+    usernameNode.appendChild(usernameText)
+    if (isImageGenerating) {
+        let faPaintbrushIconNode = createNode("i", { title: "This character can generate images." }, [ "fa-solid", "fa-paintbrush" ]);
+        usernameNode.appendChild(faPaintbrushIconNode);
+    }
     contentContainer.appendChild(usernameNode);
 
     let messageCountNode = createNode("span", { innerText: messageCount }, [ "chat-message-count" ]);

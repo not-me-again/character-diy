@@ -32,6 +32,7 @@ module.exports = {
             exampleConvo: await character.get("exampleConvo"),
             avatarURL: await character.get("avatarURL"),
             displayName: await character.get("displayName"),
+            isImageGenerating: await character.get("isImageGenerating"),
             version: await character.get("updateId")
         };
         

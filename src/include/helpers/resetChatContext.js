@@ -48,7 +48,8 @@ module.exports = chat => {
             exampleConvo: cachedCharacter["exampleConvo"],
             blurb: cachedCharacter["blurb"],
             pronouns: cachedCharacter["pronouns"],
-            name: cachedCharacter["displayName"]
+            name: cachedCharacter["displayName"],
+            isImageGenerating: cachedCharacter["isImageGenerating"]
         }
         
         let startMessage = charData.startMessage

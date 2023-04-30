@@ -178,7 +178,8 @@ async function doChatSetup() {
                 timestamp: message.timestamp,
                 customLabel,
                 moods: message.moods,
-                isFirst
+                isFirst,
+                image: message.image
             });
 
             isFirst = false;
@@ -216,6 +217,8 @@ async function doChatSetup() {
 }
 waitForCachedState().then(doChatSetup);
 
+const footer = document.querySelector(".content-area-footer");
+
 async function sendMessage() {
     if (typeof textBar.innerText != "string")
         return;
@@ -228,6 +231,7 @@ async function sendMessage() {
 
     textBar.innerText = "";
     textBar.disabled = true;
+    footer.style.filter = "blur(0.5vh)";
 
     console.log("sending message:", text);
     // create self messsage
@@ -252,6 +256,8 @@ async function sendMessage() {
         timestamp: Date.now(),
         isPending: true
     });
+
+    let imgLoadingStatus;
 
     let userMessageId;
     let botMessageId;
@@ -295,7 +301,18 @@ async function sendMessage() {
                     let { messageObject, error: didError, message: errorMessage } = dataChunk;
 
                     if (typeof messageObject == "object") {
-                        let { text, authorType, authorId, isFiltered, timestamp, id, moods } = messageObject;
+                        let { text, authorType, authorId, isFiltered, timestamp, id, moods, image, isAwaitingImageGeneration } = messageObject;
+
+                        if (isAwaitingImageGeneration) {
+                            console.log("waiting for image...");
+                            if (!imgLoadingStatus)
+                                imgLoadingStatus = addImageLoadingStatusToMessage(botMessage.contentContainer);
+                        } else if (typeof image == "object") {
+                            console.log("got image:", image);
+                            addImagesToMessage(botMessage.contentContainer, image);
+                            if (imgLoadingStatus)
+                                imgLoadingStatus.remove();
+                        }
 
                         if (authorId == botId) {
                             botMessageId = id;
@@ -397,6 +414,7 @@ async function sendMessage() {
     }
 
     textBar.disabled = false;
+    footer.style.filter = "none";
 
     return;
 }
@@ -458,6 +476,65 @@ async function regenerateMessage(messageId, text) {
     }
 }
 
+function addImageLoadingStatusToMessage(container) {
+    let loadingContainer = createNode("span", {}, [ "chat-message-loading" ]);
+    let loadingText = createNode("em", { innerHTML: "Generating image&nbsp;" }, []);
+    loadingContainer.appendChild(loadingText);
+    let loadingImg = createNode("img", { src: "/assets/icons/thinking.svg" }, [ "thinking-dots" ]);
+    loadingContainer.appendChild(loadingImg);
+    container.appendChild(loadingContainer);
+    return loadingContainer;
+}
+
+function addImagesToMessage(container, data) {
+    const {
+        prompt,
+        imageCandidates,
+        error
+    } = data;
+
+    let currentImage = 0;
+
+    
+    const didError = (typeof imageCandidates != "object") || (imageCandidates.length <= 0);
+    if (didError)
+        if (error)
+            console.error("img gen failed with reason:", error, data);
+        else
+            return;
+    
+    let imgContainer = createNode("span", {}, [ didError ? "chat-message-images-error" : "chat-message-images-success", "chat-message-images" ]);
+
+    let buttonsContainer = createNode("div", {}, []);
+    let prevButton = createNode("i", {}, [ "fa-solid", "fa-chevron-left" ]);
+    buttonsContainer.appendChild(prevButton);
+    let nextButton = createNode("i", { style: "right: 0;" }, [ "fa-solid", "fa-chevron-right" ]);
+    buttonsContainer.appendChild(nextButton);
+    imgContainer.appendChild(buttonsContainer);
+    let img = createNode("img", { src: !didError ? imageCandidates[0] : "/assets/img/blank.png" }, []);
+    imgContainer.append(img);
+    
+    if (!didError) {
+        prevButton.addEventListener("click", () => {
+            currentImage = Math.max(currentImage - 1, 0);
+            img.src = imageCandidates[currentImage];
+        });
+        nextButton.addEventListener("click", () => {
+            currentImage = Math.min(currentImage + 1, imageCandidates.length - 1);
+            img.src = imageCandidates[currentImage];
+        });
+    }
+
+    container.appendChild(imgContainer);
+
+    let promptContainer = createNode("div", { style: "justify-content: center;" }, []);
+    let imagePromptNode = createNode("span", { innerText: didError ? (error || "Failed") : prompt }, []);
+    promptContainer.appendChild(imagePromptNode);
+    imgContainer.appendChild(promptContainer);
+
+    return { img, prevButton, nextButton };
+}
+
 function createMessage(data) {
     chatMsgCountLabel.innerText = formatNumberToHumanReadable(chatMessageCount++, 1);
 
@@ -474,7 +551,8 @@ function createMessage(data) {
         id,
         isFiltered,
         customLabel,
-        isFirst
+        isFirst,
+        image
     } = data;
     let isGeneralFailure = failed || isFiltered;
     if ((typeof timestamp != "number") || (typeof name != "string") || (typeof avatarURL != "string") || (typeof authorId != "string") || (typeof text != "string")) {
@@ -547,10 +625,14 @@ function createMessage(data) {
 
     container.appendChild(contentContainer);
     chatList.append(container);
+    // has img?
+    if (typeof image == "object") {
+        addImagesToMessage(contentContainer, image);
+    }
     // autoscroll
     contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
 
-    return { container, messageTextNode, metaDataNode, messageButtonsContainer, deleteMessageButton, messageFooterNode };
+    return { container, contentContainer, messageTextNode, metaDataNode, messageButtonsContainer, deleteMessageButton, messageFooterNode };
 }
 //////////////////
 const chatHelperOverlay = document.querySelector("#chat-helper-overlay");
@@ -677,11 +759,13 @@ function updateTextBarFocus(hasFocus) {
 textBar.addEventListener("focus", () => updateTextBarFocus(true));
 textBar.addEventListener("blur", () => updateTextBarFocus(false));
 document.addEventListener("keypress", (e) => {
+    e = e || window.event;
     if (!isFocused && (e.code != "Enter")) {
-        e = e || window.event;
         textBar.focus();
     }
 });
+
+textBarPlaceholder.addEventListener("click", () => textBar.focus());
 
 document.getElementById("submit-btn").addEventListener("click", sendMessage);
 document.getElementById("settings-btn").addEventListener("click", openChatSettingsModal);

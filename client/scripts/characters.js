@@ -298,16 +298,24 @@ function displayCharacter(charData) {
             </td>
         </tr>
     */
-    const { totalMessageCount, displayName, avatarURL, id } = charData;
+    const { totalMessageCount, displayName, avatarURL, id, authorId, blurb, isImageGenerating } = charData;
     const messageCount = window.formatNumberToHumanReadable(totalMessageCount, 1);
     let container = createNode("tr", {}, [ "chat-list-item" ]);
     let pfpContainer = createNode("td", {}, [ "chat-bot-image" ]);
     let avatarNode = createNode("img", { src: avatarURL, alt: "pfp" }, [ "chat-bot-image" ]);
     pfpContainer.appendChild(avatarNode);
     container.appendChild(pfpContainer);
+    
     let contentContainer = createNode("td", {}, [ "chat-bot-extra" ]);
-    let usernameNode = createNode("span", { innerText: displayName }, [ "chat-bot-name" ]);
+    let usernameNode = createNode("span", {}, [ "chat-bot-name" ]);
+    let usernameText = createNode("span", { innerText: displayName }, []);
+    usernameNode.appendChild(usernameText)
+    if (isImageGenerating) {
+        let faPaintbrushIconNode = createNode("i", { title: "This character can generate images." }, [ "fa-solid", "fa-paintbrush" ]);
+        usernameNode.appendChild(faPaintbrushIconNode);
+    }
     contentContainer.appendChild(usernameNode);
+
     let messageCountNode = createNode("span", { innerText: messageCount }, [ "chat-message-count" ]);
     let faMessageIconNode = createNode("i", {}, [ "fa-regular", "fa-message" ]);
     messageCountNode.appendChild(faMessageIconNode);

@@ -60,6 +60,14 @@ span.chat-bot-name {
     width: 36vw;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+span.chat-bot-name > i {
+    padding-left: 1vh;
+    padding-right: 1vh;
 }
 
 td.chat-bot-extra {

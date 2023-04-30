@@ -5,6 +5,8 @@ const db = require("../../include/db");
 
 const { AGE_OF_MAJORITY_MS } = require("../../../config.json");
 
+const poeCookieStore = db.getPoeCookieStore();
+
 module.exports = {
     method: "POST",
     path: "/api/createChat",
@@ -53,7 +55,9 @@ module.exports = {
         if (nameIteration > 0)
             name = name + ` (${nameIteration + 1})`;
 
-        const poeCookie = await signupHandler().catch(console.error);
+        const newChatId = db.getUniqueId();
+
+        const poeCookie = await poeCookieStore.allocateCookieForChat(newChatId);
         if (typeof poeCookie != "string")
             res.status(500).send({ success: false, error: "preflight_failure0" });
 
@@ -71,7 +75,7 @@ module.exports = {
             displayName: await character.get("displayName")
         };
 
-        const newChat = db.getChat(db.getUniqueId());
+        const newChat = db.getChat(newChatId);
         await newChat.set({
             createdAt: Date.now(),
             updatedAt: Date.now(),

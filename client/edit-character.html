@@ -95,7 +95,7 @@
                                         <span class="chat-bot-name">Greeting Message <span class="required-text">required</span></span>
                                         <span class="chat-message-count"><i class="fa-solid fa-pen-fancy"></i>The first message sent by the character</span>
                                         <span class="chat-link-button">
-                                            <textarea required name="Long Description" id="start-msg" maxlength="1000" minlength="1" wrap="hard" cols="16" rows="10" placeholder="Hi user! Nice to see you! *waves at you*"></textarea>
+                                            <textarea required name="Long Description" id="start-msg" maxlength="1000" minlength="1" wrap="hard" cols="16" rows="10" placeholder="Hi {{user}}! Nice to see you! *waves at you*"></textarea>
                                         </span>
                                     </td>
                                 </tr>
@@ -119,11 +119,23 @@
                                 </tr>
                                 <tr class="chat-list-item coming-soon">
                                     <td class="chat-bot-extra">
-                                        <span class="chat-bot-name">Example Conversation<span class="experimental-text">experimental</span></span>
+                                        <span class="chat-bot-name">Example Conversation <span class="experimental-text">experimental</span></span>
                                         <span class="chat-message-count"><i class="fa-solid fa-pen-fancy"></i>Insert an example conversation to provide additional context for your character</span>
                                         <span class="chat-message-count"><i class="fa-solid fa-lightbulb"></i>You should use {{char}} and {{user}} to represent the character and user respectively</span>
                                         <span class="chat-link-button">
                                             <textarea name="Example Conversation" id="example-convo" maxlength="0" wrap="hard" cols="16" rows="10" placeholder="{{char}}: Hello human!"></textarea>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="chat-list-item">
+                                    <td class="chat-bot-extra">
+                                        <span class="chat-bot-name">Image Generation <span class="experimental-text">experimental</span></span>
+                                        <span class="chat-message-count"><i class="fa-solid fa-square-caret-down"></i>Allows the character to generate images</span>
+                                        <span class="chat-link-button">
+                                            <select name="Character Privacy" required id="is-image-generating">
+                                                <option name="false" selected>Disable image generation</option>
+                                                <option name="true">Enable image generation</option>
+                                            </select>
                                         </span>
                                     </td>
                                 </tr>

@@ -58,7 +58,8 @@ module.exports = {
                 blurb,
                 personalityPrompt,
                 isPublic,
-                charaAvatar
+                charaAvatar,
+                isImageGenerating
             } = config;
 
             if ((typeof charaAvatar == "string") && (charaAvatar.length > 0) && (charaAvatar.match(/\w+\.\w+/mi)))
@@ -92,6 +93,7 @@ module.exports = {
                 backend,
                 pronouns,
                 isPublic,
+                isImageGenerating,
                 id: character.id,
                 updateId: db.getUniqueId()
             });

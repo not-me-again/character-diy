@@ -1,15 +1,23 @@
 const { FILTERED_TEXT_PLACEHOLDER } = require("../../../config.json");
 const db = require("../db");
 const nsfwFilter = require("./nsfwFilter");
+const imageService = require("./imageService");
 const sanitizeMessageText = require("./sanitizeMessageText");
 const removeListenerSafe = require("./removeListenerSafe");
 const handleCharacterInteractionDataUpdate = require("./handleCharacterInteractionDataUpdate");
+const handleImageGeneration = require("./handleImageGeneration");
 
 const activeHandlers = {};
 
+function writeJSON(res, data, isFinal) {
+    res.write(`${JSON.stringify(data)}\n`);
+    if (isFinal)
+        res.end("<|endofstream|>");
+}
+
 class DataStreamHandler {
     constructor(dataStream, opts) {
-        const { res, chat, characterId, userId, needsFiltering, poeInstance, userMessageText, log } = opts;
+        const { res, chat, characterId, userId, needsFiltering, poeInstance, userMessageText, log, isImageGenerating } = opts;
 
         activeHandlers[chat.id] = this;
 
@@ -42,7 +50,7 @@ class DataStreamHandler {
                 moods: []
             }
 
-            this.res.write(`${JSON.stringify({ error: false, messageObject: selfMessageObject })}\n`);
+            writeJSON(this.res, { error: false, messageObject: selfMessageObject });
 
             selfMessageObject.poeId = messageId;
         });
@@ -79,12 +87,14 @@ class DataStreamHandler {
                 responseObj.message = "No character reply";
             }
 
-            this.res.write(`${JSON.stringify(responseObj)}\n`);
+            writeJSON(this.res, JSON.stringify(responseObj));
         });
         dataStream.once("error", errObj => {
             const { message, data: errorData } = errObj;
 
-            log.error("Error occurred while inferencing: \"" + message + "\"\n", errorData);
+            log.error("Error occurred while inferencing: \"" + (message || errObj) + "\"\n");
+            if (errorData)
+                log.error(errorData);
 
             removeListenerSafe(dataStream, "error");
             removeListenerSafe(dataStream, "start-over");
@@ -94,7 +104,7 @@ class DataStreamHandler {
 
             const responseObj = { error: true, message };
 
-            this.res.end(`${JSON.stringify(responseObj)}\n`);
+            writeJSON(this.res, responseObj, true);
         });
         dataStream.once("start-over", newDataStream => {
             log.warn("Inference failed first attempt, retrying a second time");
@@ -116,7 +126,54 @@ class DataStreamHandler {
 
             new DataStreamHandler(newDataStream, opts);
         });
-        dataStream.once("messageComplete", finalMessageData => {
+        const handleMessageEnd = async (finalMessageData) => {
+            // assign unique id to bot message
+            botMessageObject.id = db.getUniqueId();
+            log.info("Inference finished for character ID " + characterId + " @ chat ID " + chat.id);
+            //  end req
+            writeJSON(this.res, { error: false, messageObject: botMessageObject }, true);
+            // call callback
+            if (typeof this.doneCallback == "function")
+                this.doneCallback(finalMessageData);
+            // sanity check so we don't add filtered messages
+            if (!isFiltered) {
+                // download imgs
+                let proxyBotMessage = {
+                    ...botMessageObject
+                };
+                proxyBotMessage.poeId = finalMessageData.messageId;
+                delete proxyBotMessage.isAwaitingImageGeneration;
+                if (typeof botMessageObject.image == "object") {
+                    let img = {};
+                    img.prompt = botMessageObject.image.prompt;
+                    const images = botMessageObject.image.imageCandidates;
+                    if (typeof images == "object") {
+                        img.imageCandidates = [];
+                        for (const imageData of images) {
+                            try {
+                                const { fileName } = await imageService.handleDataUriUpload(imageData);
+                                img.imageCandidates.push(fileName);
+                            } catch(err) {
+                                log.error("Failed to upload image", err);
+                            }
+                        }
+                    }
+                    proxyBotMessage.image = img;
+                }
+                // append chat history
+                chat.addMessages([
+                    selfMessageObject,
+                    proxyBotMessage
+                ]);
+                log.info("Final messageObject:", proxyBotMessage);
+                // handle char data updates (message count, etc.)
+                handleCharacterInteractionDataUpdate(characterId);
+            } else {
+                log.debug("Deleting filtered interaction");
+                poeInstance.deleteMessage(selfMessageObject.poeId, botMessageObject.poeId);
+            }
+        }
+        dataStream.once("messageComplete", async finalMessageData => {
             // log completion
             log.info("Inference complete");
             // clear event listeners
@@ -125,24 +182,24 @@ class DataStreamHandler {
             removeListenerSafe(dataStream, "messageUpdated");
             removeListenerSafe(dataStream, "messageComplete");
             removeListenerSafe(dataStream, "selfMessage");
-            // sanity check so we don't add filtered messages
-            if (!isFiltered) {
-                // assign unique id to bot message
-                botMessageObject.id = db.getUniqueId();
-                botMessageObject.poeId = finalMessageData.messageId;
-                // append chat history
-                chat.addMessages([ selfMessageObject, botMessageObject ]);
-                // handle char data updates (message count, etc.)
-                handleCharacterInteractionDataUpdate(characterId);
-            } else {
-                log.debug("Deleting filtered interaction");
-                poeInstance.deleteMessage(selfMessageObject.poeId, botMessageObject.poeId);
+            // handle image generationg if needed
+            if (isImageGenerating && (typeof finalMessageData.imagePrompt == "string")) {
+                botMessageObject.isAwaitingImageGeneration = true;
+                writeJSON(this.res, { error: false, messageObject: botMessageObject });
+                botMessageObject.image = await handleImageGeneration(finalMessageData).catch(err => {
+                    botMessageObject.isAwaitingImageGeneration = false;
+                    log.error("Failed to generate image:", err);
+                    return { error: err };
+                });
+                botMessageObject.isAwaitingImageGeneration = false;
             }
-            log.info("Inference finished for character ID " + characterId + " @ chat ID " + chat.id);
-            log.info("Final messageObject:", botMessageObject);
-            //  end req
-            this.res.end("<|endofstream|>");
+            // run finals
+            handleMessageEnd(finalMessageData);
         });
+    }
+
+    done(callback) {
+        this.doneCallback = callback;
     }
 }
 
