@@ -532,6 +532,9 @@ function addImagesToMessage(container, data) {
     promptContainer.appendChild(imagePromptNode);
     imgContainer.appendChild(promptContainer);
 
+    // autoscroll
+    contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
+
     return { img, prevButton, nextButton };
 }
 
