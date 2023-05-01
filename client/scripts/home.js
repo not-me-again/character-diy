@@ -1,5 +1,7 @@
 // real shtuff
-
+async function getBulletins() {
+    return await window.makeAuthenticatedRequest("/api/bulletins", {}, true);
+}
 async function getCharacterInfo(charId) {
     return await window.makeAuthenticatedRequest(`/api/characters/${charId}/info`, {}, true);
 }
@@ -53,6 +55,50 @@ waitForCachedState().then(state => {
         doShowOnboardingModal();
 });
 
+let lsSeenBulletins = localStorage.getItem("seenBulletins");
+let seenBulletins = (typeof lsSeenBulletins == "string") ? JSON.parse(lsSeenBulletins) : [];
+const bulletinsOverlay = document.querySelector("#bulletins-overlay");
+function displayBulletin(bulletin) {
+    return new Promise(resolve => {
+        // clear all children
+        while (bulletinsOverlay.firstChild)
+            bulletinsOverlay.removeChild(bulletinsOverlay.firstChild);
+        //...
+        const bulletinId = bulletin.id;
+        if (seenBulletins.find(b => b == bulletinId))
+            return resolve();
+
+        let bulletinOuter = createNode("div", {}, ["modal"]);
+        let bulletinContainer = createNode("div", {}, ["onboarding-container"]);
+
+        let titleNode = createNode("h1", { innerText: bulletin.title }, []);
+        bulletinContainer.appendChild(titleNode);
+
+        for (let detail of bulletin.details) {
+            let [ icon, detailText ] = detail;
+            let detailNode = createNode("span", {}, [ "chat-message-count" ]);
+            let faIconNode = createNode("i", {}, [ "fa-solid", "fa-" + icon ]);
+            detailNode.appendChild(faIconNode);
+            let detailTextNode = createNode("span", { innerHTML: "&nbsp;&nbsp;" + detailText }, []);
+            detailNode.appendChild(detailTextNode);
+            bulletinContainer.appendChild(detailNode);
+        }
+
+        let hideButtonNode = createNode("a", { innerHTML: "Got it&nbsp;&nbsp;<i class=\"fa-solid fa-check\"></i>" }, ["close-onboarding-button"]);
+        bulletinContainer.appendChild(hideButtonNode);
+        hideButtonNode.addEventListener("click", () => {
+            seenBulletins.push(bulletinId);
+            localStorage.setItem("seenBulletins", JSON.stringify(seenBulletins));
+            resolve();
+            bulletinsOverlay.style.display = "none";
+        });
+
+        bulletinOuter.appendChild(bulletinContainer);
+        bulletinsOverlay.appendChild(bulletinOuter);
+        bulletinsOverlay.style.display = "";
+    });
+}
+
 const charList = document.querySelector("#char-list");
 
 async function doCharactersSetup() {
@@ -71,6 +117,12 @@ async function doCharactersSetup() {
     
     for (const char of tavernChars)
         displayTavernCharacter(char);
+
+    
+    // ALWAYS LOAD BULLETINS LAST BECAUSE IT IS BLOCKING!!!!!!!!
+    const { bulletins } = await getBulletins();
+    for (const bulletin of bulletins)
+        await displayBulletin(bulletin);
 }
 doCharactersSetup();
 

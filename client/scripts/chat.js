@@ -35,6 +35,11 @@ async function* parseJsonStream(readableStream) {
         }
     }
 }
+// msg cache
+let messageCache = {};
+const lsMessageCache = localStorage.getItem("messageCache");
+if (typeof lsMessageCache == "string")
+    messageCache = JSON.parse(lsMessageCache);
 // real shtuff
 const chatId = location.pathname.match(/(?<=chats\/)[a-zA-Z0-9_-]*(?=\/*)/).toString();
 
@@ -192,6 +197,9 @@ async function doChatSetup() {
             msg?.deleteMessageButton?.addEventListener("click", () => deleteMessage(lastUserMessageId));
         }
     }
+    
+    // autoscroll
+    contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
 
     hideLoadingOverlay();
 
@@ -309,7 +317,7 @@ async function sendMessage() {
                                 imgLoadingStatus = addImageLoadingStatusToMessage(botMessage.contentContainer);
                         } else if (typeof image == "object") {
                             console.log("got image:", image);
-                            addImagesToMessage(botMessage.contentContainer, image);
+                            addImagesToMessage(botMessage.contentContainer, messageObject);
                             if (imgLoadingStatus)
                                 imgLoadingStatus.remove();
                         }
@@ -416,6 +424,9 @@ async function sendMessage() {
     textBar.disabled = false;
     footer.style.filter = "none";
 
+    // autoscroll
+    contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
+
     return;
 }
 
@@ -486,15 +497,20 @@ function addImageLoadingStatusToMessage(container) {
     return loadingContainer;
 }
 
-function addImagesToMessage(container, data) {
+function addImagesToMessage(container, messageData, startIndex) {
+    const { image: imageData, id: messageId } = messageData;
+    if (typeof imageData != "object")
+        return;
     const {
         prompt,
         imageCandidates,
         error
-    } = data;
+    } = imageData;
 
-    let currentImage = 0;
-
+    let currentImage = (typeof startIndex == "number") ? startIndex : 0;
+    let cachedMessage = messageCache[messageId] || {};
+    if (typeof cachedMessage.selectedImageIndex == "number")
+        currentImage = cachedMessage.selectedImageIndex;
     
     const didError = (typeof imageCandidates != "object") || (imageCandidates.length <= 0);
     if (didError)
@@ -511,17 +527,23 @@ function addImagesToMessage(container, data) {
     let nextButton = createNode("i", { style: "right: 0;" }, [ "fa-solid", "fa-chevron-right" ]);
     buttonsContainer.appendChild(nextButton);
     imgContainer.appendChild(buttonsContainer);
-    let img = createNode("img", { src: !didError ? imageCandidates[0] : "/assets/img/blank.png" }, []);
+    let img = createNode("img", { src: !didError ? imageCandidates[currentImage] : "/assets/img/blank.png" }, []);
     imgContainer.append(img);
     
     if (!didError) {
         prevButton.addEventListener("click", () => {
             currentImage = Math.max(currentImage - 1, 0);
             img.src = imageCandidates[currentImage];
+            cachedMessage.selectedImageIndex = currentImage;
+            messageCache[messageId] = cachedMessage;
+            localStorage.setItem("messageCache", JSON.stringify(messageCache));
         });
         nextButton.addEventListener("click", () => {
             currentImage = Math.min(currentImage + 1, imageCandidates.length - 1);
             img.src = imageCandidates[currentImage];
+            cachedMessage.selectedImageIndex = currentImage;
+            messageCache[messageId] = cachedMessage;
+            localStorage.setItem("messageCache", JSON.stringify(messageCache));
         });
     }
 
@@ -531,9 +553,6 @@ function addImagesToMessage(container, data) {
     let imagePromptNode = createNode("span", { innerText: didError ? (error || "Failed") : prompt }, []);
     promptContainer.appendChild(imagePromptNode);
     imgContainer.appendChild(promptContainer);
-
-    // autoscroll
-    contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
 
     return { img, prevButton, nextButton };
 }
@@ -630,7 +649,7 @@ function createMessage(data) {
     chatList.append(container);
     // has img?
     if (typeof image == "object") {
-        addImagesToMessage(contentContainer, image);
+        addImagesToMessage(contentContainer, data);
     }
     // autoscroll
     contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
@@ -693,6 +712,7 @@ resetChatButton.addEventListener("click", async () => {
         chatMessageCount = 0;
         await doChatSetup();
         hideLoadingOverlay();
+        localStorage.removeItem("messageCache");
     }
 });
 

@@ -195,3 +195,7 @@ span > a > i.fa-btn {
     font-weight: 1000;
     font-size: 4vh;
 }
+
+#bulletins-overlay {
+    z-index: 80;
+}

@@ -1,4 +1,16 @@
 {
+    "BULLETINS": [
+        {
+            "id": "img_gen_added0",
+            "title": "Character Image Generation",
+            "details": [
+                [ "info", "Characters can now generate images" ],
+                [ "magnifying-glass", "Image-generaing characters are designated with a <i class=\"fa-solid fa-paintbrush\"></i> icon" ],
+                [ "toggle-on", "You can toggle this functionality in the character editing menu" ],
+                [ "bug", "Please report any bugs in the Discord" ]
+            ]
+        }
+    ],
     "IMAGE_GENERATION_NEGATIVE_PROMPT": "deformed, blurry, bad anatomy, boring, dull",
     "REGISTRATION_DISABLED": false,
     "DISCORD_SERVER_ID": "1092990713278513182",
