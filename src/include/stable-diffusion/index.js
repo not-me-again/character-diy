@@ -8,7 +8,7 @@ class StableDiffusion {
     constructor() {
     }
     
-    static generateImage(prompt, negativePrompt) {
+    static generateImage(prompt, negativePrompt, etaCallback) {
         return new Promise((resolve, reject) => {
             let socket = new WebSocket("wss://stabilityai-stable-diffusion.hf.space/queue/join");
             let session_hash = (Math.random() * 1e16).toString(16).substring(0, 10);
@@ -30,7 +30,10 @@ class StableDiffusion {
                         }));
                         break;
                     case "estimation":
-                        log.info(`In queue position ${data.rank + 1}/${data.queue_size}. ETA: ${data.rank_eta}`);
+                        const { rank, queue_size, rank_eta } = data;
+                        log.info(`In queue position ${rank + 1}/${queue_size}. ETA: ${rank_eta}`);
+                        if (typeof etaCallback == "function")
+                            etaCallback({ queue: { rank, size: queue_size }, eta: rank_eta })
                         break;
                     case "process_starts":
                         log.info(`Generation started`);

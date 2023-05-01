@@ -343,17 +343,19 @@ async function sendMessage() {
                     let { messageObject, error: didError, message: errorMessage } = dataChunk;
 
                     if (typeof messageObject == "object") {
-                        let { text, authorType, authorId, isFiltered, timestamp, id, moods, image, isAwaitingImageGeneration } = messageObject;
+                        let { text, authorType, authorId, isFiltered, timestamp, id, moods, image, isAwaitingImageGeneration, imageGenerationETA } = messageObject;
 
                         if (isAwaitingImageGeneration) {
                             console.log("waiting for image...");
                             if (!imgLoadingStatus)
                                 imgLoadingStatus = addImageLoadingStatusToMessage(botMessage.contentContainer);
+                            else if (typeof imageGenerationETA == "number")
+                                imgLoadingStatus.loadingText.innerHTML = `Generating image (${Math.floor(imageGenerationETA)}s)&nbsp;`;
                         } else if (typeof image == "object") {
                             console.log("got image:", image);
                             addImagesToMessage(botMessage.contentContainer, messageObject);
                             if (imgLoadingStatus)
-                                imgLoadingStatus.remove();
+                                imgLoadingStatus.loadingContainer.remove();
                         }
 
                         if (authorId == botId) {
@@ -528,7 +530,7 @@ function addImageLoadingStatusToMessage(container) {
     let loadingImg = createNode("img", { src: "/assets/icons/thinking.svg" }, [ "thinking-dots" ]);
     loadingContainer.appendChild(loadingImg);
     container.appendChild(loadingContainer);
-    return loadingContainer;
+    return { loadingContainer, loadingText };
 }
 
 function addImagesToMessage(container, messageData, startIndex) {

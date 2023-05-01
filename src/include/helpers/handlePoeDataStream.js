@@ -143,6 +143,7 @@ class DataStreamHandler {
                 };
                 proxyBotMessage.poeId = finalMessageData.messageId;
                 delete proxyBotMessage.isAwaitingImageGeneration;
+                delete proxyBotMessage.imageGenerationETA;
                 if (typeof botMessageObject.image == "object") {
                     let img = {};
                     img.prompt = botMessageObject.image.prompt;
@@ -186,15 +187,29 @@ class DataStreamHandler {
             if (isImageGenerating && (typeof finalMessageData.imagePrompt == "string")) {
                 botMessageObject.isAwaitingImageGeneration = true;
                 writeJSON(this.res, { error: false, messageObject: botMessageObject });
-                botMessageObject.image = await handleImageGeneration(finalMessageData).catch(err => {
+                const imageStream = handleImageGeneration(finalMessageData);
+                imageStream.on("etaUpdate", estimationData => {
+                    const { eta } = estimationData;
+                    botMessageObject.imageGenerationETA = eta;
+                    botMessageObject.isAwaitingImageGeneration = true;
+                    writeJSON(this.res, { error: false, messageObject: botMessageObject });
+                });
+                imageStream.on("error", err => {
                     botMessageObject.isAwaitingImageGeneration = false;
                     log.error("Failed to generate image:", err);
-                    return { error: err };
+                    botMessageObject.image = { error: err };
+                    handleMessageEnd(finalMessageData);
                 });
-                botMessageObject.isAwaitingImageGeneration = false;
+                imageStream.on("imageDone", image => {
+                    botMessageObject.image = image;
+                    //log.info("Image ready:", image);
+                    botMessageObject.isAwaitingImageGeneration = false;
+                    handleMessageEnd(finalMessageData);
+                });
+            } else {
+                // run finals
+                handleMessageEnd(finalMessageData);
             }
-            // run finals
-            handleMessageEnd(finalMessageData);
         });
     }
 

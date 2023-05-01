@@ -229,7 +229,7 @@ span:is(.chat-message-text, .chat-message-loading) {
     min-width: 75vw;
     flex: 1;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
 }
 .chat-message-loading {
     align-items: flex-start;
