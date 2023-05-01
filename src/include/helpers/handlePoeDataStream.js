@@ -87,7 +87,7 @@ class DataStreamHandler {
                 responseObj.message = "No character reply";
             }
 
-            writeJSON(this.res, JSON.stringify(responseObj));
+            writeJSON(this.res, responseObj);
         });
         dataStream.once("error", errObj => {
             const { message, data: errorData } = errObj;

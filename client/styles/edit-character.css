@@ -72,6 +72,7 @@ td > span {
 
 span.chat-message-count {
     font-size: 2vh;
+    align-items: center;
 }
 span.chat-message-count > i {
     padding-right: 1vh;
@@ -176,4 +177,11 @@ tr:is(.coming-soon) * {
     margin: auto;
     /* max-width: 1000px; */
     margin-top: 1vh;
+}
+
+span.code {
+    font-family: monospace;
+    padding-left: 0.25vh;
+    padding-right: 0.25vh;
+    font-size: 1.75vh;
 }

@@ -473,6 +473,7 @@ input:disabled {
     border-radius: 1vh;
     color: var(--body-color);
     z-index: 4;
+    font-size: 2vh;
 }
 .chat-message-images:hover > div > :is(span, i) {
     display: block;

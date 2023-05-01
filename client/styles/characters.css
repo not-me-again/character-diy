@@ -57,7 +57,6 @@ span.chat-bot-name {
     height: 4vh;
     margin-bottom: 1vh;
     margin-left: 0;
-    width: 36vw;
     overflow: hidden;
     text-overflow: ellipsis;
     display: flex;
