@@ -460,6 +460,7 @@ async function sendMessage() {
 
     textBar.disabled = false;
     textBar.contentEditable = true;
+    textBar.focus();
     footer.style.filter = "none";
 
     // autoscroll
