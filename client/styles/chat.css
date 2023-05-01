@@ -225,11 +225,11 @@ p.error-message {
 
 span:is(.chat-message-text, .chat-message-loading) {
     font-size: 1.5vh;
-    align-items: center;
     position: relative;
     min-width: 75vw;
     flex: 1;
     display: flex;
+    align-items: flex-start;
 }
 .chat-message-loading {
     align-items: flex-start;
@@ -479,4 +479,17 @@ input:disabled {
 }
 .chat-message-images > div > i:hover {
     color: var(--border-color);
+}
+
+.warning-header {
+    background-color: #aa6f00;
+}
+.center-menu {
+    font-size: 1.5vh;
+}
+.center-menu > div > a {
+    text-decoration: none;
+    border-bottom: 0.15vh dotted var(--body-color);
+    color: unset;
+    cursor: pointer;
 }

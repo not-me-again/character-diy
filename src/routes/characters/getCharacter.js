@@ -13,6 +13,11 @@ module.exports = {
             const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
             characterData.backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
         }
+
+        if (!req.isCharacterOwner) {
+            delete characterData.personalityPrompt;
+            delete characterData.exampleConvo;
+        }
         
         res.status(200).send({ success: true, characterData });
     }

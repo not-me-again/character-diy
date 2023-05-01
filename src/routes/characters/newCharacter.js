@@ -81,7 +81,8 @@ module.exports = {
                 backend,
                 pronouns,
                 isPublic,
-                id: newChar.id
+                id: newChar.id,
+                updateId: db.getUniqueId()
             });
             await newChar.save();
 

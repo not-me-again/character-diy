@@ -39,7 +39,7 @@ module.exports = {
     JAILRBEAK_SEPERATOR: "[DAN] ",
     CLASSIC_REGEX: /\s\[classic\].*/si,
     MOOD_CAPTURE_REGEX: /(\(\s*[#]*mood\=)([a-zA-Z0-9\- ,]*)(\s*\))/gsi,
-    IMAGE_PROMPT_CAPTURE_REGEX: /[\(|\[|\{]\s*?#image\=\s*?\[?([\w \-,.!]+)\]?\s*?[\)\}\]]/si,
+    IMAGE_PROMPT_CAPTURE_REGEX: /[\(|\[|\{]\s*?#image\=\s*?\[?([\w \/\-,.!]+)\]?\s*?[\)\}\]]/si,
     NSFW_MOODS: [
         "sensual",
         "aroused",

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/styles/chat.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="/assets/js/showdown.min.js"></script>
+    <!--<script src="/assets/js/showdown.min.js"></script>-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
@@ -46,6 +46,11 @@
                     </div>
                     <img class="user-profile account-profile" id="pfp" alt="">
                 </div>
+            </div>
+        </div>
+        <div id="outdated-warning" style="display: none;" class="header warning-header">
+            <div class="center-menu">
+                <div><i class="fa-solid fa-triangle-exclamation"></i>&nbsp;You are using an outdated character version&nbsp;&bullet;&nbsp;<a id="fix-outdated-char">Fix it</a>&nbsp;&bullet;&nbsp;<a id="ignore-outdated-char">Ignore</a></div>
             </div>
         </div>
         <div class="wrapper">

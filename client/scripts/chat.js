@@ -46,6 +46,9 @@ const chatId = location.pathname.match(/(?<=chats\/)[a-zA-Z0-9_-]*(?=\/*)/).toSt
 async function getChatInfo() {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/info`, {}, true);
 }
+async function getCharacterInfo(charId) {
+    return await window.makeAuthenticatedRequest(`/api/characters/${charId}/info`, {}, true);
+}
 async function getAllChats() {
     return await window.makeAuthenticatedRequest(`/api/chats`, {}, true);
 }
@@ -106,6 +109,12 @@ saveDisplayNameButton.addEventListener("click", async () => {
     hideLoadingOverlay();
 });
 
+const outdatedWarning = document.querySelector("#outdated-warning");
+const ignoreOutdatedWarning = document.querySelector("#ignore-outdated-char");
+
+let lsIgnoredWarnings = localStorage.getItem("ignoredWarnings");
+let ignoredWarnings = (typeof lsIgnoredWarnings == "string") ? JSON.parse(lsIgnoredWarnings) : [];
+
 let myName = "";
 let myProfilePicture = "";
 let myId = "";
@@ -148,7 +157,7 @@ async function doChatSetup() {
     isFilterEnabled = chatData.isFilterEnabled;
     filterStatusText.innerText = isFilterEnabled ? "Disable" : "Enable";
 
-    const { displayName, avatarURL } = chatData.cachedCharacterData;
+    const { displayName, avatarURL, version: characterVersionId } = chatData.cachedCharacterData;
 
     botName = displayName;
     botProfilePicture = avatarURL;
@@ -197,9 +206,34 @@ async function doChatSetup() {
             msg?.deleteMessageButton?.addEventListener("click", () => deleteMessage(lastUserMessageId));
         }
     }
+
+    setTimeout(async () => {
+        try {
+            const { success, characterData, error } = await getCharacterInfo(activeCharacterId);
+            console.log("fetched char data:", characterData);
+            if (!success)
+                return console.error("failed to get char info:", error);
+            
+            const { id, updateId } = characterData;
+            if (characterVersionId != updateId) {
+                console.log("using outdated version of character!");
+                if (!ignoredWarnings.find(w => w == characterVersionId)) {
+                    outdatedWarning.style.display = "";
+                    ignoreOutdatedWarning.onclick = () => {
+                        ignoredWarnings.push(characterVersionId);
+                        localStorage.setItem("ignoredWarnings", JSON.stringify(ignoredWarnings));
+                        outdatedWarning.style.display = "none";
+                    }
+                }
+            } else {
+                outdatedWarning.style.display = "none";
+            }
+        } catch(err) {
+            console.error("failed to get char info:", err);
+        }
+    }, 0);
     
-    // autoscroll
-    contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
+    setTimeout(() => contentArea.scrollTo(0, contentArea.scrollHeight + 100000), 1e3);
 
     hideLoadingOverlay();
 
@@ -716,8 +750,7 @@ resetChatButton.addEventListener("click", async () => {
     }
 });
 
-const updateChatCharButton = document.querySelector("#update-chat-btn");
-updateChatCharButton.addEventListener("click", async () => {
+async function updateChar() {
     if (botId && confirm("Are you sure? If you continue, the chat history will be cleared and the character will forget everything")) {
         showLoadingOverlay();
         await addCharacterToChat(botId);
@@ -726,7 +759,11 @@ updateChatCharButton.addEventListener("click", async () => {
         await doChatSetup();
         hideLoadingOverlay();
     }
-});
+}
+const updateChatCharButton = document.querySelector("#update-chat-btn");
+updateChatCharButton.addEventListener("click", updateChar);
+const fixOutdatedCharButton = document.querySelector("#fix-outdated-char");
+fixOutdatedCharButton.addEventListener("click", updateChar);
 
 const isPublicToggle = document.querySelector("#share-chat-public");
 const shareChatButton = document.querySelector("#share-chat-btn");
