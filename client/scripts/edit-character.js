@@ -79,6 +79,10 @@ const IS_PUBLIC_CONVERSION = {
     false: 0,
     true: 1
 }
+const IS_IMAGE_GENERATING_CONVERSION = {
+    false: 0,
+    true: 1
+}
 
 const FORM_ELEM_LIST = [
     backendInput,
@@ -171,6 +175,7 @@ async function doSetup(isNew) {
     exampleConvoInput.value = characterData.exampleConvo;
     pronounsInput.selectedIndex = PRONOUN_CONVERSION[characterData?.pronouns?.personal];
     isPublicInput.selectedIndex = IS_PUBLIC_CONVERSION[characterData.isPublic];
+    isImageGeneratingInput.selectedIndex = IS_IMAGE_GENERATING_CONVERSION[characterData.isImageGenerating];
 
     pfpUpdated = false;
 
