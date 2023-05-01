@@ -273,6 +273,7 @@ async function sendMessage() {
 
     textBar.innerText = "";
     textBar.disabled = true;
+    textBar.contentEditable = false;
     footer.style.filter = "blur(0.5vh)";
 
     console.log("sending message:", text);
@@ -458,6 +459,7 @@ async function sendMessage() {
     }
 
     textBar.disabled = false;
+    textBar.contentEditable = true;
     footer.style.filter = "none";
 
     // autoscroll
