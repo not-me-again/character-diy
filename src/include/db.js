@@ -275,6 +275,18 @@ class PoeCookieStore extends BaseDB {
             if (typeof chats != "object")
                 continue;
 
+            const idx = chats.findIndex(c => c == chatId);
+            if ((typeof idx == "number") && (idx >= 0))
+                chats.splice(idx, 1);
+        }
+        for (let [cookie, properties] of Object.entries(cookies)) {
+            if (typeof properties != "object")
+                continue;
+
+            let { chats } = properties;
+            if (typeof chats != "object")
+                continue;
+
             if (chats.length < 8) {
                 chats.push(chatId);
                 

@@ -59,36 +59,39 @@ module.exports = chat => {
                     .replaceAll("{{char}}", charData.name);
 
         let poeInstance = await cache.getPoeInstance(chatId);
-        if (!poeInstance) {
-            let authCookie = await chat.get("poeCookie");
-            if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
-                authCookie = await poeCookieStore.allocateCookieForChat(chatId);
-            }
+        let authCookie = await chat.get("poeCookie");
+        let poeChatId = await chat.get("poeChatId");
 
-            let poeChatId = await chat.get("poeChatId");
-            if ((typeof poeChatId != "number") || (poeChatId <= 0)) {
-                let tries = 0;
-                while ((tries < 2) && (!poeChatId)) {
-                    tries++;
-                    try {
-                        poeChatId = await Poe.createChat(authCookie);
-                    } catch(err) {
+        for (;;) {
+            try {
+                if (!poeInstance || (typeof poeChatId != "number") || (poeChatId <= 0) || (typeof authCookie != "string") || (authCookie.length <= 0))
+                    throw new Error();
+                await poeInstance.resetChat();
+                break;
+            } catch(err) {
+                console.error(err);
+                if (!poeInstance || !poeChatId || !authCookie) {
+                    if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
                         authCookie = await poeCookieStore.allocateCookieForChat(chatId);
                     }
+        
+                    if ((typeof poeChatId != "number") || (poeChatId <= 0)) {
+                        poeChatId = await Poe.createChat(authCookie);
+                    }
+                    
+                    await chat.set("poeCookie", authCookie);
+                    await chat.set("poeChatId", poeChatId);
+                    await chat.save();
+                    
+                    let backend = charData["backend"];
+                    if (!backend)
+                        backend = "claude";
+        
+                    poeInstance = await cache.newPoeInstance(chatId, authCookie, backend, poeChatId);
                 }
-                await chat.set("poeChatId", poeChatId);
+                continue;
             }
-            
-            await chat.set("poeCookie", authCookie);
-            
-            let backend = charData["backend"];
-            if (!backend)
-                backend = "claude";
-
-            poeInstance = await cache.newPoeInstance(chatId, authCookie, backend, poeChatId);
         }
-
-        await poeInstance.resetChat();
 
         let startPromptData = {
             ...charData,
