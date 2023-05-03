@@ -34,13 +34,13 @@ module.exports = {
         if (!messages || (messages.length <= 0))
             return res.status(500).send({ success: false, error: "preflight_check_failed" });
         
-        const messageIndex = messages.findIndex(m => m.id == messageId);
+        let messageIndex = messages.findIndex(m => m.id == messageId);
         if (messageIndex < 0)
             return res.status(404).send({ success: false, error: "message_not_found" });
 
-        let deleteMessagePoeIds = [];
-
         const messagesToBeDeleted = await chat.getMessages(messageIndex + 1);
+
+        let deleteMessagePoeIds = [];
         for (const message of messagesToBeDeleted)
             deleteMessagePoeIds.push(message.poeId);
 

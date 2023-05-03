@@ -73,6 +73,12 @@ async function setFilterEnabled(doEnable) {
         body: JSON.stringify({ enabled: doEnable ? "on" : "off" })
     }, true);
 }
+async function updateMessage(messageId, properties) {
+    return await makeAuthenticatedRequest(`/api/chats/${chatId}/updateMessage`, {
+        method: "POST",
+        body: JSON.stringify({ messageId, properties })
+    }, true);
+}
 
 const contentArea = document.querySelector("div.content-area");
 const chatList = document.querySelector("#chat-list");
@@ -193,7 +199,8 @@ async function doChatSetup() {
                 customLabel,
                 moods: message.moods,
                 isFirst,
-                image: message.image
+                image: message.image,
+                selectedImageIndex: message.selectedImageIndex
             });
 
             isFirst = false;
@@ -202,8 +209,9 @@ async function doChatSetup() {
                 lastUserMessageId = message.id;
                 lastUserMessagePrompt = msg.messageTextNode.innerText;
             }
-            
-            msg?.deleteMessageButton?.addEventListener("click", () => deleteMessage(lastUserMessageId));
+
+            const prevUserMessageId = lastUserMessageId;
+            msg?.deleteMessageButton?.addEventListener("click", () => deleteMessage(prevUserMessageId));
         }
     }
 
@@ -450,7 +458,7 @@ async function sendMessage() {
         if (userMessage)
             userMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
         if (botMessage)
-        botMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
+            botMessage?.deleteMessageButton?.addEventListener("click", () => deleteMessage(userMessageId));
     } else {
         botMessage.metaDataNode.classList = "chat-message-error";
         botMessage.metaDataNode.innerText = (typeof errorType == "string") ? errorType : "ERROR";
@@ -537,7 +545,7 @@ function addImageLoadingStatusToMessage(container) {
 }
 
 function addImagesToMessage(container, messageData, startIndex) {
-    const { image: imageData, id: messageId } = messageData;
+    const { image: imageData, id: messageId, selectedImageIndex } = messageData;
     if (typeof imageData != "object")
         return;
     const {
@@ -547,9 +555,8 @@ function addImagesToMessage(container, messageData, startIndex) {
     } = imageData;
 
     let currentImage = (typeof startIndex == "number") ? startIndex : 0;
-    let cachedMessage = messageCache[messageId] || {};
-    if (typeof cachedMessage.selectedImageIndex == "number")
-        currentImage = cachedMessage.selectedImageIndex;
+    if (typeof selectedImageIndex == "number")
+        currentImage = selectedImageIndex;
     
     const didError = (typeof imageCandidates != "object") || (imageCandidates.length <= 0);
     if (didError)
@@ -573,16 +580,12 @@ function addImagesToMessage(container, messageData, startIndex) {
         prevButton.addEventListener("click", () => {
             currentImage = Math.max(currentImage - 1, 0);
             img.src = imageCandidates[currentImage];
-            cachedMessage.selectedImageIndex = currentImage;
-            messageCache[messageId] = cachedMessage;
-            localStorage.setItem("messageCache", JSON.stringify(messageCache));
+            updateMessage(messageId, { selectedImageIndex: currentImage });
         });
         nextButton.addEventListener("click", () => {
             currentImage = Math.min(currentImage + 1, imageCandidates.length - 1);
             img.src = imageCandidates[currentImage];
-            cachedMessage.selectedImageIndex = currentImage;
-            messageCache[messageId] = cachedMessage;
-            localStorage.setItem("messageCache", JSON.stringify(messageCache));
+            updateMessage(messageId, { selectedImageIndex: currentImage });
         });
     }
 

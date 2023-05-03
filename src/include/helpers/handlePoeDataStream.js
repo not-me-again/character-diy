@@ -202,6 +202,7 @@ class DataStreamHandler {
                 });
                 imageStream.on("imageDone", image => {
                     botMessageObject.image = image;
+                    botMessageObject.selectedImageIndex = 0;
                     //log.info("Image ready:", image);
                     botMessageObject.isAwaitingImageGeneration = false;
                     handleMessageEnd(finalMessageData);

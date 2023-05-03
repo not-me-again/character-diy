@@ -26,7 +26,7 @@ module.exports = chat => {
 
         const activeCharacterId = await chat.get("activeCharacterId");
         
-        let botAuthorName = "User";
+        let botAuthorName = "Deleted User";
         const userName = await user.get("displayName");
 
         const character = db.getCharacter(activeCharacterId);

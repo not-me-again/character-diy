@@ -113,7 +113,9 @@ async function doChatSetup() {
                 failed: false,
                 timestamp: message.timestamp,
                 customLabel,
-                isFirst
+                isFirst,
+                image: message.image,
+                selectedImageIndex: message.selectedImageIndex
             });
 
             isFirst = false;
@@ -147,6 +149,59 @@ function timestampToString(timestamp) {
         return pointDateString;
 }
 
+function addImagesToMessage(container, messageData, startIndex) {
+    const { image: imageData, id: messageId, selectedImageIndex } = messageData;
+    if (typeof imageData != "object")
+        return;
+    const {
+        prompt,
+        imageCandidates,
+        error
+    } = imageData;
+
+    let currentImage = (typeof startIndex == "number") ? startIndex : 0;
+    if (typeof selectedImageIndex == "number")
+        currentImage = selectedImageIndex;
+    
+    const didError = (typeof imageCandidates != "object") || (imageCandidates.length <= 0);
+    if (didError)
+        if (error)
+            console.error("img gen failed with reason:", error, data);
+        else
+            return;
+    
+    let imgContainer = createNode("span", {}, [ didError ? "chat-message-images-error" : "chat-message-images-success", "chat-message-images" ]);
+
+    /*let buttonsContainer = createNode("div", {}, []);
+    let prevButton = createNode("i", {}, [ "fa-solid", "fa-chevron-left" ]);
+    buttonsContainer.appendChild(prevButton);
+    let nextButton = createNode("i", { style: "right: 0;" }, [ "fa-solid", "fa-chevron-right" ]);
+    buttonsContainer.appendChild(nextButton);
+    imgContainer.appendChild(buttonsContainer);*/
+    let img = createNode("img", { src: !didError ? imageCandidates[currentImage] : "/assets/img/blank.png" }, []);
+    imgContainer.append(img);
+    
+    /*if (!didError) {
+        prevButton.addEventListener("click", () => {
+            currentImage = Math.max(currentImage - 1, 0);
+            img.src = imageCandidates[currentImage];
+        });
+        nextButton.addEventListener("click", () => {
+            currentImage = Math.min(currentImage + 1, imageCandidates.length - 1);
+            img.src = imageCandidates[currentImage];
+        });
+    }*/
+
+    container.appendChild(imgContainer);
+
+    let promptContainer = createNode("div", { style: "justify-content: center;" }, []);
+    let imagePromptNode = createNode("span", { innerText: didError ? (error || "Failed") : prompt }, []);
+    promptContainer.appendChild(imagePromptNode);
+    imgContainer.appendChild(promptContainer);
+
+    return { img, /*prevButton, nextButton*/ };
+}
+
 function createMessage(data) {
     const {
         displayName: name,
@@ -160,7 +215,8 @@ function createMessage(data) {
         id,
         isFiltered,
         customLabel,
-        isFirst
+        isFirst,
+        image
     } = data;
     let isGeneralFailure = failed || isFiltered;
     if ((typeof timestamp != "number") || (typeof name != "string") || (typeof avatarURL != "string") || (typeof authorId != "string") || (typeof text != "string")) {
@@ -206,6 +262,10 @@ function createMessage(data) {
     contentContainer.appendChild(messageTextNode);
     container.appendChild(contentContainer);
     chatList.append(container);
+    // has img?
+    if (typeof image == "object") {
+        addImagesToMessage(contentContainer, data);
+    }
     // autoscroll
     contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
 
