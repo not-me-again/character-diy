@@ -66,6 +66,9 @@ async function addCharacterToChat(charId) {
         body: JSON.stringify({ characterId: charId })
     }, true);
 }
+async function updateCharacter() {
+    return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/updateCharacter`, { method: "POST" }, true);
+}
 async function publishChat(isPublic) {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/publish`, {
         method: "POST",
@@ -786,9 +789,10 @@ resetChatButton.addEventListener("click", async () => {
 });
 
 async function updateChar() {
-    if (botId && confirm("Are you sure? If you continue, the chat history will be cleared and the character will forget everything")) {
+    if (botId && confirm("Are you sure? This will overwrite the current character settings (but will not reset the messages).")) {
         showLoadingOverlay();
-        await addCharacterToChat(botId);
+        //await addCharacterToChat(botId);
+        await updateCharacter();
         closeSettingsModal();
         chatMessageCount = 0;
         await doChatSetup();
