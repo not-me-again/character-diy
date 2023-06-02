@@ -48,13 +48,6 @@ module.exports = {
         });
         await chat.save();
 
-        try {
-            await resetChatContext(chat);
-        } catch(err) {
-            console.error(err);
-            return res.status(500).send({ success: false, error: err.toString() });
-        }
-
         res.status(200).send({ success: true });
     }
 }
