@@ -14,7 +14,7 @@ function writeJSON(res, data, isFinal) {
     if (isFinal)
         res.end("<|endofstream|>");
 }
-
+//
 class DataStreamHandler {
     constructor(dataStream, opts) {
         const { res, chat, characterId, userId, needsFiltering, poeInstance, userMessageText, log, isImageGenerating } = opts;

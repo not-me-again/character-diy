@@ -1,5 +1,4 @@
 const db = require("../include/db");
-const { Poe } = require("../include/poe");
 const { Logger } = require("../include/logging");
 
 const POE_INSTANCE_IDLE_TIME = 5 * 60 * 1e3; // 5mins
@@ -10,16 +9,16 @@ class Cache {
     constructor() {
         this.popularCharacterManager = db.getPopularCharacterManager();
 
-        this.poeInstances = {};
+        //this.poeInstances = {};
         this.popularCharacters = [];
 
-        setInterval(() => this._prunePoeInstances(), 5e3);
+        //setInterval(() => this._prunePoeInstances(), 5e3);
         
         setInterval(() => this._updatePopularCharacters(), 600e3); // 10 mins
         this._updatePopularCharacters();
     }
 
-    async getPoeInstance(chatId) {
+    /*async getPoeInstance(chatId) {
         return this.poeInstances[chatId];
     }
 
@@ -42,7 +41,7 @@ class Cache {
                 delete this.poeInstances[idx];
             }
         }
-    }
+    }*/
 
     //////////////
 

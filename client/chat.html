@@ -5,7 +5,7 @@
     <title>character.diy</title>
     <link rel="stylesheet" href="/styles/global.css" />
     <link rel="stylesheet" href="/styles/chat.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!--<script src="/assets/js/showdown.min.js"></script>-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -51,6 +51,11 @@
         <div id="outdated-warning" style="display: none;" class="header warning-header">
             <div class="center-menu">
                 <div><i class="fa-solid fa-triangle-exclamation"></i>&nbsp;You are using an outdated character version&nbsp;&bullet;&nbsp;<a id="fix-outdated-char">Fix it</a>&nbsp;&bullet;&nbsp;<a id="ignore-outdated-char">Ignore</a></div>
+            </div>
+        </div>
+        <div id="disabled-model-warning" style="display: none;" class="header error-header">
+            <div class="center-menu">
+                <div><i class="fa-solid fa-triangle-exclamation"></i>&nbsp;The model this character is using is no longer available&nbsp;&bullet;&nbsp;<a id="fix-disabled-model">Fix it</a></div>
             </div>
         </div>
         <div class="wrapper">

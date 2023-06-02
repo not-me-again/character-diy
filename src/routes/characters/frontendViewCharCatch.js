@@ -1,5 +1,3 @@
-const { BACKEND_CONVERSION } = require("../../../config.json");
-
 const fs = require("fs");
 const path = require("path");
 
@@ -36,19 +34,14 @@ module.exports = {
         const charAuthor = db.getUser(authorId);
         const charAuthorName = await charAuthor.get("displayName");
 
-        let friendlyBackendName = "claude";
         const currentBackend = await character.get("backend");
-        if (typeof currentBackend == "string") {
-            const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
-            friendlyBackendName = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : "claude";
-        }
 
         res.status(200).send(
             pageHTML
                 .replaceAll("%%char_name%", removeXSS(await character.get("displayName")))
                 .replaceAll("%%char_pfp%", removeXSS(await character.get("avatarURL")))
                 .replaceAll("%%char_blurb%", removeXSS(await character.get("blurb")))
-                .replaceAll("%%char_backend%", removeXSS(friendlyBackendName))
+                .replaceAll("%%char_backend%", removeXSS(currentBackend))
                 .replaceAll("%%char_authorName%", removeXSS(charAuthorName))
                 .replaceAll("%%char_showPubWarn%", !isPublic ? "1" : "0")
         );

@@ -1,5 +1,5 @@
 const { getQuotasForUserId } = require("../../include/helpers/quotaManager");
-const { PRONOUN_CONVERSION, BACKEND_CONVERSION, MAX_FILE_SIZE } = require("../../../config.json");
+const { PRONOUN_CONVERSION, AVAILABLE_MODELS, MAX_FILE_SIZE } = require("../../../config.json");
 const { handleImageUpload } = require("../../include/helpers/imageService");
 const db = require("../../include/db");
 
@@ -49,9 +49,9 @@ module.exports = {
             if (!pronouns)
                 pronouns = PRONOUN_CONVERSION["they/them/their"];
 
-            let backend = BACKEND_CONVERSION[config.backend];
-            if (!backend)
-                backend = BACKEND_CONVERSION.claude;
+            let backend = config.backend;
+            if (!AVAILABLE_MODELS.find(b => b.ID == backend))
+                backend = "gpt-3.5-turbo";
 
             const newChar = db.getCharacter(db.getUniqueId());
 
@@ -91,12 +91,6 @@ module.exports = {
             await user.save();
 
             let characterData = { ...newChar.getObject() };
-            
-            const currentBackend = characterData.backend;
-            if (typeof currentBackend == "string") {
-                const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
-                characterData.backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
-            }
         
             res.status(200).send({ success: true, character: characterData });
         });

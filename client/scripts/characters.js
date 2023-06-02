@@ -44,12 +44,15 @@ const charQuotaData = document.querySelector("#char-quota-data");
 
 async function doCharactersSetup() {
     showLoadingOverlay();
-    const { chars } = await getAllCharacters();
-    hideLoadingOverlay();
+
+    let { chars } = await getAllCharacters();
+    chars.sort((a, b) => a.updatedAt - b.updatedAt);
     console.log("Char list:", chars);
     
     for (const char of chars)
         displayCharacter(char);
+
+    hideLoadingOverlay();
 
     const { quotas } = await waitForCachedState();
     const remainingCharSlots = quotas.maxAllowedCharacters - chars.length;

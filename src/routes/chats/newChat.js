@@ -1,11 +1,8 @@
 const { getQuotasForUserId } = require("../../include/helpers/quotaManager");
-const signupHandler = require("../../include/helpers/signupHandler");
 const resetChatContext = require("../../include/helpers/resetChatContext");
 const db = require("../../include/db");
 
 const { AGE_OF_MAJORITY_MS } = require("../../../config.json");
-
-const poeCookieStore = db.getPoeCookieStore();
 
 module.exports = {
     method: "POST",
@@ -57,10 +54,6 @@ module.exports = {
 
         const newChatId = db.getUniqueId();
 
-        const poeCookie = await poeCookieStore.allocateCookieForChat(newChatId);
-        if (typeof poeCookie != "string")
-            res.status(500).send({ success: false, error: "preflight_failure0" });
-
         const birthdate = await user.get("birthdate");
         const needsFilterEnabled = typeof birthdate != "number" || ((Date.now() - birthdate) < AGE_OF_MAJORITY_MS);
         
@@ -72,14 +65,14 @@ module.exports = {
             pronouns: await character.get("pronouns"),
             exampleConvo: await character.get("exampleConvo"),
             avatarURL: await character.get("avatarURL"),
-            displayName: await character.get("displayName")
+            displayName: await character.get("displayName"),
+            version: await character.get("updateId")
         };
 
         const newChat = db.getChat(newChatId);
         await newChat.set({
             createdAt: Date.now(),
             updatedAt: Date.now(),
-            poeCookie,
             ownerId: userId,
             activeCharacterId,
             name,

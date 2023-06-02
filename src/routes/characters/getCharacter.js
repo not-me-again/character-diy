@@ -1,5 +1,3 @@
-const { BACKEND_CONVERSION } = require("../../../config.json");
-
 module.exports = {
     method: "GET",
     path: "/api/characters/:characterId/info",
@@ -7,12 +5,6 @@ module.exports = {
         const character = req.character;
         
         let characterData = { ...character.getObject() };
-
-        const currentBackend = characterData.backend;
-        if (typeof currentBackend == "string") {
-            const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
-            characterData.backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
-        }
 
         if (!req.isCharacterOwner) {
             delete characterData.personalityPrompt;

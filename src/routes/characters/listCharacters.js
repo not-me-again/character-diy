@@ -1,4 +1,3 @@
-const { BACKEND_CONVERSION } = require("../../../config.json");
 const db = require("../../include/db");
 
 module.exports = {
@@ -27,12 +26,6 @@ module.exports = {
             }
             
             let characterData = { ...charObj.getObject() };
-            
-            const currentBackend = characterData.backend;
-            if (typeof currentBackend == "string") {
-                const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
-                characterData.backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
-            }
 
             chars.push(characterData);
         }

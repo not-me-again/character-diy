@@ -4,6 +4,7 @@ module.exports = {
     method: "GET",
     path: "/api/chats/:chatId/info",
     async callback(req, res) {
+        const { user } = req.auth;
         const chat = req.chat;
 
         const messages = await chat.get("messages");
@@ -22,10 +23,14 @@ module.exports = {
 
         let cachedCharacterData = { ...chatData.cachedCharacterData };
 
-        delete cachedCharacterData.personalityPrompt;
-        delete cachedCharacterData.pronouns;
-        delete cachedCharacterData.exampleConvo;
-        delete cachedCharacterData.backend;
+        const chatOwner = await chat.get("ownerId");
+        const userId = await user.get("id");
+        if (chatOwner != userId) {
+            delete cachedCharacterData.personalityPrompt;
+            delete cachedCharacterData.pronouns;
+            delete cachedCharacterData.exampleConvo;
+            delete cachedCharacterData.backend;
+        }
 
         chatData.cachedCharacterData = cachedCharacterData;
 

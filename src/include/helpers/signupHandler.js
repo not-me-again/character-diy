@@ -1,10 +1,10 @@
 const { Logger, colors } = require("../logging");
-const { PoeAccount } = require("../poe");
+//const { PoeAccount } = require("../poe");
 
 const log = new Logger("AccountSetup");
 
 module.exports = async function() {
-    try {
+    /*try {
         const accountSetup = new PoeAccount();
         log.info(`Creating new Poe account`);
         await accountSetup.init();
@@ -19,5 +19,5 @@ module.exports = async function() {
     } catch(err) {
         log.error("Failure!\n", err);
         throw err;
-    }
+    }*/
 }

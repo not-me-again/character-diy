@@ -485,6 +485,9 @@ input:disabled {
 .warning-header {
     background-color: #aa6f00;
 }
+.error-header {
+    background-color: #b22a2a;
+}
 .center-menu {
     font-size: 1.5vh;
 }

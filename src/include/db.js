@@ -54,8 +54,8 @@ const CHAT_PROPERTIES = [
     [ "messages", [] ],
     [ "messageCount", 0 ],
     [ "activeCharacterId", "" ],
-    [ "poeCookie", "" ],
-    [ "poeChatId", -1 ],
+    //[ "poeCookie", "" ],
+    //[ "poeChatId", -1 ],
     [ "isPublic", false ],
     [ "name", "" ],
     [ "thumbnailURL", "" ],
@@ -424,8 +424,6 @@ class Chat extends BaseDB {
 
             if (typeof messageData.id != "string")
                 throw new Error("Missing: messageObject.id");
-            if (typeof messageData.poeId != "number")
-                throw new Error("Missing: messageObject.poeId");
             if (typeof messageData.authorId != "string")
                 throw new Error("Missing: messageObject.authorId");
             if (typeof messageData.timestamp != "number")

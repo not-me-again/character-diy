@@ -1,12 +1,5 @@
-const cache = require("../cache");
 const db = require("../db");
-const { Poe } = require("../poe");
-const generateStartPrompt = require("./generateStartPrompt");
 const sanitizeMessageText = require("./sanitizeMessageText");
-const removeListenerSafe = require("./removeListenerSafe");
-//const signupHandler = require("./signupHandler");
-
-const poeCookieStore = db.getPoeCookieStore();
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
@@ -58,84 +51,30 @@ module.exports = chat => {
                     .replaceAll("{{user}}", userName)
                     .replaceAll("{{char}}", charData.name);
 
-        let poeInstance = await cache.getPoeInstance(chatId);
-        let authCookie = await chat.get("poeCookie");
-        let poeChatId = await chat.get("poeChatId");
-
-        for (;;) {
-            try {
-                if (!poeInstance || (typeof poeChatId != "number") || (poeChatId <= 0) || (typeof authCookie != "string") || (authCookie.length <= 0))
-                    throw new Error();
-                await poeInstance.resetChat();
-                break;
-            } catch(err) {
-                console.error(err);
-                if (!poeInstance || !poeChatId || !authCookie) {
-                    if ((typeof authCookie != "string") || (authCookie.length <= 0)) {
-                        authCookie = await poeCookieStore.allocateCookieForChat(chatId);
-                    }
-        
-                    if ((typeof poeChatId != "number") || (poeChatId <= 0)) {
-                        poeChatId = await Poe.createChat(authCookie);
-                    }
-                    
-                    await chat.set("poeCookie", authCookie);
-                    await chat.set("poeChatId", poeChatId);
-                    await chat.save();
-                    
-                    let backend = charData["backend"];
-                    if (!backend)
-                        backend = "claude";
-        
-                    poeInstance = await cache.newPoeInstance(chatId, authCookie, backend, poeChatId);
-                }
-                continue;
-            }
-        }
-
-        let startPromptData = {
+        /*let startPromptData = {
             ...charData,
             customUserName: await user.get("displayName"),
             customUserContext: await user.get("customChatContext"),
             isFilterEnabled: await chat.get("isFilterEnabled")
-        }
+        }*/
 
-        const dataStream = poeInstance.sendMessage(generateStartPrompt(startPromptData));
-        dataStream.on("error", errObj => {
-            console.error(errObj);
-
-            didFinish = true;
-
-            removeListenerSafe(dataStream, "error");
-            removeListenerSafe(dataStream, "messageComplete");
-
-            reject("Failed to send start message");
-        });
-        dataStream.on("messageComplete", messageData => {
-            // clear event listeners
-            removeListenerSafe(dataStream, "error");
-            removeListenerSafe(dataStream, "messageComplete");
-            // deserialize data
-            ///////////const rawMessageText = messageData.text;
-            const rawMessageText = (typeof startMessage == "string") ? startMessage : messageData.text;
-            // sanitize text
-            const sanitizedMessageText = sanitizeMessageText(rawMessageText);
-            // append chat history
-            chat.addMessages([
-                {
-                    id: db.getUniqueId(),
-                    poeId: messageData.messageId,
-                    authorType: "ai",
-                    authorId: activeCharacterId,
-                    timestamp: Date.now(),
-                    isFiltered: false,
-                    text: sanitizedMessageText,
-                    moods: messageData.currentMoods,
-                    customLabel: `@${botAuthorName}`
-                }
-            ], true);
-            // set finished
-            resolve();
-        });
+        const rawMessageText = (typeof startMessage == "string") ? startMessage : "Hello!";
+        // sanitize text
+        const sanitizedMessageText = sanitizeMessageText(rawMessageText);
+        // append chat history
+        chat.addMessages([
+            {
+                id: db.getUniqueId(),
+                authorType: "ai",
+                authorId: activeCharacterId,
+                timestamp: Date.now(),
+                isFiltered: false,
+                text: sanitizedMessageText,
+                moods: /*messageData.currentMoods*/[],
+                customLabel: `@${botAuthorName}`
+            }
+        ], true);
+        // set finished
+        resolve();
     });
 }

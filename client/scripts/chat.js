@@ -35,6 +35,8 @@ async function* parseJsonStream(readableStream) {
         }
     }
 }
+
+const mdConverter = new showdown.Converter();
 // msg cache
 let messageCache = {};
 const lsMessageCache = localStorage.getItem("messageCache");
@@ -54,6 +56,9 @@ async function getAllChats() {
 }
 async function clearChatHistory() {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/reset`, { method: "POST" }, true);
+}
+async function getAvailableModels() {
+    return await window.makeAuthenticatedRequest(`/api/characters/available-models.json`, {}, true);
 }
 async function addCharacterToChat(charId) {
     return await window.makeAuthenticatedRequest(`/api/chats/${chatId}/setCharacter`, {
@@ -115,6 +120,10 @@ saveDisplayNameButton.addEventListener("click", async () => {
     hideLoadingOverlay();
 });
 
+const disabledModelWarning = document.querySelector("#disabled-model-warning");
+const fixDisabledModelButton = document.querySelector("#fix-disabled-model");
+fixDisabledModelButton.addEventListener("click", () => window.location = `/characters/${botId}/edit?switch-model`);
+
 const outdatedWarning = document.querySelector("#outdated-warning");
 const ignoreOutdatedWarning = document.querySelector("#ignore-outdated-char");
 
@@ -163,7 +172,7 @@ async function doChatSetup() {
     isFilterEnabled = chatData.isFilterEnabled;
     filterStatusText.innerText = isFilterEnabled ? "Disable" : "Enable";
 
-    const { displayName, avatarURL, version: characterVersionId } = chatData.cachedCharacterData;
+    const { displayName, avatarURL, version: characterVersionId, backend } = chatData.cachedCharacterData;
 
     botName = displayName;
     botProfilePicture = avatarURL;
@@ -191,7 +200,7 @@ async function doChatSetup() {
                 id: message.id,
                 displayName: isSelfAuthor ? myName : botName,
                 avatarURL: isSelfAuthor ? myProfilePicture : botProfilePicture,
-                text: message.text,
+                text: mdConverter.makeHtml(message.text),
                 authorId,
                 isFiltered: message.isFiltered,
                 failed: false,
@@ -235,6 +244,10 @@ async function doChatSetup() {
                 }
             } else {
                 outdatedWarning.style.display = "none";
+                const availableModels = await getAvailableModels();
+                const usedModel = Object.values(availableModels)?.find(m => m.ID == backend);
+                if ((typeof usedModel != "object") || (!usedModel.ENABLED))
+                    disabledModelWarning.style.display = "";
             }
         } catch(err) {
             console.error("failed to get char info:", err);
@@ -390,7 +403,7 @@ async function sendMessage() {
                             } else {
                                 isSuccess = true;
                                 botMessage.messageTextNode.classList = "chat-message-text";
-                                botMessage.messageTextNode.innerHTML = text;
+                                botMessage.messageTextNode.innerHTML = mdConverter.makeHtml(text);
                                 if ((typeof moods == "object") && (moods.length >= 1))
                                     botMessage.messageFooterNode.innerHTML = `<p>Mood: ${moods.join(", ")}</p>`;
                             }
@@ -398,7 +411,7 @@ async function sendMessage() {
                         } else if (authorId == myId) {
                             userMessageId = id;
                             if (userMessage) {
-                                userMessage.messageTextNode.innerHTML = text;
+                                userMessage.messageTextNode.innerHTML = mdConverter.makeHtml(text);
                             }
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else {
@@ -575,15 +588,29 @@ function addImagesToMessage(container, messageData, startIndex) {
     imgContainer.appendChild(buttonsContainer);
     let img = createNode("img", { src: !didError ? imageCandidates[currentImage] : "/assets/img/blank.png" }, []);
     imgContainer.append(img);
+
+    const visibilityCheck = () => {
+        if (currentImage < (imageCandidates.length - 1))
+            nextButton.style.display = "";
+        else
+            nextButton.style.display = "none";
+        if (currentImage > 0)
+            prevButton.style.display = "";
+        else
+            prevButton.style.display = "none";
+    }
     
     if (!didError) {
+        visibilityCheck();
         prevButton.addEventListener("click", () => {
             currentImage = Math.max(currentImage - 1, 0);
+            visibilityCheck();
             img.src = imageCandidates[currentImage];
             updateMessage(messageId, { selectedImageIndex: currentImage });
         });
         nextButton.addEventListener("click", () => {
             currentImage = Math.min(currentImage + 1, imageCandidates.length - 1);
+            visibilityCheck();
             img.src = imageCandidates[currentImage];
             updateMessage(messageId, { selectedImageIndex: currentImage });
         });

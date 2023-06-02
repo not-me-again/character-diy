@@ -1,4 +1,3 @@
-const { BACKEND_CONVERSION } = require("../../../config.json");
 const db = require("../../include/db");
 const cache = require("../../include/cache");
 
@@ -13,12 +12,7 @@ module.exports = {
         for (const idx in charObjs) {
             const charObj = charObjs[idx];
 
-            let backend = "claude";
-            const currentBackend = charObj.backend;
-            if (typeof currentBackend == "string") {
-                const newBackend = Object.entries(BACKEND_CONVERSION)?.find(e => e[1] == currentBackend);
-                backend = (newBackend && (newBackend.length >= 2)) ? newBackend[0] : undefined;
-            }
+            let backend = charObj.backend;
 
             chars.push({
                 backend,

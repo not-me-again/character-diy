@@ -12,12 +12,17 @@ const { query } = location;
 let charaImportId = query["import-chara"];
 console.log("chara import id:", charaImportId);
 
+if (location?.search?.startsWith("?switch-model"))
+    document.querySelector("#switch-model").scrollIntoView();
+
 async function getCharacterInfo() {
-    const req = await window.makeAuthenticatedRequest(`/api/characters/${characterId}/info`);
-    return await req.json();
+    return await window.makeAuthenticatedRequest(`/api/characters/${characterId}/info`, {}, true);
 }
 async function getCharaInfo(charaId) {
     return await window.makeAuthenticatedRequest(`/api/integrations/getTavernCharacterInfo/${charaId}`, {}, true);
+}
+async function getAvailableModels() {
+    return await window.makeAuthenticatedRequest(`/api/characters/available-models.json`, {}, true);
 }
 
 async function updateCharacterInfo(formData, isNew) {
@@ -135,7 +140,7 @@ const DEFAULT_CHARACTER_INFO = {
         isPublic: false,
         avatarURL: "/image/7206a04d03404e04e06e.png",
         startMessage: "",
-        backend: "claude"
+        backend: "gpt-3.5-turbo"
     }
 }
 
@@ -147,6 +152,20 @@ let saveBtnDebounce = Date.now();
 async function doSetup(isNew) {
     showLoadingOverlay();
     await waitForCachedState();
+
+    while (backendInput.firstChild)
+        backendInput.firstChild.remove();
+    const availableModels = await getAvailableModels();
+    console.log("available models:", availableModels);
+    for (const model of Object.values(availableModels)) {
+        const { ID, ENABLED } = model;
+        const modelChoice = createNode("option", {
+            name: ID,
+            disabled: !ENABLED,
+            innerText: ID
+        }, []);
+        backendInput.appendChild(modelChoice);
+    }
 
     let { characterData } = isNew
         ? (
@@ -169,7 +188,7 @@ async function doSetup(isNew) {
     displayNameInput.value = characterData.displayName;
     shortDescriptionInput.value = characterData.blurb;
     if (characterData.backend)
-        backend.value = characterData.backend;
+        backendInput.value = characterData.backend;
     startMessageInput.value = characterData.startMessage;
     longDescriptionInput.value = characterData.personalityPrompt;
     exampleConvoInput.value = characterData.exampleConvo;
