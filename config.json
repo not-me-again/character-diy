@@ -7,7 +7,7 @@
                 [ "info", "The inferencing backend has been updated" ],
                 [ "info", "Inferencing now uses the official OpenAI API" ],
                 [ "info", "Claude and text-davinci-003 are unavailable indefinitely" ],
-                [ "info", "GPT-3.5 turbo & GPT-4 are available to all users" ],
+                [ "info", "GPT-3.5 turbo is available to all users" ],
                 [ "info", "Image generation temporarily unavailable" ]
             ]
         },
@@ -55,7 +55,7 @@
         },
         {
             "ID": "gpt-4",
-            "ENABLED": true,
+            "ENABLED": false,
             "CONTEXT_LENGTH": 8192
         },
         {

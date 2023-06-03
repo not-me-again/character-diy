@@ -7,7 +7,7 @@ module.exports = async function* queryGPT(model, prompt, system) {
         ? "https://gpt4.gravityengine.cc/api/openai/v1/chat/completions"
         : "https://api.openai.com/v1/chat/completions",
     {
-        "model": "gpt-3.5-turbo",
+        "model": model,
         "messages": [
             {
                 "role": "system",
@@ -32,7 +32,9 @@ module.exports = async function* queryGPT(model, prompt, system) {
         }
     });
     if (req.status == 429) {
-        throw new Error("Endpoint is rate-limited. Please try again later.");
+        throw new Error("Endpoint is rate-limited, try again later");
+    } else if (req.status == 404) {
+        throw new Error(`Model ${model} is not currently available`);
     } else if (req.status != 200) {
         throw new Error(`Request failed with status ${req.status}`);
     }
