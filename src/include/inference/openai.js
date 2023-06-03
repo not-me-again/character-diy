@@ -28,11 +28,13 @@ module.exports = async function* queryGPT(model, prompt, system) {
         responseType: "stream",
         abortController,
         headers: {
-            authorization: process.env.OPEN_AI_KEY
+            ...((model == "gpt-4") ? {} : { authorization: process.env.OPEN_AI_KEY })
         }
     });
-    if (req.status != 200) {
-        throw new Error(`Request failed\nStatus = ${req.status}`);
+    if (req.status == 429) {
+        throw new Error("Endpoint is rate-limited. Please try again later.");
+    } else if (req.status != 200) {
+        throw new Error(`Request failed with status ${req.status}`);
     }
     let isAborted = false;
     let timeoutDaemon = setTimeout(() => {

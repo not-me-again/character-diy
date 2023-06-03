@@ -368,7 +368,10 @@ async function sendMessage() {
                     let { messageObject, error: didError, message: errorMessage } = dataChunk;
 
                     if (typeof messageObject == "object") {
-                        let { text, authorType, authorId, isFiltered, timestamp, id, moods, image, isAwaitingImageGeneration, imageGenerationETA } = messageObject;
+                        let { text, authorType, authorId, isFiltered, timestamp, isFinal, id, moods, image, isAwaitingImageGeneration, imageGenerationETA } = messageObject;
+
+                        if ((typeof moods != "object") || (moods.length <= 0))
+                            text = text.replace(/\(\#.*/si, "");
 
                         if (isAwaitingImageGeneration) {
                             console.log("waiting for image...");

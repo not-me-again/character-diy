@@ -1,4 +1,4 @@
-const { SYSTEM_PROMPT_FORMATS } = require("../../../config.json");
+const { SYSTEM_PROMPT_FORMATS, AVAILABLE_MODELS } = require("../../../config.json");
 
 function shortenConversation(conversationPromptLines, maxLength) {
     while (conversationPromptLines.join("\n").length >= maxLength)
@@ -21,14 +21,15 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
     for (const message of [ ...messageHistory ]) {
         conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text}`);
     }
+    const model = AVAILABLE_MODELS.find(m => m?.ID?.toLowerCase() == backend?.toLowerCase());
     conversationPromptLines.push(`${userName}: ${nextMessage}`);
-    conversationPromptLines = shortenConversation(conversationPromptLines, CONTEXT_LENGTHS[backend]);
+    conversationPromptLines = shortenConversation(conversationPromptLines, (model?.CONTEXT_LENGTH * 0.75) ?? CONTEXT_LENGTHS[backend]);
     const charSystemPrompt = SYSTEM_PROMPT_FORMATS[backend?.match(/^\w+(?=\-)/si)?.toString()?.toUpperCase()] ?? SYSTEM_PROMPT_FORMATS.GPT;
-    let system = charSystemPrompt
-        .replace("{{BLURB}}", blurb)
-        .replace("{{NAME}}", name)
-        .replace("{{PRONOUNS_POSSESSIVE}}", pronouns.possessive)
-        .replace("{{PERSONALITY}}", personalityPrompt);
+    let system = charSystemPrompt.toString()
+        .replace(/{{BLURB}}/g, blurb)
+        .replace(/{{NAME}}/g, name)
+        .replace(/{{PRONOUNS_POSSESSIVE}}/g, pronouns.possessive)
+        .replace(/{{PERSONALITY}}/g, personalityPrompt);
     let prompt = `Current conversation:\n${conversationPromptLines.join("\n")}\n${name}: `;
     return { system, prompt };
 }

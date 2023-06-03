@@ -210,6 +210,7 @@ module.exports = {
         
         const handleMessageEnd = async (finalMessageData) => {
             // assign unique id to bot message
+            botMessageObject.isFinal = true;
             botMessageObject.id = db.getUniqueId();
             log.info("Inference finished for character ID " + characterId + " @ chat ID " + chat.id);
             //  end req
