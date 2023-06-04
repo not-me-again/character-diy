@@ -38,11 +38,11 @@ module.exports = {
             ],
             "top_p": 1,
             "top_k": 40,
-            "repetition_penalty": 1,
+            "repetition_penalty": 1.2,
             "temperature": 0.6,
             "model": "sambanovasystems/BLOOMChat-176B-v1",
             "stream_tokens": true,
-            "repetitive_penalty": 1
+            "repetitive_penalty": 1.2
         };
         for await (const chunk of bloom.sendMessage(prompt, options))
             yield chunk;
