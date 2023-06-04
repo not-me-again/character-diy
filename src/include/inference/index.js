@@ -1,7 +1,11 @@
 const queryGPT = require("./openai");
+const { queryBLOOM, queryVicuna } = require("./bloomchat");
+
 const backends = {
     "gpt-4": queryGPT,
-    "gpt-3.5-turbo": queryGPT
+    "gpt-3.5-turbo": queryGPT,
+    "vicuna-13b": queryVicuna,
+    "BLOOMChat-176B": queryBLOOM
 }
 
 class Inferencer {

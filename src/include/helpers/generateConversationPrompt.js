@@ -23,7 +23,7 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
     }
     const model = AVAILABLE_MODELS.find(m => m?.ID?.toLowerCase() == backend?.toLowerCase());
     conversationPromptLines.push(`${userName}: ${nextMessage}`);
-    conversationPromptLines = shortenConversation(conversationPromptLines, (model?.CONTEXT_LENGTH * 0.75) ?? CONTEXT_LENGTHS[backend]);
+    conversationPromptLines = shortenConversation(conversationPromptLines, (model?.CONTEXT_LENGTH * 1.25) ?? CONTEXT_LENGTHS[backend]);
     const charSystemPrompt = SYSTEM_PROMPT_FORMATS[backend?.match(/^\w+(?=\-)/si)?.toString()?.toUpperCase()] ?? SYSTEM_PROMPT_FORMATS.GPT;
     let system = charSystemPrompt.toString()
         .replace(/{{BLURB}}/g, blurb)

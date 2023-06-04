@@ -60,7 +60,7 @@ module.exports = chat => {
 
         const rawMessageText = (typeof startMessage == "string") ? startMessage : "Hello!";
         // sanitize text
-        const sanitizedMessageText = sanitizeMessageText(rawMessageText);
+        //const sanitizedMessageText = sanitizeMessageText(rawMessageText);
         // append chat history
         chat.addMessages([
             {
@@ -69,7 +69,7 @@ module.exports = chat => {
                 authorId: activeCharacterId,
                 timestamp: Date.now(),
                 isFiltered: false,
-                text: sanitizedMessageText,
+                text: rawMessageText/*sanitizedMessageText*/,
                 moods: /*messageData.currentMoods*/[],
                 customLabel: `@${botAuthorName}`
             }

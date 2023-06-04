@@ -161,7 +161,6 @@ module.exports = {
         const { system, prompt } = generateConversationPrompt(charData, await chat.get("messages"), userMessageText, userName);
         try {
             for await (const textChunk of inferencer.query({ model: charData.backend, system, prompt })) {
-
                 let isFiltered = false;
 
                 messageData = processMessageData(textChunk);
@@ -207,6 +206,9 @@ module.exports = {
 
             return writeJSON(res, responseObj, true);
         }
+
+        if ((typeof botMessageObject.text != "string") || (botMessageObject.text.length <= 0))
+            return writeJSON(res, { error: true, message: "No model response" }, true);
         
         const handleMessageEnd = async (finalMessageData) => {
             // assign unique id to bot message

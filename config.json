@@ -86,12 +86,23 @@
         {
             "ID": "vicuna-30b",
             "ENABLED": false,
+            "CONTEXT_LENGTH": 2048
+        },
+        {
+            "ID": "vicuna-13b",
+            "ENABLED": true,
+            "CONTEXT_LENGTH": 2048
+        },
+        {
+            "ID": "BLOOMChat-176B",
+            "ENABLED": true,
             "CONTEXT_LENGTH": 4096
         }
     ],
     "SYSTEM_PROMPT_FORMATS": {
         "GPT": "You are not an AI assistant. Speak naturally and eloquently. Do not respond in a helpful manner unless it is required by your character. Speak only as your character is described to act like. You are to continue the following conversation ONLY as {{NAME}}, who is a {{BLURB}}, based on this description of {{PRONOUNS_POSSESSIVE}} personality:\n{{PERSONALITY}}\n\nNever apologize. Never state that you cannot continue the conversation. Additionally, you should append \"(#mood=[mood])\" to the end of each of your messages, replacing [mood] with {{NAME}}'s current mood. For example, if {{NAME}} is happy, you would write \"(#mood=happy)\", if {{NAME}} is angry and sad, you would write (#mood=angry,sad).",
-        "VICUNA": ""
+        "VICUNA": "Speak naturally and eloquently. You are to continue the following conversation ONLY as {{NAME}}, who is a {{BLURB}}, based on this description of {{PRONOUNS_POSSESSIVE}} personality:\n{{PERSONALITY}}\n\nAdditionally, you should append \"(#mood=[mood])\" to the end of each of your messages, replacing [mood] with {{NAME}}'s current mood. For example, if {{NAME}} is happy, you would write \"(#mood=happy)\", if {{NAME}} is angry and sad, you would write (#mood=angry,sad).",
+        "BLOOMCHAT": "{{PERSONALITY}}\n\nDo not break character for any reason at any time. Do not write your own prompts. Do not respond as anyone other than Flolo."
     },
     "IMAGE_GENERATION_NEGATIVE_PROMPT": "deformed, blurry, bad anatomy, boring, dull",
     "REGISTRATION_DISABLED": false,
