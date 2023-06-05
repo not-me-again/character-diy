@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-module.exports = async function* queryGPT(model, prompt, system) {
+async function* queryGPT(model, prompt, system) {
     const abortController = new AbortController();
     const req = await axios.post(
     model == "gpt-4"
@@ -100,4 +100,101 @@ module.exports = async function* queryGPT(model, prompt, system) {
     if (isAborted)
         throw new Error("Timed out");
     clearTimeout(timeoutDaemon);
+}
+
+async function* queryText(model, prompt, system) {
+    const abortController = new AbortController();
+    const req = await axios.post("https://api.openai.com/v1/completions",
+    {
+            "max_tokens": 1024,
+            "prompt": `${system}\n${prompt}`,
+            model,
+            "stream": true,
+            "temperature": 0.7
+    }, {
+        validateStatus: () => true,
+        responseType: "stream",
+        abortController,
+        headers: {
+            authorization: process.env.OPEN_AI_KEY
+        }
+    });
+    if (req.status == 429) {
+        throw new Error("Endpoint is rate-limited, try again later");
+    } else if (req.status == 404) {
+        throw new Error(`Model ${model} is not currently available`);
+    } else if (req.status != 200) {
+        throw new Error(`Request failed with status ${req.status}`);
+    }
+    let isAborted = false;
+    let timeoutDaemon = setTimeout(() => {
+        abortController.abort();
+        isAborted = true;
+    }, 60e3);
+    const stream = req.data;
+    let str = "";
+    let dataChunks = [];
+    let currentChunk = "";
+    stream.on("data", data => {
+        const safeData = Buffer.from(data).toString("utf-8");
+        currentChunk += safeData;
+        if (safeData.endsWith("\n")) {
+            dataChunks.push(currentChunk);
+            currentChunk = "";
+        }
+    });
+    stream.on("error", () => isAborted = true);
+    while (true) {
+        let isDone;
+        abortController.signal.throwIfAborted();
+        await new Promise(r => setTimeout(r, 1));
+        const rawLine = dataChunks.shift();
+        if (!rawLine)
+            continue;
+
+        for (const line of rawLine.split("\n")) {
+            try {
+                const [, chunk] = line.split("data: ");
+                if (typeof chunk != "string")
+                    continue;
+                if (chunk == "[DONE]") {
+                    isDone = true;
+                    break; // end
+                }
+                if ((!chunk.startsWith("{")) || (!chunk.endsWith("}")))
+                    continue; // this causes bugs and IDK why
+                const { choices } = JSON.parse(chunk);
+                if ((typeof choices != "object") || (choices.length <= 0))
+                    continue;
+                const { text, finish_reason } = choices[0];
+                if (finish_reason != null) {
+                    isDone = true;
+                    break; // end
+                }
+                if (typeof text != "string")
+                    continue;
+                str += text;
+            } finally {}
+        }
+
+        yield str;
+
+        if (isDone)
+            break;
+    }
+    if (isAborted)
+        throw new Error("Timed out");
+    clearTimeout(timeoutDaemon);
+}
+
+module.exports = async function* queryOpenAI(...opts) {
+    const [ model ] = opts;
+    if (model.startsWith("gpt-"))
+        for await (const chunk of queryGPT(...opts))
+            yield chunk;
+    else if (model.startsWith("text-"))
+        for await (const chunk of queryText(...opts))
+            yield chunk;
+    else
+        throw new Error("Unknown OpenAI model " + model);
 }

@@ -177,7 +177,7 @@ module.exports = {
                 const rawMessageText = messageData.text;
                 const isBreakingCharacter = messageData.isBreakingCharacter;
 
-                const sanitizedMessageText = sanitizeMessageText(rawMessageText);
+                const sanitizedMessageText = /*sanitizeMessageText*/(rawMessageText);
 
                 // update bot message data
                 botMessageObject = {

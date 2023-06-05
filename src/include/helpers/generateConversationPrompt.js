@@ -30,6 +30,6 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
         .replace(/{{NAME}}/g, name)
         .replace(/{{PRONOUNS_POSSESSIVE}}/g, pronouns.possessive)
         .replace(/{{PERSONALITY}}/g, personalityPrompt);
-    let prompt = `Current conversation:\n${conversationPromptLines.join("\n")}\n${name}: `;
+    let prompt = `${conversationPromptLines.join("\n")}\n${name}: `;
     return { system, prompt };
 }

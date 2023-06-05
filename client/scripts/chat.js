@@ -36,7 +36,16 @@ async function* parseJsonStream(readableStream) {
     }
 }
 
-const mdConverter = new showdown.Converter();
+const mdConverter = new showdown.Converter({
+    tables: true,
+    strikethrough: true,
+    tasklists: true,
+    underline: true
+});
+function mdToHTML(markdown) {
+    return mdConverter
+        .makeHtml(markdown);
+}
 // msg cache
 let messageCache = {};
 const lsMessageCache = localStorage.getItem("messageCache");
@@ -203,7 +212,7 @@ async function doChatSetup() {
                 id: message.id,
                 displayName: isSelfAuthor ? myName : botName,
                 avatarURL: isSelfAuthor ? myProfilePicture : botProfilePicture,
-                text: mdConverter.makeHtml(message.text),
+                text: mdToHTML(message.text),
                 authorId,
                 isFiltered: message.isFiltered,
                 failed: false,
@@ -409,7 +418,7 @@ async function sendMessage() {
                             } else {
                                 isSuccess = true;
                                 botMessage.messageTextNode.classList = "chat-message-text";
-                                botMessage.messageTextNode.innerHTML = mdConverter.makeHtml(text);
+                                botMessage.messageTextNode.innerHTML = mdToHTML(text);
                                 if ((typeof moods == "object") && (moods.length >= 1))
                                     botMessage.messageFooterNode.innerHTML = `<p>Mood: ${moods.join(", ")}</p>`;
                             }
@@ -417,7 +426,7 @@ async function sendMessage() {
                         } else if (authorId == myId) {
                             userMessageId = id;
                             if (userMessage) {
-                                userMessage.messageTextNode.innerHTML = mdConverter.makeHtml(text);
+                                userMessage.messageTextNode.innerHTML = mdToHTML(text);
                             }
                             contentArea.scrollTo(0, contentArea.scrollHeight + 100000);
                         } else {
