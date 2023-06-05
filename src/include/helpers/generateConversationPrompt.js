@@ -21,9 +21,16 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
     for (const message of [ ...messageHistory ]) {
         conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text}`);
     }
+    let exampleConvoLines = [];
+    if ((typeof exampleConvo == "string") && (exampleConvo.length >= 1)) {
+        for (const line of exampleConvo.split("\n"))
+            exampleConvoLines.push(line.replace(/\{\{user\}\}/g, userName).replace(/\{\{char\}\}/g, name));
+    }
     const model = AVAILABLE_MODELS.find(m => m?.ID?.toLowerCase() == backend?.toLowerCase());
+    let maxConvoLength = (model?.CONTEXT_LENGTH * 1.25) ?? CONTEXT_LENGTHS[backend];
+    maxConvoLength -= exampleConvoLines.join("\n").length;
     conversationPromptLines.push(`${userName}: ${nextMessage}`);
-    conversationPromptLines = shortenConversation(conversationPromptLines, (model?.CONTEXT_LENGTH * 1.25) ?? CONTEXT_LENGTHS[backend]);
+    conversationPromptLines = shortenConversation(conversationPromptLines, maxConvoLength);
     const charSystemPrompt = SYSTEM_PROMPT_FORMATS[backend?.match(/^\w+(?=\-)/si)?.toString()?.toUpperCase()] ?? SYSTEM_PROMPT_FORMATS.GPT;
     let system = charSystemPrompt.toString()
         .replace(/{{BLURB}}/g, blurb)
@@ -31,6 +38,6 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
         .replace(/{{PRONOUNS_POSSESSIVE}}/g, pronouns.possessive)
         .replace(/{{PERSONALITY}}/g, personalityPrompt)
         + (isImageGenerating ? ` ${IMAGE_PROMPT_FORMAT}` : "");
-    let prompt = `${conversationPromptLines.join("\n")}\n${name}: `;
+    let prompt = `${(exampleConvoLines.length >= 1) ? `Previous conversation:\n${exampleConvoLines.join("\n")}\n` : ""}Current conversation:\n${conversationPromptLines.join("\n")}\n${name}: `;
     return { system, prompt };
 }

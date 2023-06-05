@@ -70,6 +70,9 @@ module.exports = {
             else if (displayName.length > 32)
                 return res.status(400).send({ success: false, error: "display_name_too_long" });
 
+            if (exampleConvo.length > 1000)
+                return res.status(400).send({ success: false, error: "example_convo_too_long" });
+
             if (blurb.length < 1)
                 return res.status(400).send({ success: false, error: "blurb_too_short" });
             else if (blurb.length > 100)
