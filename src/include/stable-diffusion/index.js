@@ -1,69 +1,29 @@
-const { Logger } = require("../logging");
-
-const log = new Logger("StableDiffusion");
-
-const WebSocket = require("ws");
+const axios = require("axios");
 
 class StableDiffusion {
     constructor() {
     }
     
-    static generateImage(prompt, negativePrompt, etaCallback) {
-        return new Promise((resolve, reject) => {
-            let socket = new WebSocket("wss://stabilityai-stable-diffusion.hf.space/queue/join");
-            let session_hash = (Math.random() * 1e16).toString(16).substring(0, 10);
-            //this.socket = socket;
-            socket.on("error", reject);
-            socket.on("unexpected-response", reject);
-            socket.on("message", rawData => {
-                const data = JSON.parse(rawData);
-                const { msg } = data;
-                switch (msg) {
-                    case "send_hash":
-                        socket.send(JSON.stringify({ session_hash, fn_index: 3 }));
-                        break;
-                    case "send_data":
-                        socket.send(JSON.stringify({
-                            fn_index: 3,
-                            data: [ prompt, negativePrompt, 7 /* guidance scale, 7 produces best results */ ],
-                            session_hash
-                        }));
-                        break;
-                    case "estimation":
-                        const { rank, queue_size, rank_eta } = data;
-                        log.info(`In queue position ${rank + 1}/${queue_size}. ETA: ${rank_eta}`);
-                        if (typeof etaCallback == "function")
-                            etaCallback({ queue: { rank, size: queue_size }, eta: rank_eta })
-                        break;
-                    case "process_starts":
-                        log.info(`Generation started`);
-                        break;
-                    case "process_generating":
-                        // generation step
-                        // TODO: send stream of data
-                        break;
-                    case "process_completed":
-                        // generation finished
-                        const output = data.output;
-                        if (!data.success || (typeof data.output != "object")) {
-                            log.error("Image generation failed:", data);
-                            return reject(output.error || "Failed to generate");
-                        }
-                        
-                        const responseList = output.data;
-                        if (typeof responseList != "object")
-                            return reject("Invalid response");
-                        
-                        const images = responseList[0];
-                        
-                        resolve({ images });
-                        
-                        break;
-                    default:
-                        break;
-                }
-            });
-        });
+    static async generateImage(prompt, negativePrompt) {
+        //allow style_id, cfg & aspect_ration to change
+        const options = {
+            "model_version": 1,
+            "prompt": prompt,
+            "style_id": 21,
+            "aspect_ratio": "1:1",
+            "cfg": 9.5,
+            "negative_prompt": negativePrompt
+        }
+        const formData = new FormData();
+        for (const [k, v] of Object.entries(options))
+            formData.append(k, v);
+        formData.append("model_version", 1);
+        formData.append("priority", 1);
+        const genReq = await axios.post("https://inferenceengine.vyro.ai/sd", formData, { responseType: "arraybuffer" });
+        if (genReq.status != 200)
+            throw new Error("Generation failed");
+        //genReq.data.pipe(res);
+        return Buffer.from(genReq.data, "binary").toString("base64");
     }
 }
 

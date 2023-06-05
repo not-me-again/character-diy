@@ -122,6 +122,7 @@
         "REDPAJAMA": "This is a description of {{NAME}}'s personality:\n{{PERSONALITY}}\n",
         "GPTNEOXT": "This is a description of {{NAME}}'s personality:\n{{PERSONALITY}}\n"
     },
+    "IMAGE_PROMPT_FORMAT": "You also have the ability to generate images, when appropriate. In order to generate an image, append \"(#image=<prompt>)\" to the end of your message, replacing <prompt> with a brief description of style and details of the image you want to generate.",
     "IMAGE_GENERATION_NEGATIVE_PROMPT": "deformed, blurry, bad anatomy, boring, dull",
     "REGISTRATION_DISABLED": false,
     "DISCORD_SERVER_ID": "1092990713278513182",

@@ -1,4 +1,4 @@
-const { SYSTEM_PROMPT_FORMATS, AVAILABLE_MODELS } = require("../../../config.json");
+const { SYSTEM_PROMPT_FORMATS, AVAILABLE_MODELS, IMAGE_PROMPT_FORMAT } = require("../../../config.json");
 
 function shortenConversation(conversationPromptLines, maxLength) {
     while (conversationPromptLines.join("\n").length >= maxLength)
@@ -16,7 +16,7 @@ const CONTEXT_LENGTHS = {
 module.exports = function(charData, messageHistory, nextMessage, userName) {
     if ((typeof userName != "string") || (userName.length <= 0))
         userName = "User";
-    const { backend, startMessage, personalityPrompt, exampleConvo, blurb, pronouns, name } = charData;
+    const { backend, startMessage, personalityPrompt, exampleConvo, blurb, pronouns, name, isImageGenerating } = charData;
     let conversationPromptLines = [];
     for (const message of [ ...messageHistory ]) {
         conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text}`);
@@ -29,7 +29,8 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
         .replace(/{{BLURB}}/g, blurb)
         .replace(/{{NAME}}/g, name)
         .replace(/{{PRONOUNS_POSSESSIVE}}/g, pronouns.possessive)
-        .replace(/{{PERSONALITY}}/g, personalityPrompt);
+        .replace(/{{PERSONALITY}}/g, personalityPrompt)
+        + (isImageGenerating ? ` ${IMAGE_PROMPT_FORMAT}` : "");
     let prompt = `${conversationPromptLines.join("\n")}\n${name}: `;
     return { system, prompt };
 }

@@ -84,6 +84,36 @@ async function handleDataUriUpload(dataUri) {
     return { id: encId, format, fileName: "/image/" + encId + format }
 }
 
+async function handleDataUpload(imgData) {
+    fs.writeFileSync(__dirname + "/test.png", Buffer.from(imgData, "base64"));
+    const formData = new FormData();
+    formData.append("image", Buffer.from(imgData, "base64"));
+    formData.append("type", "file");
+    const headers = USE_PUBLIC_ENDPOINT ? undefined : {
+        Authorization: "Client-ID " + IMGUR_KEY
+    }
+    const req = await axios.post("https://api.imgur.com/3/" + (USE_PUBLIC_ENDPOINT ? "image?client_id=546c25a59c58ad7" : "upload"), formData, {
+        headers,
+        validateStatus: () => true
+    }).catch(err => err.response);
+    const { data } = req.data;
+    if (!data)
+        throw new Error("Upload failed / no data");
+
+    const id = data?.id;
+    if (!id) {
+        console.error(data);
+        throw new Error("Upload failed");
+    }
+
+    let format = data?.link?.match(/\.\w+$/)?.toString();
+    if (!format)
+        format = ".png";
+
+    const encId = enc_img_id(id);
+    return { id: encId, format, fileName: "/image/" + encId + format }
+}
+
 async function handleImageUpload(fn) {
     const formData = new FormData();
     formData.append("image", fs.createReadStream(fn));
@@ -144,4 +174,4 @@ async function handleImageURLUpload(url) {
     return { id: encId, format, fileName: "/image/" + encId + format }
 }
 
-module.exports = { handleImageRequest, handleImageUpload, handleImageURLUpload, handleDataUriUpload };
+module.exports = { handleImageRequest, handleImageUpload, handleImageURLUpload, handleDataUriUpload, handleDataUpload };

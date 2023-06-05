@@ -16,7 +16,7 @@ let activeChatInferences = {};
 
 const DEFAULTS = {
     MOOD_CAPTURE_REGEX: /(\(\s*[#]*mood\=)([a-zA-Z0-9\- ,]*)(\s*\))/gsi,
-    IMAGE_PROMPT_CAPTURE_REGEX: /[\(|\[|\{]\s*?#image\=\s*?\[?([\w \/\-,.!]+)\]?\s*?[\)\}\]]/si
+    IMAGE_PROMPT_CAPTURE_REGEX: /[\(|\[|\{]\s*?#image\=\s*?\[?([\w \/\-,\'\".!]+)\]?\s*?[\)\}\]]/si
 }
 
 function replaceDynamicIdentifiers(str, opts) {
@@ -125,7 +125,8 @@ module.exports = {
             exampleConvo: cachedCharacter["exampleConvo"],
             blurb: cachedCharacter["blurb"],
             pronouns: cachedCharacter["pronouns"],
-            name: cachedCharacter["displayName"]
+            name: cachedCharacter["displayName"],
+            isImageGenerating: cachedCharacter["isImageGenerating"]
         }
         
         const isImageGenerating = cachedCharacter["isImageGenerating"];
@@ -227,23 +228,23 @@ module.exports = {
             };
             delete proxyBotMessage.isAwaitingImageGeneration;
             delete proxyBotMessage.imageGenerationETA;
-            if (typeof botMessageObject.image == "object") {
+            /*if (typeof botMessageObject.image == "object") {
                 let img = {};
                 img.prompt = botMessageObject.image.prompt;
-                const images = botMessageObject.image.imageCandidates;
-                if (typeof images == "object") {
+                const image = botMessageObject.image;
+                if (typeof image == "object") {
                     img.imageCandidates = [];
-                    for (const imageData of images) {
+                    //for (const imageData of images) {
                         try {
-                            const { fileName } = await imageService.handleDataUriUpload(imageData);
+                            const { fileName } = await imageService.handleDataUpload(image);
                             img.imageCandidates.push(fileName);
                         } catch(err) {
                             log.error("Failed to upload image", err);
                         }
-                    }
+                    //}
                 }
                 proxyBotMessage.image = img;
-            }
+            }*/
             // append chat history
             chat.addMessages([
                 selfMessageObject,
@@ -259,26 +260,14 @@ module.exports = {
         if (isImageGenerating && (typeof messageData.imagePrompt == "string")) {
             botMessageObject.isAwaitingImageGeneration = true;
             writeJSON(res, { error: false, messageObject: botMessageObject });
-            const imageStream = handleImageGeneration(messageData);
-            imageStream.on("etaUpdate", estimationData => {
-                const { eta } = estimationData;
-                botMessageObject.imageGenerationETA = eta;
-                botMessageObject.isAwaitingImageGeneration = true;
-                writeJSON(res, { error: false, messageObject: botMessageObject });
-            });
-            imageStream.on("error", err => {
-                botMessageObject.isAwaitingImageGeneration = false;
-                log.error("Failed to generate image:", err);
-                botMessageObject.image = { error: err };
-                handleMessageEnd(messageData);
-            });
-            imageStream.on("imageDone", image => {
-                botMessageObject.image = image;
-                botMessageObject.selectedImageIndex = 0;
-                //log.info("Image ready:", image);
-                botMessageObject.isAwaitingImageGeneration = false;
-                handleMessageEnd(messageData);
-            });
+            const imageURL = await handleImageGeneration(messageData);
+            botMessageObject.image = {
+                imageCandidates: [ imageURL ],
+                prompt: messageData.imagePrompt
+            }
+            botMessageObject.selectedImageIndex = 0;
+            botMessageObject.isAwaitingImageGeneration = false;
+            handleMessageEnd(messageData);
         } else {
             // run finals
             handleMessageEnd(messageData);
