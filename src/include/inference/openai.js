@@ -1,37 +1,53 @@
 const axios = require("axios");
 
+const API_KEYS = process.env.OPEN_AI_KEYS.split(",");
+function getAPIKey(tries) {
+    if (typeof tries != "number")
+        tries = 0;
+    return `Bearer sk-${API_KEYS[tries++]}`;
+}
+
+async function getRequestStream({ abortController, model, prompt, system }) {
+    for (let tries = 0; tries < API_KEYS.length; tries++) {
+        const req = await axios.post(
+            model == "gpt-4"
+                ? "https://gpt4.gravityengine.cc/api/openai/v1/chat/completions"
+                : "https://api.openai.com/v1/chat/completions",
+            {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": system
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "stream": true,
+                "temperature": 0.7,
+                "max_tokens": 768,
+                "presence_penalty": 0,
+                "stream": true
+            }, {
+                validateStatus: () => true,
+                responseType: "stream",
+                abortController,
+                headers: {
+                    ...((model == "gpt-4") ? {} : { authorization: getAPIKey(tries) })
+                }
+            });
+        if (req.status == 429)
+            continue;
+        return req;
+    }
+}
+
 async function* queryGPT(model, prompt, system) {
     const abortController = new AbortController();
-    const req = await axios.post(
-    model == "gpt-4"
-        ? "https://gpt4.gravityengine.cc/api/openai/v1/chat/completions"
-        : "https://api.openai.com/v1/chat/completions",
-    {
-        "model": model,
-        "messages": [
-            {
-                "role": "system",
-                "content": system
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "stream": true,
-        "temperature": 0.7,
-        "max_tokens": 768,
-        "presence_penalty": 0,
-        "stream": true
-    }, {
-        validateStatus: () => true,
-        responseType: "stream",
-        abortController,
-        headers: {
-            ...((model == "gpt-4") ? {} : { authorization: process.env.OPEN_AI_KEY })
-        }
-    });
-    if (req.status == 429) {
+    const req = await getRequestStream({ abortController, model, prompt, system });
+    if ((typeof req != "object") || (req.status == 429)) {
         throw new Error("Endpoint is rate-limited, try again later");
     } else if (req.status == 404) {
         throw new Error(`Model ${model} is not currently available`);
