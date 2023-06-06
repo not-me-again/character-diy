@@ -19,7 +19,7 @@ module.exports = function(charData, messageHistory, nextMessage, userName, userD
     const { backend, startMessage, personalityPrompt, exampleConvo, blurb, pronouns, name, isImageGenerating } = charData;
     let conversationPromptLines = [];
     for (const message of [ ...messageHistory ].reverse()) {
-        conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text}`);
+        conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text.trim()}`);
     }
     let exampleConvoLines = [];
     if ((typeof exampleConvo == "string") && (exampleConvo.length >= 1)) {
