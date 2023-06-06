@@ -1,5 +1,7 @@
 const queryGPT = require("./openai");
 const { queryBLOOM, queryVicuna, queryPythia, queryRP, queryNeoXT } = require("./bloomchat");
+const queryVercel = require("./vercel");
+const queryPoe = require("./poe");
 
 const backends = {
     "gpt-4": queryGPT,
@@ -8,7 +10,9 @@ const backends = {
     "BLOOMChat-176B": queryBLOOM,
     "pythia-chat-7b": queryPythia,
     "RedPajama-3B": queryRP,
-    "GPTNeoXT-20B": queryNeoXT
+    "GPTNeoXT-20B": queryNeoXT,
+    //"claude-v1": queryVercel,
+    "claude-instant-v1": queryPoe
 }
 
 class Inferencer {

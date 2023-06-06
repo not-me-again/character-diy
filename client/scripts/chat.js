@@ -256,10 +256,14 @@ async function doChatSetup() {
                 }
             } else {
                 outdatedWarning.style.display = "none";
-                const availableModels = await getAvailableModels();
-                const usedModel = Object.values(availableModels)?.find(m => m.ID == backend);
-                if ((typeof usedModel != "object") || (!usedModel.ENABLED))
-                    disabledModelWarning.style.display = "";
+                try {
+                    const availableModels = await getAvailableModels();
+                    const usedModel = Object.values(availableModels)?.find(m => m.ID == backend);
+                    if ((typeof usedModel != "object") || (!usedModel.ENABLED))
+                        disabledModelWarning.style.display = "";
+                } catch(err) {
+                    console.log("failed to fetch models:", err);
+                }
             }
         } catch(err) {
             console.error("failed to get char info:", err);

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const { Logger } = require("../logging");
+const { Logger } = require("../../logging");
 
 const WebSocket = require('ws');
 const axios = require('axios');
@@ -573,16 +573,16 @@ class Client {
         return botMetadata;
     }
 
-    async *send_message(chatbot, message, chatId) {
+    async *send_message(chatbot, message, chatId, withBreak) {
         //if there is another active message, wait until it has finished sending
         while (Object.values(this.active_messages).includes(null)) {
             await new Promise(resolve => setTimeout(resolve, 10));
         }
 
-        if (typeof chatId !== "number") {
-            //chatId = this.bots[chatbot]["chatId"];
-            throw new Error("Missing param #3: chatId");
-        }
+        //if (typeof chatId !== "number") {
+            //let chatId = this.bots[chatbot]["chatId"];
+            //throw new Error("Missing param #3: chatId");
+        //}
 
         //null indicates that a message is still in progress
         this.active_messages["pending"] = null;
@@ -594,7 +594,7 @@ class Client {
             "query": message,
             "chatId": chatId,
             "source": null,
-            "withChatBreak": false
+            "withChatBreak": withBreak
         });
 
         delete this.active_messages["pending"];

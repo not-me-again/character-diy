@@ -158,8 +158,9 @@ module.exports = {
         let botMessageObject = {};
 
         const userName = await user.get("displayName");
+        const userDescription = await user.get("customChatContext");
 
-        const { system, prompt } = generateConversationPrompt(charData, await chat.get("messages"), userMessageText, userName);
+        const { system, prompt } = generateConversationPrompt(charData, await chat.get("messages"), userMessageText, userName, userDescription);
         try {
             for await (const textChunk of inferencer.query({ model: charData.backend, system, prompt })) {
                 let isFiltered = false;
@@ -179,6 +180,9 @@ module.exports = {
                 const isBreakingCharacter = messageData.isBreakingCharacter;
 
                 const sanitizedMessageText = /*sanitizeMessageText*/(rawMessageText);
+
+                if ((typeof sanitizedMessageText != "string") || (sanitizedMessageText.length <= 0))
+                    continue;
 
                 // update bot message data
                 botMessageObject = {

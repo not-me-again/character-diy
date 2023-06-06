@@ -1,4 +1,4 @@
-const { SYSTEM_PROMPT_FORMATS, AVAILABLE_MODELS, IMAGE_PROMPT_FORMAT } = require("../../../config.json");
+const { SYSTEM_PROMPT_FORMATS, AVAILABLE_MODELS, IMAGE_PROMPT_FORMAT, USER_CONTEXT_PROMPT_FORMAT } = require("../../../config.json");
 
 function shortenConversation(conversationPromptLines, maxLength) {
     while (conversationPromptLines.join("\n").length >= maxLength)
@@ -13,17 +13,17 @@ const CONTEXT_LENGTHS = {
     "claude": 10_000
 }
 
-module.exports = function(charData, messageHistory, nextMessage, userName) {
+module.exports = function(charData, messageHistory, nextMessage, userName, userDescription) {
     if ((typeof userName != "string") || (userName.length <= 0))
         userName = "User";
     const { backend, startMessage, personalityPrompt, exampleConvo, blurb, pronouns, name, isImageGenerating } = charData;
     let conversationPromptLines = [];
-    for (const message of [ ...messageHistory ]) {
+    for (const message of [ ...messageHistory ].reverse()) {
         conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text}`);
     }
     let exampleConvoLines = [];
     if ((typeof exampleConvo == "string") && (exampleConvo.length >= 1)) {
-        for (const line of exampleConvo.split("\n"))
+        for (const line of exampleConvo.split("\n").reverse())
             exampleConvoLines.push(line.replace(/\{\{user\}\}/g, userName).replace(/\{\{char\}\}/g, name));
     }
     const model = AVAILABLE_MODELS.find(m => m?.ID?.toLowerCase() == backend?.toLowerCase());
@@ -38,6 +38,13 @@ module.exports = function(charData, messageHistory, nextMessage, userName) {
         .replace(/{{PRONOUNS_POSSESSIVE}}/g, pronouns.possessive)
         .replace(/{{PERSONALITY}}/g, personalityPrompt)
         + (isImageGenerating ? ` ${IMAGE_PROMPT_FORMAT}` : "");
+    system += " " + USER_CONTEXT_PROMPT_FORMAT
+        .replace(/{{USER_NAME}}/g, userName)
+        .replace(/{{USER_DESCRIPTION}}/g, userName, userDescription);
     let prompt = `${(exampleConvoLines.length >= 1) ? `Previous conversation:\n${exampleConvoLines.join("\n")}\n` : ""}Current conversation:\n${conversationPromptLines.join("\n")}\n${name}: `;
+    if (backend == "gpt-3.5-turbo") {
+        prompt = `${system}\n\n${prompt}`;
+        system = "";
+    }
     return { system, prompt };
 }

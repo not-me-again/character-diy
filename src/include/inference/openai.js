@@ -28,7 +28,7 @@ async function getRequestStream({ abortController, model, prompt, system }) {
                 "stream": true,
                 "temperature": 0.7,
                 "max_tokens": 768,
-                "presence_penalty": 0,
+                "presence_penalty": 1.2,
                 "stream": true
             }, {
                 validateStatus: () => true,
