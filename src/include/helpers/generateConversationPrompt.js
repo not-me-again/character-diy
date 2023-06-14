@@ -13,13 +13,21 @@ const CONTEXT_LENGTHS = {
     "claude": 10_000
 }
 
+function getClaudePrefix(message) {
+    return (message.authorType == "ai")
+        ? "\n\nAssistant:"
+        : "\n\n";
+}
+
 module.exports = function(charData, messageHistory, nextMessage, userName, userDescription) {
     if ((typeof userName != "string") || (userName.length <= 0))
         userName = "User";
     const { backend, startMessage, personalityPrompt, exampleConvo, blurb, pronouns, name, isImageGenerating } = charData;
     let conversationPromptLines = [];
     for (const message of [ ...messageHistory ].reverse()) {
-        conversationPromptLines.push(`${(message.authorType == "ai") ? name : userName}: ${message.text.trim()}`);
+        let authorPrefix = backend.startsWith("claude-") ? getClaudePrefix(message) : "";
+        let authorName = (authorPrefix.length == 0) ? ((message.authorType == "ai") ? name : userName) : "";
+        conversationPromptLines.push(`${authorPrefix}${authorName} ${message.text.trim()}`);
     }
     let exampleConvoLines = [];
     if ((typeof exampleConvo == "string") && (exampleConvo.length >= 1)) {

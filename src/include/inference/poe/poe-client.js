@@ -608,7 +608,8 @@ class Client {
             humanMessage = messageData["data"]["messageCreateWithStatus"]["message"];
             humanMessageId = humanMessage["messageId"];
         } catch (error) {
-            throw new Error(`An unknown error occured. Raw response data: ${messageData}`);
+            console.error("Raw response data:", messageData?.data ?? error);
+            throw new Error(`An unknown error occured.`);
         }
 
         //indicate that the current message is waiting for a response
